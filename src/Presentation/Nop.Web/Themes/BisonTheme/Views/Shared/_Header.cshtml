@@ -1,0 +1,293 @@
+﻿<header id="header">
+    <div class="header-main5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-sm-3 col-xs-7">
+                    <div class="logo logo5">
+                        <h1 class="hidden">Sports</h1>
+                        <a href="index.html"><img src="images/home/home1/logo.png" alt="" /></a>
+                    </div>
+                </div>
+                <div class="col-md-9 col-sm-9 col-xs-5">
+                    @await Component.InvokeAsync("FlyoutShoppingCart")
+                    
+                    <div class="pull-right text-right wrap-account5">
+                        @await Component.InvokeAsync("HeaderLinks")
+                        <ul class="list-inline-block top-currency-language">
+                            <li>
+                                <div class="taxtype-box">
+                                    @await Component.InvokeAsync("TaxTypeSelector")
+                                </div>
+                            </li>
+                            <li>
+                                <div class="language-box">
+                                    @await Component.InvokeAsync("LanguageSelector")
+                                </div>
+                            </li>
+                            <li>
+                                <div class="currency-box">
+                                    @await Component.InvokeAsync("CurrencySelector")
+                                </div>
+                            </li>
+                            <li>
+                                <div class="currency-box">
+                                    @await Component.InvokeAsync("Widget", new { widgetZone = "header_selectors" })
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Header Main -->
+    <div class="header-nav5">
+        <div class="container">
+            <div class="nav-search5">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <nav class="main-nav main-nav1">
+                            <ul class="list-none">
+                                <li class="menu-item-has-children">
+                                    <a href="#">home</a>
+                                    <ul class="sub-menu">
+                                        <li class="menu-item-preview">
+                                            <a href="home-01.html">Home 01</a>
+                                            <div class="preview-image">
+                                                <a href="home-01.html"><img src="images/previews/home-01.jpg" alt=""></a>
+                                            </div>
+                                        </li>
+                                        <li class="menu-item-preview">
+                                            <a href="home-02.html">Home 02</a>
+                                            <div class="preview-image">
+                                                <a href="home-02.html"><img src="images/previews/home-02.jpg" alt=""></a>
+                                            </div>
+                                        </li>
+                                        <li class="menu-item-preview">
+                                            <a href="home-03.html">Home 03</a>
+                                            <div class="preview-image">
+                                                <a href="home-03.html"><img src="images/previews/home-03.jpg" alt=""></a>
+                                            </div>
+                                        </li>
+                                        <li class="menu-item-preview">
+                                            <a href="home-04.html">Home 04</a>
+                                            <div class="preview-image">
+                                                <a href="home-04.html"><img src="images/previews/home-04.jpg" alt=""></a>
+                                            </div>
+                                        </li>
+                                        <li class="menu-item-preview">
+                                            <a href="home-05.html">Home 05</a>
+                                            <div class="preview-image">
+                                                <a href="home-05.html"><img src="images/previews/home-05.jpg" alt=""></a>
+                                            </div>
+                                        </li>
+                                        <li class="menu-item-preview">
+                                            <a href="home-06.html">Home 06</a>
+                                            <div class="preview-image">
+                                                <a href="home-06.html"><img src="images/previews/home-06.jpg" alt=""></a>
+                                            </div>
+                                        </li>
+                                        <li class="menu-item-preview">
+                                            <a href="home-07.html">Home 07</a>
+                                            <div class="preview-image">
+                                                <a href="home-07.html"><img src="images/previews/home-07.jpg" alt=""></a>
+                                            </div>
+                                        </li>
+                                        <li class="menu-item-preview">
+                                            <a href="home-08.html">Home 08</a>
+                                            <div class="preview-image">
+                                                <a href="home-08.html"><img src="images/previews/home-08.jpg" alt=""></a>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="menu-item-has-children has-mega-menu">
+                                    <a href="#">Elements</a>
+                                    <div class="mega-menu">
+                                        <div class="row">
+                                            <div class="col-md-3 col-sm-4 col-xs-12">
+                                                <div class="mega-product">
+                                                    <h2 class="title18 title-box5">Most review</h2>
+                                                    <div class="list-mega-product">
+                                                        <div class="item-product table">
+                                                            <div class="product-thumb">
+                                                                <a href="detail.html" class="product-thumb-link zoom-thumb">
+                                                                    <img src="images/photos/sport_1.jpg" alt="">
+                                                                </a>
+                                                            </div>
+                                                            <div class="product-info">
+                                                                <h3 class="product-title title14"><a href="detail.html">Sport product Name</a></h3>
+                                                                <div class="product-price">
+                                                                    <del><span class="title14 silver">$798.00</span></del>
+                                                                    <ins><span class="title14 color">$399.00</span></ins>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item-product table">
+                                                            <div class="product-thumb">
+                                                                <a href="detail.html" class="product-thumb-link zoom-thumb">
+                                                                    <img src="images/photos/sport_2.jpg" alt="">
+                                                                </a>
+                                                            </div>
+                                                            <div class="product-info">
+                                                                <h3 class="product-title title14"><a href="detail.html">Sport product Name</a></h3>
+                                                                <div class="product-price">
+                                                                    <del><span class="title14 silver">$798.00</span></del>
+                                                                    <ins><span class="title14 color">$399.00</span></ins>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item-product table">
+                                                            <div class="product-thumb">
+                                                                <a href="detail.html" class="product-thumb-link zoom-thumb">
+                                                                    <img src="images/photos/sport_3.jpg" alt="">
+                                                                </a>
+                                                            </div>
+                                                            <div class="product-info">
+                                                                <h3 class="product-title title14"><a href="detail.html">Sport product Name</a></h3>
+                                                                <div class="product-price">
+                                                                    <del><span class="title14 silver">$798.00</span></del>
+                                                                    <ins><span class="title14 color">$399.00</span></ins>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 col-sm-4 col-xs-12">
+                                                <div class="mega-product">
+                                                    <h2 class="title18 title-box5">Special</h2>
+                                                    <div class="list-mega-product">
+                                                        <div class="item-product table">
+                                                            <div class="product-thumb">
+                                                                <a href="detail.html" class="product-thumb-link zoom-thumb">
+                                                                    <img src="images/photos/sport_4.jpg" alt="">
+                                                                </a>
+                                                            </div>
+                                                            <div class="product-info">
+                                                                <h3 class="product-title title14"><a href="detail.html">Sport product Name</a></h3>
+                                                                <div class="product-price">
+                                                                    <del><span class="title14 silver">$798.00</span></del>
+                                                                    <ins><span class="title14 color">$399.00</span></ins>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item-product table">
+                                                            <div class="product-thumb">
+                                                                <a href="detail.html" class="product-thumb-link zoom-thumb">
+                                                                    <img src="images/photos/sport_5.jpg" alt="">
+                                                                </a>
+                                                            </div>
+                                                            <div class="product-info">
+                                                                <h3 class="product-title title14"><a href="detail.html">Sport product Name</a></h3>
+                                                                <div class="product-price">
+                                                                    <del><span class="title14 silver">$798.00</span></del>
+                                                                    <ins><span class="title14 color">$399.00</span></ins>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item-product table">
+                                                            <div class="product-thumb">
+                                                                <a href="detail.html" class="product-thumb-link zoom-thumb">
+                                                                    <img src="images/photos/sport_6.jpg" alt="">
+                                                                </a>
+                                                            </div>
+                                                            <div class="product-info">
+                                                                <h3 class="product-title title14"><a href="detail.html">Sport product Name</a></h3>
+                                                                <div class="product-price">
+                                                                    <del><span class="title14 silver">$798.00</span></del>
+                                                                    <ins><span class="title14 color">$399.00</span></ins>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 hidden-sm hidden-xs">
+                                                <div class="policy-sale">
+                                                    <h2 class="title18 title-box5">Save on 50%</h2>
+                                                    <p class="desc">Curabitur risus justo, scelerisque tiquensec tetur adipisicing eius mod dolore suspen disse eleme ntum lemenm</p>
+                                                    <a href="#" class="shop-button">Read more</a>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 col-sm-4 col-xs-12">
+                                                <div class="banner-adv fade-out-in">
+                                                    <a href="#" class="adv-thumb-link"><img src="images/menu/menu-thumb.jpg" alt="" /></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="menu-item-has-children">
+                                    <a href="grid.html">shop</a>
+                                    <ul class="sub-menu">
+                                        <li><a href="grid.html">Shop Grid</a></li>
+                                        <li><a href="list.html">Shop List</a></li>
+                                        <li><a href="detail.html">Product Detail</a></li>
+                                        <li><a href="detail-with-sidebar.html">Detail with Sidebar</a></li>
+                                    </ul>
+                                </li>
+                                <li class="menu-item-has-children">
+                                    <a href="blog.html">blog</a>
+                                    <ul class="sub-menu">
+                                        <li><a href="blog.html">Blog Post</a></li>
+                                        <li><a href="single.html">Single Post</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="about.html">About</a></li>
+                                <li><a href="contact.html">Contact</a></li>
+                            </ul>
+                            <a href="#" class="toggle-mobile-menu"><span></span></a>
+                        </nav>
+                        <!-- End Main nav -->
+                        <div class="smart-search smart-search1">
+                            <span class="title14 search-label">search</span>
+                            <div class="select-search-category">
+                                <button class="btn-search-cat"><span>All</span></button>
+                                <ul class="list-cat-search list-none">
+                                    <li><a href="#">Bikes Ovicsport store</a></li>
+                                    <li><a href="#">Weightlifting Ovicsport </a></li>
+                                    <li><a href="#">Volleyball Store </a></li>
+                                    <li><a href="#">Football Ovicsport </a></li>
+                                    <li><a href="#">Golf Ovicsport store</a></li>
+                                    <li><a href="#">Rowing store</a></li>
+                                    <li><a href="#">Runner moving </a></li>
+                                </ul>
+                            </div>
+                            <form class="smart-search-form">
+                                <input onblur="if (this.value=='') this.value = this.defaultValue" onfocus="if (this.value==this.defaultValue) this.value = ''" value="Search for products" type="text">
+                                <input value="" type="submit">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- End Header -->
+<div class="header">
+    @await Component.InvokeAsync("Widget", new { widgetZone = "header_before" })
+    <div class="header-upper">
+        <div class="header-selectors-wrapper">
+            @*@await Component.InvokeAsync("TaxTypeSelector")
+            @await Component.InvokeAsync("CurrencySelector")
+            @await Component.InvokeAsync("LanguageSelector")*@
+            @await Component.InvokeAsync("Widget", new { widgetZone = "header_selectors" })
+        </div>
+        <div class="header-links-wrapper">
+            @*@await Component.InvokeAsync("HeaderLinks")*@
+            @await Component.InvokeAsync("FlyoutShoppingCart")
+        </div>
+    </div>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "header_middle" })
+    <div class="header-lower">
+        <div class="header-logo">
+            @await Component.InvokeAsync("Logo")
+        </div>
+        <div class="search-box store-search-box">
+            @await Component.InvokeAsync("SearchBox")
+        </div>
+    </div>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "header_after" })
+</div>
