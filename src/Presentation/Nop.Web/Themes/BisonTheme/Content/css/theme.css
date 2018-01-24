@@ -1513,7 +1513,7 @@ body .scroll-top {
   margin: 10px;
 }
 .smart-search {
-  max-width: 355px;
+  max-width: 250px;
   position: relative;
   width: 100%;
 }

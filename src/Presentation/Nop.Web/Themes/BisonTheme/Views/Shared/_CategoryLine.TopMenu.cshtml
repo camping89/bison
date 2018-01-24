@@ -1,5 +1,5 @@
 ﻿@model TopMenuModel.CategoryLineModel
-<li>
+<li class="menu-item-has-children">
     <a href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">@Model.Category.Name
     @if (Model.Category.NumberOfProducts.HasValue)
     {
@@ -22,7 +22,7 @@
         if (subCategories.Count > 0)
         {
             <div class="sublist-toggle"></div>
-            <ul class="sublist @levelClass">
+            <ul class="sub-menu @levelClass">
                 @foreach (var subCategory in subCategories)
                 {
                     var categoryLineModel = new TopMenuModel.CategoryLineModel
