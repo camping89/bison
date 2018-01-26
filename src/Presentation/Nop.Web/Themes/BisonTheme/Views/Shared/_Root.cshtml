@@ -5,25 +5,28 @@
 @await Html.PartialAsync("_Notifications")
 @await Html.PartialAsync("_JavaScriptDisabledWarning")
 @await Html.PartialAsync("_OldInternetExplorerWarning")
-<div class="master-wrapper-page">
+<div class="wrap">
     @await Component.InvokeAsync("AdminHeaderLinks")
     @await Html.PartialAsync("_Header")
     <script type="text/javascript" asp-location="Footer">
         AjaxCart.init(false, '.header-links .cart-qty', '.header-links .wishlist-qty', '#flyout-cart');
     </script>
-    
-    <div class="master-wrapper-content">
-        @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
+    <section id="content">
 
-        @if (IsSectionDefined("Breadcrumb"))
-        {
-            @RenderSection("Breadcrumb") 
-        }
-        <div class="master-column-wrapper">
-            @RenderBody()
+        <div class="container">
+
+            @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
+
+            @if (IsSectionDefined("Breadcrumb"))
+            {
+                @RenderSection("Breadcrumb")
+            }
+
         </div>
-        @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })
-    </div>
+    </section>
+    @RenderBody()
+
+    @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })
     @await Component.InvokeAsync("Footer")
 </div>
 @await Component.InvokeAsync("EuCookieLaw")
