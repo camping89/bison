@@ -684,7 +684,17 @@ namespace Nop.Services.Catalog
             var products = query.ToList();
             return products;
         }
-        
+
+        public virtual IList<Product> GetAllNewProductsDisplayedOnHomePage()
+        {
+            var query = from p in _productRepository.Table
+                orderby p.DisplayOrder, p.Id, p.UpdatedOnUtc
+                where p.Published &&
+                      !p.Deleted
+                select p;
+            var products = query.Take(27).ToList();
+            return products;
+        }
         /// <summary>
         /// Gets product
         /// </summary>

@@ -1,0 +1,38 @@
+﻿@model CatalogPagingFilteringModel
+
+<!--<div class="product-selectors">
+
+    @*sorting*@
+    @if (Model.AllowProductSorting)
+    {
+        <div class="product-sorting">
+            <span>@T("Catalog.OrderBy")</span>
+            @Html.DropDownList("products-orderby", Model.AvailableSortOptions, new { onchange = "setLocation(this.value);" })
+        </div>
+    }
+    @*page size*@
+    @if (Model.AllowCustomersToSelectPageSize)
+    {
+        <div class="product-page-size">
+            <span>@T("Catalog.PageSize")</span>
+            @Html.DropDownList("products-pagesize", Model.PageSizeOptions, new { onchange = "setLocation(this.value);" })
+            <span>@T("Catalog.PageSize.PerPage")</span>
+        </div>
+    }
+</div>-->
+
+<div class="view-type">
+    @*view mode*@
+    @if (Model.AllowProductViewModeChanging)
+    {
+        @*<span>@T("Catalog.ViewMode")</span>*@
+        @if (Model.AvailableViewModes.Count > 1)
+        {
+            var gridMode = Model.AvailableViewModes[0];
+            var listMode = Model.AvailableViewModes[1];
+            <a href="@gridMode.Value" class="grid-view @if(gridMode.Selected){<text>active</text>}" title="@gridMode.Text">@gridMode.Text</a>
+            <a href="@listMode.Value" class="list-view @if (listMode.Selected){<text>active</text>}" title="@listMode.Text">@listMode.Text</a>
+        }
+    }
+
+</div>

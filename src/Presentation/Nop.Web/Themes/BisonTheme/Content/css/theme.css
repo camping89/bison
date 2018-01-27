@@ -3193,6 +3193,7 @@ body .scroll-top span {
   margin-top: -40px;
   padding-bottom: 18px;
   position: relative;
+  color:#ffc000;
 }
 .item-adv1 .banner-info .title30::after {
   background: #e5e5e5 none repeat scroll 0 0;
@@ -3210,7 +3211,7 @@ body .scroll-top span {
 .title-box5,
 .title-widget {
   border-bottom: 5px solid #e5e5e5;
-  margin-bottom: 22px;
+  margin-bottom: 10px;
   padding-bottom: 8px;
 }
 .best-seller5 {
@@ -3814,11 +3815,11 @@ body .scroll-top span {
   margin: 0 7px 0 5px;
 }
 .list-cat-icon2 > ul > li {
-  margin-bottom: 10px;
+  margin-bottom: 0px;
 }
 .list-cat-icon2 > ul > li > a {
   position: relative;
-  padding: 8px 0 8px 60px;
+  padding: 8px 0 8px 20px;
   min-height: 40px;
   display: block;
 }
@@ -3833,8 +3834,8 @@ body .scroll-top span {
   left: 0;
   bottom: 0;
   margin: auto;
-  height: 40px;
-  width: 40px;
+  height: 10px;
+  width: 10px;
   z-index: 9;
   transition: all 0.5s ease-out 0s;
   -webkit-transition: all 0.5s ease-out 0s;
@@ -3842,6 +3843,9 @@ body .scroll-top span {
 .list-cat-icon2 > ul > li > a:hover > img {
   filter: brightness(500%);
   -webkit-filter: brightness(500%);
+}
+.sublist > li {
+    padding: 5px 0 5px 0px;
 }
 .widget {
   margin-bottom: 30px;
@@ -4002,6 +4006,25 @@ body .scroll-top span {
   padding-right: 20px;
   display: block;
 }
+.item-product-recent.table .product-thumb {
+    width: 70px;
+}
+
+.item-product-recent.table .product-info {
+    padding-left: 20px;
+}
+
+    .item-product-recent.table .product-info h3 {
+        font-size: 14px;
+        margin: 0;
+        line-height: 21px;
+    }
+
+        .item-product-recent.table .product-info h3 a {
+            position: relative;
+            padding-right: 20px;
+            display: block;
+        }
 .clear-compare {
   margin: 30px -18px 0;
 }

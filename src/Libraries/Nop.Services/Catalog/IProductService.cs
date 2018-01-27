@@ -31,7 +31,13 @@ namespace Nop.Services.Catalog
         /// </summary>
         /// <returns>Products</returns>
         IList<Product> GetAllProductsDisplayedOnHomePage();
-        
+
+        /// <summary>
+        /// Gets all new products displayed on the home page
+        /// </summary>
+        /// <returns>Products</returns>
+        IList<Product> GetAllNewProductsDisplayedOnHomePage();
+
         /// <summary>
         /// Gets product
         /// </summary>

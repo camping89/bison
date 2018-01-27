@@ -227,7 +227,7 @@ jQuery(document).ready(function(){
 	//Detail Gallery
 	detail_gallery();
 	//Wishlist Popup
-	popup_wishlist();
+	//popup_wishlist();
 	//Menu Responsive 
 	menu_responsive();
 	//Offset Menu

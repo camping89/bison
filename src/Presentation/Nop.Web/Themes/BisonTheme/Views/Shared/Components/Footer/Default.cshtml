@@ -89,8 +89,10 @@
                     <div class="col-md-3 col-sm-6 col-xs-12">
                         <div class="footer-box">
                             <h2 class="title14 black">@T("Footer.FollowUs")</h2>
-                            <div class="social">
-                                @await Component.InvokeAsync("SocialButtons")
+                            <div class="follow-us">
+                                <div class="social">
+                                    @await Component.InvokeAsync("SocialButtons")
+                                </div>
                             </div>
                             @await Component.InvokeAsync("NewsletterBox")
                         </div>

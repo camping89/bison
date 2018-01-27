@@ -1,12 +1,10 @@
 ﻿@model CategoryNavigationModel
 @if (Model.Categories.Count > 0)
 {
-    <div class="block block-category-navigation">
-        <div class="title">
-            <strong>@T("Categories")</strong>
-        </div>
-        <div class="listbox">
-            <ul class="list">
+    <div class="widget widget-category-icon">
+        <h2 class="title-widget title18">@T("Categories")</h2>
+        <div class="list-cat-icon2">
+            <ul class="list-none">
                 @foreach (var category in Model.Categories)
                 {
                     var categoryLineModel = new CategoryNavigationModel.CategoryLineModel

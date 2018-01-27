@@ -1,30 +1,29 @@
 ﻿@model HomePageNewsItemsModel
 @if (Model.NewsItems.Count > 0)
 {
-    <div class="news-list-homepage">
-        <div class="title">
-            <strong>@T("News")</strong>
+    <div class="recent-blog">
+        <div class="intro-box1 text-center">
+            <h2 class="title30 font-bold title-underline"><span>@T("News")</span></h2>
+            <a href="@Url.RouteUrl("NewsArchive")" class="shop-button">@T("News.ViewAll")</a>
         </div>
-        <div class="news-items">
-            @foreach (var item in Model.NewsItems)
-            {
-                <div class="news-item">
-                    <div class="news-head">
-                        <a class="news-title" href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">@item.Title</a>
-                        <span class="news-date">-@item.CreatedOn.ToString("D")</span>
+        <div class="recentpost-slider">
+            <div class="wrap-item navi-bottom" data-navigation="true" data-pagination="false" data-itemscustom="[[0,1],[600,2],[990,3]]">
+
+                @foreach (var item in Model.NewsItems)
+                {
+                    <div class="post-item">
+                        <div class="post-info">
+                            <h3 class="title14"><a href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">@item.Title</a></h3>
+                            <ul class="list-inline-block silver post-comment-date">
+                                <li><i class="fa fa-calendar-o" aria-hidden="true"></i><span>@item.CreatedOn.ToString("D")</span></li>
+                            </ul>
+                            <p class="desc"> @Html.Raw(item.Short) <a href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">[...]</a></p>
+                        </div>
                     </div>
-                    <div class="news-body">
-                        @Html.Raw(item.Short)
-                    </div>
-                    <div class="buttons">
-                        <a href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })" class="read-more">@T("News.MoreInfo")</a>
-                    </div>
-                </div>
-            }
-        </div>
-        <div class="view-all">
-            <a href="@Url.RouteUrl("NewsArchive")">@T("News.ViewAll")</a>
+
+                }
+            </div>
         </div>
     </div>
-
+    <!-- End Recent Blog -->
 }

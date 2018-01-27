@@ -1,0 +1,17 @@
+﻿@model ProductDetailsModel.ProductBreadcrumbModel
+@using Nop.Core.Domain.Common
+@inject CommonSettings commonSettings
+@{
+    var breadcrumbDelimiter = commonSettings.BreadcrumbDelimiter;
+}
+@if (Model.Enabled)
+{
+<div class="bread-crumb">
+    <a href="@Url.RouteUrl("HomePage")" class="silver" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
+    @foreach (var cat in Model.CategoryBreadcrumb)
+    {
+        <a href="@Url.RouteUrl("Category", new { SeName = cat.SeName })" class="silver" title="@cat.Name">@cat.Name</a>
+    }
+    <strong  class="color">@Model.ProductName</strong>
+</div>
+}

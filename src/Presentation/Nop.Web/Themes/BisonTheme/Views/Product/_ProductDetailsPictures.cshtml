@@ -1,0 +1,41 @@
+﻿@model ProductDetailsModel
+@{
+    Html.AddScriptParts(ResourceLocation.Footer, "~/lib/magnific-popup/jquery.magnific-popup.min.js");
+    Html.AddCssFileParts("~/lib/magnific-popup/magnific-popup.css");
+}
+
+<div class="detail-gallery">
+    @if (Model.DefaultPictureZoomEnabled)
+    {
+        <div class="mid item-product">
+            <img alt="@Model.DefaultPictureModel.AlternateText" src="@Model.DefaultPictureModel.ImageUrl" title="@Model.DefaultPictureModel.Title" itemprop="image" id="main-product-img-@Model.Id" />
+        </div>
+        <div class="gallery-control">
+
+            @if (Model.PictureModels.Count > 1)
+            {
+                var count = 1;
+                <div class="carousel">
+                    <ul class="list-none">
+
+                        @foreach (var picture in Model.PictureModels)
+                        {
+                            <li><a href="#" class="@(count==1 ? "active" : string.Empty)"><img src="@picture.ThumbImageUrl" alt="@picture.AlternateText" title="@picture.Title" data-defaultsize="@picture.ImageUrl" data-fullsize="@picture.FullSizeImageUrl" /></a></li>
+                            count++;
+                        }
+
+                    </ul>
+                </div>
+                <a href="#" class="prev"></a>
+                <a href="#" class="next"></a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="mid item-product">
+            <img alt="@Model.DefaultPictureModel.AlternateText" src="@Model.DefaultPictureModel.ImageUrl" title="@Model.DefaultPictureModel.Title" itemprop="image" id="main-product-img-@Model.Id" />
+        </div>
+    }
+
+</div>
