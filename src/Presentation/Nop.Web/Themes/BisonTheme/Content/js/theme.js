@@ -211,18 +211,22 @@ jQuery(document).ready(function(){
 		$(this).find('.qty-up').on('click',function(event){
 			event.preventDefault();
 			qtyval=qtyval+1;
-			$('.qty-val').text(qtyval);
+            $('.qty-val').text(qtyval);
+            $('.qty-input').val(qtyval);
 		});
 		$(this).find('.qty-down').on('click',function(event){
 			event.preventDefault();
 			qtyval=qtyval-1;
 			if(qtyval>1){
-				$('.qty-val').text(qtyval);
+                $('.qty-val').text(qtyval);
+                $('.qty-input').val(qtyval);
 			}else{
 				qtyval=1;
-				$('.qty-val').text(qtyval);
+                $('.qty-val').text(qtyval);
+                $('.qty-input').val(qtyval);
 			}
-		});
+        });
+        
 	});
 	//Detail Gallery
 	detail_gallery();

@@ -53,7 +53,7 @@
                 <a href="javascript:;" class="compare-link" onclick="AjaxCart.addproducttocomparelist('@addtocomparelink');return false;" ></a>
             }
         </div>
-        <a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })" class="quickview-link title14 fancybox fancybox.iframe">@T("ProductBoxItem.PreOrder.Quickview")</a>
+        @*<a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })" class="quickview-link title14 fancybox fancybox.iframe">@T("ProductBoxItem.PreOrder.Quickview")</a>*@
     </div>
     <div class="product-info">
         <h3 class="product-title title14"><a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">@Model.Name</a></h3>
@@ -65,9 +65,16 @@
             <ins><span class="title14 color">@Model.ProductPrice.Price</span></ins>
 
         </div>
-        @*<div class="product-rate">
-            <div class="product-rating" style="width:100%"></div>
-        </div>*@
+        @{
+            var ratingPercent = 0;
+            if (Model.ReviewOverviewModel.TotalReviews != 0)
+            {
+                ratingPercent = ((Model.ReviewOverviewModel.RatingSum * 100) / Model.ReviewOverviewModel.TotalReviews) / 5;
+            }
+         }
+        <div class="product-rate">
+            <div class="product-rating" style="width:@(ratingPercent)%"></div>
+        </div>
     </div>
 </div>
 
