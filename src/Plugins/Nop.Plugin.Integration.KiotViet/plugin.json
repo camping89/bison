@@ -1,11 +1,11 @@
 ﻿{
-  "Group": "Integration KiotViet",
+  "Group": "Integration",
   "FriendlyName": "Integration KiotViet",
   "SystemName": "Integration.KiotViet",
   "Version": "1.0",
   "SupportedVersions": [ "4.00" ],
-  "Author": "nopCommerce team",
+  "Author": "ngocmyshop",
   "DisplayOrder": 1,
   "FileName": "Nop.Plugin.Integration.KiotViet.dll",
-  "Description": "This plugin allows integration data from KiotViet"
+  "Description": "This plugin allows integrating data from KiotViet"
 }
