@@ -30,6 +30,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\Presentation\Nop.Web\Plugins\Payments.Square</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
