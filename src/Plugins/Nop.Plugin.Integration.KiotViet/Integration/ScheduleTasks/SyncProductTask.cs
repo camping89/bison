@@ -25,15 +25,21 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
         private readonly IProductService _productService;
         private readonly IUrlRecordService _urlRecordService;
         private readonly IPictureService _pictureService;
+        private readonly ISpecificationAttributeService _specificationAttributeService;
+        private readonly IProductAttributeService _productAttributeService;
         private ILogger _logger;
         public SyncProductTask(ILogger logger, ICategoryService categoryService, 
-            IProductService productService, IUrlRecordService urlRecordService, IPictureService pictureService)
+            IProductService productService, IUrlRecordService urlRecordService, 
+            IPictureService pictureService, 
+            ISpecificationAttributeService specificationAttributeService, IProductAttributeService productAttributeService)
         {
             _logger = logger;
             _categoryService = categoryService;
             _productService = productService;
             _urlRecordService = urlRecordService;
             _pictureService = pictureService;
+            _specificationAttributeService = specificationAttributeService;
+            _productAttributeService = productAttributeService;
             _apiConsumer = new KiotVietApiConsumer();
             _kiotVietService = new KiotVietService(categoryService,urlRecordService);
         }
@@ -66,7 +72,54 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                                     InsertProductPictureFromUrl(img, seName, nopProduct.Id);
                                 }
                             }
+
+                            if (kvProduct.attributes != null)
+                            {
+                               
+                                foreach (var attr in kvProduct.attributes)
+                                {
+                                    var productAttribute = _productAttributeService.GetAllProductAttributes();
+                                    var productAttr = productAttribute.FirstOrDefault(t => t.Name.Equals(attr.attributeName, StringComparison.InvariantCultureIgnoreCase));
+                                    if (productAttr == null)
+                                    {
+                                        productAttr = new ProductAttribute
+                                        {
+                                            Name = attr.attributeName,
+                                            Description = attr.attributeName
+                                        };
+                                        _productAttributeService.InsertProductAttribute(productAttr);
+                                    }
+
+                                    if (productAttr.Id > 0)
+                                    {
+                                        var productAttrMappingInsert = new ProductAttributeMapping
+                                        {
+                                            AttributeControlTypeId = AttributeControlType.RadioList.ToInt(),
+                                            ConditionAttributeXml = string.Empty,
+                                            ProductAttributeId = productAttr.Id,
+                                            ProductId = nopProduct.Id
+                                        };
+                                        _productAttributeService.InsertProductAttributeMapping(productAttrMappingInsert);
+                                        if (productAttrMappingInsert.Id > 0)
+                                        {
+                                            var pav = new ProductAttributeValue
+                                            {
+                                                ProductAttributeMappingId = productAttrMappingInsert.Id,
+                                                AttributeValueType = AttributeValueType.Simple,
+                                                Name = attr.attributeValue,
+                                                //PriceAdjustment = predefinedValue.PriceAdjustment,
+                                                //WeightAdjustment = predefinedValue.WeightAdjustment,
+                                                //Cost = predefinedValue.Cost,
+                                                //IsPreSelected = predefinedValue.IsPreSelected,
+                                                //DisplayOrder = predefinedValue.DisplayOrder
+                                            };
+                                            _productAttributeService.InsertProductAttributeValue(pav);
+                                        }
+                                    }
+                                }
+                            }
                         }
+                        
                     }
                 }
             }
@@ -98,14 +151,42 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                 });
             }
         }
+        private void InsertSpecificationAttributeProduct(int attributeTypeId, int specificationAttributeOptionId,
+            string customValue, bool allowFiltering, bool showOnProductPage,
+            int displayOrder, int productId)
+        {
+
+            //we allow filtering only for "Option" attribute type
+            if (attributeTypeId != (int)SpecificationAttributeType.Option)
+            {
+                allowFiltering = false;
+            }
+            //we don't allow CustomValue for "Option" attribute type
+            if (attributeTypeId == (int)SpecificationAttributeType.Option)
+            {
+                customValue = null;
+            }
+
+            var psa = new ProductSpecificationAttribute
+            {
+                AttributeTypeId = attributeTypeId,
+                SpecificationAttributeOptionId = specificationAttributeOptionId,
+                ProductId = productId,
+                CustomValue = customValue,
+                AllowFiltering = allowFiltering,
+                ShowOnProductPage = showOnProductPage,
+                DisplayOrder = displayOrder,
+            };
+            _specificationAttributeService.InsertProductSpecificationAttribute(psa);
+        }
         private Product ConvertKVProcToNopProduct(KVProduct kvProduct)
         {
             return new Product
             {
                 ProductTypeId = ProductType.SimpleProduct.ToInt(),
                 VisibleIndividually = true,
-                Name = kvProduct.name,
-                ShortDescription = kvProduct.fullName,
+                Name = kvProduct.fullName,
+                ShortDescription = kvProduct.description,
                 FullDescription = kvProduct.description,
                 ProductTemplateId = 1, //1: Simple product  | 2: Grouped product(with variants)
                 AllowCustomerReviews = true,
