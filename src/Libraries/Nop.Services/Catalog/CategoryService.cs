@@ -663,6 +663,16 @@ namespace Nop.Services.Catalog
             return query.ToList();
         }
 
+        public virtual Category GetCategoryByKVCateId(int kvCateid)
+        {
+           
+            var query = from p in _categoryRepository.Table
+                where p.KiotVietCateId == kvCateid
+                select p;
+            
+            return query.FirstOrDefault();
+        }
+
         #endregion
     }
 }
