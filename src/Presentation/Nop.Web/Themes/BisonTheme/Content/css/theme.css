@@ -712,14 +712,14 @@ div.table > div {
 }
 .main-nav > ul > li {
   display: inline-block;
-  font-size: 14px;
+  font-size: 12px;
   border-right: 1px solid #e5e5e5;
 }
 .main-nav > ul > li > a {
   color: #333;
   display: block;
   font-family: Oswald;
-  font-size: 14px;
+  font-size: 12px;
   height: 60px;
   line-height: 60px;
   padding: 0 20px;
