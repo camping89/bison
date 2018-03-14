@@ -685,14 +685,24 @@ namespace Nop.Services.Catalog
             return products;
         }
 
-        public virtual IList<Product> GetAllNewProductsDisplayedOnHomePage()
+        public virtual IList<Product> GetAllNewProductsDisplayedOnHomePage(int numberProcduct)
         {
             var query = from p in _productRepository.Table
                 orderby p.DisplayOrder, p.Id, p.UpdatedOnUtc
                 where p.Published &&
                       !p.Deleted
                 select p;
-            var products = query.Take(27).ToList();
+            var products = query.Take(numberProcduct).ToList();
+            return products;
+        }
+
+        public virtual IList<Product> GetAllCollectionOfYearProductsDisplayedOnHomePage(int numberProcduct, int year)
+        {
+            var query = from p in _productRepository.Table
+                orderby p.DisplayOrder, p.Id, p.UpdatedOnUtc
+                where p.Published && !p.Deleted && p.UpdatedOnUtc.Year == year
+                select p;
+            var products = query.Take(numberProcduct).ToList();
             return products;
         }
         /// <summary>

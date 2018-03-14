@@ -162,7 +162,24 @@ namespace Nop.Web.Areas.Admin.Extensions
         }
 
         #endregion
+        #region Category attributes
 
+        public static CategoryAttributeModel ToModel(this CategoryAttribute entity)
+        {
+            return entity.MapTo<CategoryAttribute, CategoryAttributeModel>();
+        }
+
+        public static CategoryAttribute ToEntity(this CategoryAttributeModel model)
+        {
+            return model.MapTo<CategoryAttributeModel, CategoryAttribute>();
+        }
+
+        public static CategoryAttribute ToEntity(this CategoryAttributeModel model, CategoryAttribute destination)
+        {
+            return model.MapTo(destination);
+        }
+
+        #endregion
         #region Specification attributes
 
         //attributes

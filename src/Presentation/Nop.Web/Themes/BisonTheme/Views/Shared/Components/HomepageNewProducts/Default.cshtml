@@ -1,79 +1,74 @@
 ﻿@using Nop.Core.Domain.Orders
 @model IList<ProductOverviewModel>
-<div class="col-arrival5">
-    <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="new-arrival5">
-                <h2 class="title18 title-box5">@T("HomePage.NewProducts")</h2>
-                <div class="newcol-slider5">
-                    <div class="wrap-item group-navi" data-navigation="true" data-pagination="false" data-itemscustom="[[0,1],[560,3]]">
-                        @{
-                            var numberItem = (Model.Count % 3 == 0) ? Model.Count / 3 : (Model.Count / 3) + 1;
-                            for (int i = 0; i < numberItem; i++)
+<div class="col-md-8 col-sm-8 col-xs-12">
+    <div class="new-arrival5">
+        <h2 class="title18 title-box5">@T("HomePage.NewProducts")</h2>
+        <div class="newcol-slider5">
+            <div class="wrap-item group-navi" data-navigation="true" data-pagination="false" data-itemscustom="[[0,1],[560,2]]">
+                @{
+                    var numberItem = (Model.Count % 3 == 0) ? Model.Count / 3 : (Model.Count / 3) + 1;
+                    for (int i = 0; i < numberItem; i++)
+                    {
+                        <div class="item">
+                            @foreach (var item in Model.Skip(i * 3).Take(3))
                             {
-                                <div class="item">
-                                    @foreach (var item in Model.Skip(i*3).Take(3))
-                                    {
-                                        <div class="item-product table border">
-                                            <div class="product-thumb">
-                                                <a href="@Url.RouteUrl("Product", new { SeName = item.SeName })" class="product-thumb-link zoom-thumb">
-                                                    <img alt="@item.DefaultPictureModel.AlternateText" src="@item.DefaultPictureModel.ImageUrl" title="@item.DefaultPictureModel.Title" />
-                                                </a>
-                                            </div>
-                                            <div class="product-info">
-                                                <h3 class="product-title title14"><a href="@Url.RouteUrl("Product", new { SeName = item.SeName })">@item.Name</a></h3>
-                                                <div class="product-price">
-                                                    
-                                                    
-                                                    
-                                                    @if (!string.IsNullOrEmpty(item.ProductPrice.OldPrice))
-                                                    {
-                                                        <del><span class="title14 silver">@item.ProductPrice.OldPrice</span></del>
-                                                    }
-                                                    <span class="price actual-price">@item.ProductPrice.Price</span>
-                                                    <ins><span class="title14 color">@item.ProductPrice.Price</span></ins>
-                                                </div>
-                                                @{
-                                                    var shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart;
-                                                    var addtocartlink = "";
-                                                    var quantity = 1;
-                                                    if (item.ProductPrice.ForceRedirectionAfterAddingToCart)
-                                                    {
-                                                        addtocartlink = Url.RouteUrl("AddProductToCart-Catalog", new { productId = item.Id, shoppingCartTypeId = shoppingCartTypeId, quantity = quantity, forceredirection = item.ProductPrice.ForceRedirectionAfterAddingToCart });
-                                                    }
-                                                    else
-                                                    {
-                                                        addtocartlink = Url.RouteUrl("AddProductToCart-Catalog", new { productId = item.Id, shoppingCartTypeId = shoppingCartTypeId, quantity = quantity });
-                                                    }
-                                               }
-                                                <div class="product-extra-link2">
-                                                    @if (!item.ProductPrice.DisableBuyButton)
-                                                    {
-                                                        var addToCartText = T("ShoppingCart.AddToCart").Text;
-                                                        if (item.ProductPrice.IsRental)
-                                                        {
-                                                            addToCartText = T("ShoppingCart.Rent").Text;
-                                                        }
-                                                        if (item.ProductPrice.AvailableForPreOrder)
-                                                        {
-                                                            addToCartText = T("ShoppingCart.PreOrder").Text;
-                                                        }
-                                                        <a href="@addtocartlink" class="addcart-link">@(addToCartText)</a>
-                                                        
-                                                    }
-                                                    
-                                                </div>
-                                            </div>
+                                <div class="item-product table border">
+                                    <div class="product-thumb">
+                                        <a href="@Url.RouteUrl("Product", new { SeName = item.SeName })" class="product-thumb-link zoom-thumb">
+                                            <img alt="@item.DefaultPictureModel.AlternateText" src="@item.DefaultPictureModel.ImageUrl" title="@item.DefaultPictureModel.Title" />
+                                        </a>
+                                    </div>
+                                    <div class="product-info">
+                                        <h3 class="product-title title14"><a href="@Url.RouteUrl("Product", new { SeName = item.SeName })">@item.Name</a></h3>
+                                        <div class="product-price">
+
+
+
+                                            @if (!string.IsNullOrEmpty(item.ProductPrice.OldPrice))
+                                            {
+                                                <del><span class="title14 silver">@item.ProductPrice.OldPrice</span></del>
+                                            }
+                                            <span class="price actual-price">@item.ProductPrice.Price</span>
+                                            <ins><span class="title14 color">@item.ProductPrice.Price</span></ins>
                                         </div>
-                                    }
+                                        @{
+                                            var shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart;
+                                            var addtocartlink = "";
+                                            var quantity = 1;
+                                            if (item.ProductPrice.ForceRedirectionAfterAddingToCart)
+                                            {
+                                                addtocartlink = Url.RouteUrl("AddProductToCart-Catalog", new { productId = item.Id, shoppingCartTypeId = shoppingCartTypeId, quantity = quantity, forceredirection = item.ProductPrice.ForceRedirectionAfterAddingToCart });
+                                            }
+                                            else
+                                            {
+                                                addtocartlink = Url.RouteUrl("AddProductToCart-Catalog", new { productId = item.Id, shoppingCartTypeId = shoppingCartTypeId, quantity = quantity });
+                                            }
+                                        }
+                                        <div class="product-extra-link2">
+                                            @if (!item.ProductPrice.DisableBuyButton)
+                                            {
+                                                var addToCartText = T("ShoppingCart.AddToCart").Text;
+                                                if (item.ProductPrice.IsRental)
+                                                {
+                                                    addToCartText = T("ShoppingCart.Rent").Text;
+                                                }
+                                                if (item.ProductPrice.AvailableForPreOrder)
+                                                {
+                                                    addToCartText = T("ShoppingCart.PreOrder").Text;
+                                                }
+                                                <a href="@addtocartlink" class="addcart-link">@(addToCartText)</a>
+
+                                            }
+
+                                        </div>
+                                    </div>
                                 </div>
                             }
-                        }
-                        <!-- End Item -->
-                    </div>
-                </div>
+                        </div>
+                    }
+                }
+                <!-- End Item -->
             </div>
         </div>
     </div>
 </div>
-<!-- End Col Arrival -->

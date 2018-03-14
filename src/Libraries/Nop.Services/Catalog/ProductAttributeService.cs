@@ -51,6 +51,13 @@ namespace Nop.Services.Catalog
         /// <remarks>
         /// {0} : product attribute mapping ID
         /// </remarks>
+        private const string PRODUCTCATEGORYATTRIBUTEMAPPINGS_BY_ID_KEY = "Nop.productcategoryattributemapping.id-{0}";
+        /// <summary>
+        /// Key for caching
+        /// </summary>
+        /// <remarks>
+        /// {0} : product attribute mapping ID
+        /// </remarks>
         private const string PRODUCTATTRIBUTEVALUES_ALL_KEY = "Nop.productattributevalue.all-{0}";
         /// <summary>
         /// Key for caching
@@ -302,7 +309,23 @@ namespace Nop.Services.Catalog
             var key = string.Format(PRODUCTATTRIBUTEMAPPINGS_BY_ID_KEY, productAttributeMappingId);
             return _cacheManager.Get(key, () => _productAttributeMappingRepository.GetById(productAttributeMappingId));
         }
+        
+        public virtual ProductAttributeValue GetProductAttributeValueByCateAttributeMappingId(int categoryAttributeMappingId)
+        {
+            if (categoryAttributeMappingId == 0)
+                return null;
 
+            var key = string.Format(PRODUCTCATEGORYATTRIBUTEMAPPINGS_BY_ID_KEY, categoryAttributeMappingId);
+            return _cacheManager.Get(key, () =>
+            {
+                var query = from pam in _productAttributeValueRepository.Table
+                    orderby pam.DisplayOrder, pam.Id
+                    where pam.CategoryAttributeMappingId == categoryAttributeMappingId
+                    select pam;
+                var productAttributeMappings = query.FirstOrDefault();
+                return productAttributeMappings;
+            });
+        }
         /// <summary>
         /// Inserts a product attribute mapping
         /// </summary>

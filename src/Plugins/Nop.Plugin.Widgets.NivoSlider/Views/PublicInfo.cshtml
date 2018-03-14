@@ -71,3 +71,64 @@
         $('#nivo-slider').nivoSlider();
     });
 </script>
+
+@*<div class="banner-slider banner-slider5 bg-slider">
+    <div class="wrap-item" data-itemscustom="[[0,1]]" data-transition="fade">
+        @{
+        var dataSlide1 = new ViewDataDictionary(ViewData)
+        {
+            {"pictureUrl", Model.Picture1Url},
+            { "text", Model.Text1},
+            { "link", Model.Link1}
+        };
+
+        @await Html.PartialAsync("~/Plugins/Widgets.NivoSlider/Views/_PublicInfo.SliderLine.cshtml", dataSlide1)
+        }
+
+        @{
+        var dataSlide2 = new ViewDataDictionary(ViewData)
+        {
+            {"pictureUrl", Model.Picture2Url},
+            { "text", Model.Text2},
+            { "link", Model.Link2}
+        };
+
+        @await Html.PartialAsync("~/Plugins/Widgets.NivoSlider/Views/_PublicInfo.SliderLine.cshtml", dataSlide2)
+        }
+
+        @{
+        var dataSlide3 = new ViewDataDictionary(ViewData)
+        {
+            {"pictureUrl", Model.Picture3Url},
+            { "text", Model.Text3},
+            { "link", Model.Link3},
+            { "dataTransition", "slideInLeft"}
+        };
+
+        @await Html.PartialAsync("~/Plugins/Widgets.NivoSlider/Views/_PublicInfo.SliderLine.cshtml", dataSlide3)
+        }
+
+        @{
+        var dataSlide4 = new ViewDataDictionary(ViewData)
+        {
+            {"pictureUrl", Model.Picture4Url},
+            { "text", Model.Text4},
+            { "link", Model.Link4}
+        };
+
+        @await Html.PartialAsync("~/Plugins/Widgets.NivoSlider/Views/_PublicInfo.SliderLine.cshtml", dataSlide4)
+        }
+
+        @{
+        var dataSlide5 = new ViewDataDictionary(ViewData)
+        {
+            {"pictureUrl", Model.Picture5Url},
+            { "text", Model.Text5},
+            { "link", Model.Link5}
+        };
+
+        @await Html.PartialAsync("~/Plugins/Widgets.NivoSlider/Views/_PublicInfo.SliderLine.cshtml", dataSlide5)
+        }
+
+    </div>
+</div>*@

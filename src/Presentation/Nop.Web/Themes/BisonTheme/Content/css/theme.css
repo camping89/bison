@@ -1025,7 +1025,8 @@ body .scroll-top {
   -webkit-transition: all 0.5s ease-out 0s;
 }
 .product-title {
-  margin: 0 0 9px;
+    margin: 0 0 9px;
+    min-height: 40px;
 }
 .product-price ins {
   font-size: 14px;
@@ -1060,6 +1061,7 @@ body .scroll-top {
   width: 100%;
   transition: all 0.5s ease-out 0s;
   -webkit-transition: all 0.5s ease-out 0s;
+    max-height: 280px;
 }
 .product-thumb-link::before {
   background: rgba(255, 255, 255, 0.5);

@@ -75,6 +75,8 @@ namespace Nop.Services.Catalog
         /// <returns>Product attribute mapping</returns>
         ProductAttributeMapping GetProductAttributeMappingById(int productAttributeMappingId);
 
+        ProductAttributeValue GetProductAttributeValueByCateAttributeMappingId(int categoryAttributeMappingId);
+
         /// <summary>
         /// Inserts a product attribute mapping
         /// </summary>

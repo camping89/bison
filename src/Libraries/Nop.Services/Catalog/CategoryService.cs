@@ -349,7 +349,7 @@ namespace Nop.Services.Catalog
                         c.ShowOnHomePage
                         select c;
 
-            var categories = query.ToList();
+            var categories = query.Take(3).ToList();
             if (!showHidden)
             {
                 categories = categories

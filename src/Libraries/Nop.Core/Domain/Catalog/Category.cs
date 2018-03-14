@@ -14,7 +14,7 @@ namespace Nop.Core.Domain.Catalog
     public partial class Category : BaseEntity, ILocalizedEntity, ISlugSupported, IAclSupported, IStoreMappingSupported
     {
         private ICollection<Discount> _appliedDiscounts;
-
+        private ICollection<CategoryAttributeMapping> _categoryAttributeMappings;
         /// <summary>
         /// Gets or sets the name
         /// </summary>
@@ -129,5 +129,15 @@ namespace Nop.Core.Domain.Catalog
             get { return _appliedDiscounts ?? (_appliedDiscounts = new List<Discount>()); }
             protected set { _appliedDiscounts = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the category attribute mappings
+        /// </summary>
+        public virtual ICollection<CategoryAttributeMapping> CategoryAttributeMappings
+        {
+            get { return _categoryAttributeMappings ?? (_categoryAttributeMappings = new List<CategoryAttributeMapping>()); }
+            protected set { _categoryAttributeMappings = value; }
+        }
+
     }
 }

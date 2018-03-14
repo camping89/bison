@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using Nop.Core.Extensions;
 using Nop.Plugin.Integration.KiotViet.Integration.KiotViet.Entities;
@@ -66,6 +67,44 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet
                 _token = GetToken();
             }
             return apiResponse.Resource.data;
+        }
+
+        public List<KVProduct> GetAllProducts()
+        {
+            var currentItemId = 0;
+            var pageSize = 100;
+            var allowContinue = true;
+            if (string.IsNullOrEmpty(_token))
+            {
+                return null;
+            }
+            List<KVProduct> kvProducts = new List<KVProduct>();
+            while (allowContinue)
+            {
+                var request = new RestRequest(string.Format(KiotVietConstant.UrlApiGetProduct, currentItemId,pageSize), Method.GET);
+                request.AddHeader("Retailer", "bisonkiotvietcom");
+                request.AddHeader("Authorization", $"Bearer {_token}");
+                var response = Client.Execute(request);
+                var apiResponse = HandleResponse<GetProductResponse>(response);
+                if (apiResponse.Status == HttpStatusCode.Unauthorized)
+                {
+                    _token = GetToken();
+                }
+                else
+                {
+                    var dataResult = apiResponse.Resource.data;
+                    kvProducts.AddRange(dataResult);
+                    if (dataResult.Count < pageSize)
+                    {
+                        allowContinue = false;
+                    }
+                    else
+                    {
+                        currentItemId = (kvProducts.Count - 1);
+                    }
+                }
+            }
+            return kvProducts;
         }
 
         public List<KVProduct> GetProductsByCategoryId(int categoryId)

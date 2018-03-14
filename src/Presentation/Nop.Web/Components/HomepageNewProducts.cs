@@ -18,21 +18,22 @@ namespace Nop.Web.Components
         private readonly IProductModelFactory _productModelFactory;
         private readonly IProductService _productService;
         private readonly IStoreMappingService _storeMappingService;
-
+        private readonly CatalogSettings _catalogSettings; 
         public HomepageNewProductsViewComponent(IAclService aclService,
             IProductModelFactory productModelFactory,
             IProductService productService,
-            IStoreMappingService storeMappingService)
+            IStoreMappingService storeMappingService, CatalogSettings catalogSettings)
         {
             this._aclService = aclService;
             this._productModelFactory = productModelFactory;
             this._productService = productService;
             this._storeMappingService = storeMappingService;
+            _catalogSettings = catalogSettings;
         }
 
         public IViewComponentResult Invoke(int? productThumbPictureSize)
         {
-            var products = _productService.GetAllNewProductsDisplayedOnHomePage();
+            var products = _productService.GetAllNewProductsDisplayedOnHomePage(_catalogSettings.NewProductsNumber);
             //ACL and store mapping
             products = products.Where(p => _aclService.Authorize(p) && _storeMappingService.Authorize(p)).ToList();
             //availability dates

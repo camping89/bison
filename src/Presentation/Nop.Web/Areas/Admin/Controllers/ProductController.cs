@@ -99,7 +99,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly ISettingService _settingService;
         private readonly TaxSettings _taxSettings;
         private readonly VendorSettings _vendorSettings;
-
+        private readonly ICategoryAttributeService _categoryAttributeService;
         #endregion
 
         #region Ctor
@@ -147,7 +147,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             IDownloadService downloadService,
             ISettingService settingService,
             TaxSettings taxSettings,
-            VendorSettings vendorSettings)
+            VendorSettings vendorSettings, ICategoryAttributeService categoryAttributeService)
         {
             this._productService = productService;
             this._productTemplateService = productTemplateService;
@@ -193,6 +193,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             this._settingService = settingService;
             this._taxSettings = taxSettings;
             this._vendorSettings = vendorSettings;
+            _categoryAttributeService = categoryAttributeService;
         }
 
         #endregion
@@ -1353,7 +1354,10 @@ namespace Nop.Web.Areas.Admin.Controllers
             PrepareCategoryMappingModel(model, null, false);
             PrepareManufacturerMappingModel(model, null, false);
             PrepareDiscountMappingModel(model, null, false);
-
+            foreach (var cateAttr in _categoryAttributeService.GetAllCategoryAttributes().ToList())
+            {
+                model.CategoryAttributeModels.Add(cateAttr.ToModel());
+            }
             return View(model);
         }
 
@@ -1474,7 +1478,16 @@ namespace Nop.Web.Areas.Admin.Controllers
             PrepareCategoryMappingModel(model, product, false);
             PrepareManufacturerMappingModel(model, product, false);
             PrepareDiscountMappingModel(model, product, false);
-
+            foreach (var cateAttr in _categoryAttributeService.GetAllCategoryAttributes().ToList())
+            {
+                var cateAttrModel = cateAttr.ToModel();
+                var productCateAttrValue = _productAttributeService.GetProductAttributeValueByCateAttributeMappingId(cateAttr.Id);
+                if (productCateAttrValue != null)
+                {
+                    cateAttrModel.ValueForProduct = productCateAttrValue.Name;
+                }
+                model.CategoryAttributeModels.Add(cateAttrModel);
+            }
             return View(model);
         }
 

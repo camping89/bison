@@ -12,6 +12,6 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet
        public const string UrlApiRootPublic = "https://public.kiotapi.com/";
        public const string UrlApiGetToken = "connect/token";
        public const string UrlApiGetCategory = "categories?currentItem=&pageSize=100&hierachicalData=true&orderby=categoryName";
-       public const string UrlApiGetProduct = "Products?lastModifiedFrom=&orderBy=modifiedDate&orderDirection=desc&includeRemoveIds=true&includeInventory=true&includePricebook=false&currentItem=0&pageSize=100&categoryId={0}";
+       public const string UrlApiGetProduct = "Products?lastModifiedFrom=&orderBy=modifiedDate&orderDirection=desc&includeRemoveIds=true&includeInventory=true&includePricebook=false&currentItem={0}&pageSize={1}";
    }
 }

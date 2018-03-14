@@ -11,12 +11,36 @@
         if (!string.IsNullOrEmpty(link))
         {
             <a href="@link">
-                <img src="@pictureUrl" data-thumb="@pictureUrl" data-transition="@dataTransition" alt="" title="@text" />
-            </a>
+                    <img src="@pictureUrl" data-thumb="@pictureUrl" data-transition="@dataTransition" alt="" title="@text" />
+                </a>
+            @*<div class="item-slider">
+                <div class="banner-thumb">
+                    <a href="@link" tabindex="0"><img src="@pictureUrl" alt="@text"></a>
+                </div>
+                <div class="banner-info">
+                    <div class="container">
+                        <div class="banner-info5 font-bold white animated" data-animated="zoomIn">
+                            <h3 class="title60">@text</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
         }
         else
         {
             <img src="@pictureUrl" data-thumb="@pictureUrl" data-transition="@dataTransition" alt="" title="@text" />
+            @*<div class="item-slider">
+                <div class="banner-thumb">
+                    <a href="#" tabindex="0"><img src="@pictureUrl" alt="@text"></a>
+                </div>
+                <div class="banner-info">
+                    <div class="container">
+                        <div class="banner-info5 font-bold white animated" data-animated="zoomIn">
+                            <h3 class="title60">@text</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
         }
     }
 }

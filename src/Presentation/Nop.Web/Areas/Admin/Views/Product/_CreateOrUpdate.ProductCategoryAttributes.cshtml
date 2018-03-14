@@ -1,0 +1,29 @@
+﻿@model ProductModel
+
+<div class="panel-group">
+    <p>
+        @T("Admin.Catalog.Products.ProductCategoryAttributes.Hint")
+    </p>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            @foreach(var cateAttr in Model.CategoryAttributeModels)
+            {
+
+            <div class="form-group">
+
+                <div class="col-md-3">
+                    <div class="label-wrapper">
+                        <label class="control-label">@cateAttr.Name</label>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                   <input class="form-control text-box" data-cate-attr-id="@cateAttr.Id" type="text" name="ValueForProduct@(cateAttr.Id)" id="ValueForProduct@(cateAttr.Id)" />
+                </div>
+                <div class="col-md-offset-3 col-md-9">@Html.Raw(cateAttr.Description)</div>
+            </div>
+            }
+            <div><button class="btn btn-primary" id="btnSaveProductCateAttribute">Save attributes</button></div>
+        </div>
+    </div>
+</div>

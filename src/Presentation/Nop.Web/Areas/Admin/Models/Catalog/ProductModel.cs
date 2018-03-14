@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using FluentValidation.Attributes;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Nop.Core.Domain.Catalog;
 using Nop.Web.Areas.Admin.Models.Settings;
 using Nop.Web.Areas.Admin.Validators.Catalog;
 using Nop.Web.Framework.Localization;
@@ -50,6 +51,7 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
             SelectedDiscountIds = new List<int>();
             AvailableDiscounts = new List<SelectListItem>();
+            CategoryAttributeModels = new List<CategoryAttributeModel>();
         }
 
         [NopResourceDisplayName("Admin.Catalog.Products.Fields.ID")]
@@ -422,6 +424,7 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         //stock quantity history
         public StockQuantityHistoryModel StockQuantityHistory { get; set; }
 
+        public List<CategoryAttributeModel> CategoryAttributeModels { get; set; }
         #region Nested classes
 
         public partial class AddRequiredProductModel : BaseNopModel

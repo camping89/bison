@@ -1,0 +1,21 @@
+﻿@using Nop.Core.Domain.Orders
+@model IList<ProductOverviewModel>
+<div class="col-md-4 col-sm-4 col-xs-12">
+    <div class="new-col5">
+        <h2 class="title18 title-box5">@T("HomePage.CollectionOfYear")</h2>
+        <div class="newcol-slider5">
+            <div class="wrap-item group-navi" data-navigation="true" data-pagination="false" data-itemscustom="[[0,1]]">
+                @foreach (var item in Model)
+                {
+                    <div class="banner-adv zoom-image item-col5">
+                        <a href="@Url.RouteUrl("Product", new {SeName = item.SeName})" class="adv-thumb-link"><img src="@item.DefaultPictureModel.ImageUrl" alt="@item.DefaultPictureModel.AlternateText" title="@item.DefaultPictureModel.AlternateText" /></a>
+                        <div class="col-info5 text-center">
+                            <h2 class="title14"><span>@item.Name</span></h2>
+                            <p class="desc">@item.ShortDescription</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
