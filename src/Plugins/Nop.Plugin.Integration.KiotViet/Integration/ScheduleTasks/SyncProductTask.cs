@@ -50,12 +50,13 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
             //Sync Catalog 
             //_kiotVietService.InsertKiotVietCatalog(_apiConsumer.GetKVCategories());
             
-            var uncategory = _categoryService.GetAllCategories("Uncategory",showHidden: true).FirstOrDefault();
+            var uncategory = _categoryService.GetAllCategories("Unmapped Products",showHidden: true).FirstOrDefault();
             if (uncategory != null)
             {
                 var lstProducts = _apiConsumer.GetAllProducts();
                 foreach (var kvProduct in lstProducts)
                 {
+                    //rst312-l-bla
                     var procBySku = _productService.GetProductBySku(kvProduct.code);
                     if (procBySku == null)
                     {

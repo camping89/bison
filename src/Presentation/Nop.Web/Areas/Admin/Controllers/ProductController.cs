@@ -369,7 +369,8 @@ namespace Nop.Web.Areas.Admin.Controllers
             if (!excludeProperties && product != null)
                 model.SelectedCategoryIds = _categoryService.GetProductCategoriesByProductId(product.Id, true).Select(c => c.CategoryId).ToList();
 
-            var allCategories = SelectListHelper.GetCategoryList(_categoryService, _cacheManager, true);
+           // var allCategories = SelectListHelper.GetCategoryList(_categoryService, _cacheManager, true);
+           var allCategories = SelectListHelper.GetCategoryList(_categoryService, _cacheManager, true);
             foreach (var c in allCategories)
             {
                 c.Selected = model.SelectedCategoryIds.Contains(int.Parse(c.Value));
