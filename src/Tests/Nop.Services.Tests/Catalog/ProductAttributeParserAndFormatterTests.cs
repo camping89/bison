@@ -28,6 +28,7 @@ namespace Nop.Services.Tests.Catalog
         private IRepository<ProductAttributeCombination> _productAttributeCombinationRepo;
         private IRepository<ProductAttributeValue> _productAttributeValueRepo;
         private IRepository<PredefinedProductAttributeValue> _predefinedProductAttributeValueRepo;
+        private IRepository<CategoryProductAttributeMapping> _categoryProductAttributeMappingRepo;
         private IProductAttributeService _productAttributeService;
         private IProductAttributeParser _productAttributeParser;
         private IDbContext _context;
@@ -209,7 +210,7 @@ namespace Nop.Services.Tests.Catalog
                 _productAttributeCombinationRepo,
                 _productAttributeValueRepo,
                 _predefinedProductAttributeValueRepo,
-                _eventPublisher);
+                _eventPublisher,_categoryProductAttributeMappingRepo);
 
             _context = MockRepository.GenerateMock<IDbContext>();
 

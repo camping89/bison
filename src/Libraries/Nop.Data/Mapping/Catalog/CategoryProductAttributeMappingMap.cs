@@ -5,24 +5,23 @@ namespace Nop.Data.Mapping.Catalog
     /// <summary>
     /// Mapping class
     /// </summary>
-    public partial class CategoryAttributeMappingMap : NopEntityTypeConfiguration<CategoryAttributeMapping>
+    public partial class CategoryProductAttributeMappingMap : NopEntityTypeConfiguration<CategoryProductAttributeMapping>
     {
         /// <summary>
         /// Ctor
         /// </summary>
-        public CategoryAttributeMappingMap()
+        public CategoryProductAttributeMappingMap()
         {
-            this.ToTable("Category_CategoryAttribute_Mapping");
+            this.ToTable("Category_ProductAttribute_Mapping");
             this.HasKey(pam => pam.Id);
             this.Ignore(pam => pam.AttributeControlType);
-
             this.HasRequired(pam => pam.Category)
                 .WithMany(p => p.CategoryAttributeMappings)
                 .HasForeignKey(pam => pam.CategoryId);
 
-            this.HasRequired(pam => pam.CategoryAttribute)
+            this.HasRequired(pam => pam.ProductAttribute)
                 .WithMany()
-                .HasForeignKey(pam => pam.CategoryAttributeId);
+                .HasForeignKey(pam => pam.ProductAttributeId);
         }
     }
 }

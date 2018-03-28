@@ -31,6 +31,9 @@ namespace Nop.Services.Catalog
         /// Key pattern to clear cache
         /// </summary>
         private const string PRODUCTSPECIFICATIONATTRIBUTE_PATTERN_KEY = "Nop.productspecificationattribute.";
+        private const string CATEGORYSPECIFICATIONATTRIBUTE_ALLBYPRODUCTID_KEY = "Nop.categoryspecificationattribute.allbycategoryid-{0}-{1}-{2}-{3}";
+        
+        private const string CATEGORYSPECIFICATIONATTRIBUTE_PATTERN_KEY = "Nop.categoryspecificationattribute.";
 
         #endregion
 
@@ -39,6 +42,7 @@ namespace Nop.Services.Catalog
         private readonly IRepository<SpecificationAttribute> _specificationAttributeRepository;
         private readonly IRepository<SpecificationAttributeOption> _specificationAttributeOptionRepository;
         private readonly IRepository<ProductSpecificationAttribute> _productSpecificationAttributeRepository;
+        private readonly IRepository<CategorySpecificationAttribute> _categorySpecificationAttributeRepository;
         private readonly ICacheManager _cacheManager;
         private readonly IEventPublisher _eventPublisher;
 
@@ -58,13 +62,14 @@ namespace Nop.Services.Catalog
             IRepository<SpecificationAttribute> specificationAttributeRepository,
             IRepository<SpecificationAttributeOption> specificationAttributeOptionRepository,
             IRepository<ProductSpecificationAttribute> productSpecificationAttributeRepository,
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher, IRepository<CategorySpecificationAttribute> categorySpecificationAttributeRepository)
         {
             _cacheManager = cacheManager;
             _specificationAttributeRepository = specificationAttributeRepository;
             _specificationAttributeOptionRepository = specificationAttributeOptionRepository;
             _productSpecificationAttributeRepository = productSpecificationAttributeRepository;
             _eventPublisher = eventPublisher;
+            _categorySpecificationAttributeRepository = categorySpecificationAttributeRepository;
         }
 
         #endregion
@@ -389,6 +394,97 @@ namespace Nop.Services.Catalog
             var query = _productSpecificationAttributeRepository.Table;
             if (productId > 0)
                 query = query.Where(psa => psa.ProductId == productId);
+            if (specificationAttributeOptionId > 0)
+                query = query.Where(psa => psa.SpecificationAttributeOptionId == specificationAttributeOptionId);
+
+            return query.Count();
+        }
+
+        #endregion
+        #region Product specification attribute
+
+        
+        public virtual void DeleteCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute)
+        {
+            if (categorySpecificationAttribute == null)
+                throw new ArgumentNullException(nameof(categorySpecificationAttribute));
+
+            _categorySpecificationAttributeRepository.Delete(categorySpecificationAttribute);
+
+            _cacheManager.RemoveByPattern(CATEGORYSPECIFICATIONATTRIBUTE_PATTERN_KEY);
+
+            //event notification
+            _eventPublisher.EntityDeleted(categorySpecificationAttribute);
+        }
+
+       
+        public virtual IList<CategorySpecificationAttribute> GetCategorySpecificationAttributes(int categoryId = 0,
+            int specificationAttributeOptionId = 0, bool? allowFiltering = null, bool? showOnProductPage = null)
+        {
+            var allowFilteringCacheStr = allowFiltering.HasValue ? allowFiltering.ToString() : "null";
+            var showOnProductPageCacheStr = showOnProductPage.HasValue ? showOnProductPage.ToString() : "null";
+            var key = string.Format(CATEGORYSPECIFICATIONATTRIBUTE_ALLBYPRODUCTID_KEY,
+                categoryId, specificationAttributeOptionId, allowFilteringCacheStr, showOnProductPageCacheStr);
+
+            return _cacheManager.Get(key, () =>
+            {
+                var query = _categorySpecificationAttributeRepository.Table;
+                if (categoryId > 0)
+                    query = query.Where(psa => psa.CategoryId == categoryId);
+                if (specificationAttributeOptionId > 0)
+                    query = query.Where(psa => psa.SpecificationAttributeOptionId == specificationAttributeOptionId);
+                if (allowFiltering.HasValue)
+                    query = query.Where(psa => psa.AllowFiltering == allowFiltering.Value);
+                if (showOnProductPage.HasValue)
+                    query = query.Where(psa => psa.ShowOnProductPage == showOnProductPage.Value);
+                query = query.OrderBy(psa => psa.DisplayOrder).ThenBy(psa => psa.Id);
+
+                var productSpecificationAttributes = query.ToList();
+                return productSpecificationAttributes;
+            });
+        }
+        
+        public virtual CategorySpecificationAttribute GetCategorySpecificationAttributeById(int categorySpecificationAttributeId)
+        {
+            if (categorySpecificationAttributeId == 0)
+                return null;
+
+            return _categorySpecificationAttributeRepository.GetById(categorySpecificationAttributeId);
+        }
+
+        
+        public virtual void InsertCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute)
+        {
+            if (categorySpecificationAttribute == null)
+                throw new ArgumentNullException(nameof(categorySpecificationAttribute));
+
+            _categorySpecificationAttributeRepository.Insert(categorySpecificationAttribute);
+
+            _cacheManager.RemoveByPattern(CATEGORYSPECIFICATIONATTRIBUTE_PATTERN_KEY);
+
+            //event notification
+            _eventPublisher.EntityInserted(categorySpecificationAttribute);
+        }
+
+        
+        public virtual void UpdateCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute)
+        {
+            if (categorySpecificationAttribute == null)
+                throw new ArgumentNullException(nameof(categorySpecificationAttribute));
+
+            _categorySpecificationAttributeRepository.Update(categorySpecificationAttribute);
+
+            _cacheManager.RemoveByPattern(CATEGORYSPECIFICATIONATTRIBUTE_PATTERN_KEY);
+
+            //event notification
+            _eventPublisher.EntityUpdated(categorySpecificationAttribute);
+        }
+
+        public virtual int GetCategorySpecificationAttributeCount(int categoryId = 0, int specificationAttributeOptionId = 0)
+        {
+            var query = _categorySpecificationAttributeRepository.Table;
+            if (categoryId > 0)
+                query = query.Where(psa => psa.CategoryId == categoryId);
             if (specificationAttributeOptionId > 0)
                 query = query.Where(psa => psa.SpecificationAttributeOptionId == specificationAttributeOptionId);
 

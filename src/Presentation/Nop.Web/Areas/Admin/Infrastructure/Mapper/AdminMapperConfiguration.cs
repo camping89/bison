@@ -224,7 +224,8 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
                 .ForMember(dest => dest.SubjectToAcl, mo => mo.Ignore())
                 .ForMember(dest => dest.AppliedDiscounts, mo => mo.Ignore())
                 .ForMember(dest => dest.LimitedToStores, mo => mo.Ignore())
-                .ForMember(dest=>dest.CategoryAttributeMappings, mo => mo.Ignore());
+                .ForMember(dest=>dest.CategoryAttributeMappings, mo => mo.Ignore())
+                .ForMember(dest=>dest.CategorySpecificationAttributes, mo => mo.Ignore());
             //manufacturer
             CreateMap<Manufacturer, ManufacturerModel>()
                 .ForMember(dest => dest.AvailableManufacturerTemplates, mo => mo.Ignore())
@@ -554,12 +555,9 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
                 .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
             CreateMap<CustomerRoleModel, CustomerRole>()
                 .ForMember(dest => dest.PermissionRecords, mo => mo.Ignore());
-            //category attributes
-            CreateMap<CategoryAttribute, CategoryAttributeModel>()
-                .ForMember(dest => dest.Locales, mo => mo.Ignore())
-                .ForMember(dest => dest.ValueForProduct, mo => mo.Ignore())
+            CreateMap<CategoryProductAttributeMapping, CategoryProductAttributeMappingModel>()
                 .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
-            CreateMap<CategoryAttributeModel, CategoryAttribute>();
+            CreateMap<CategoryProductAttributeMappingModel, CategoryProductAttributeMapping>();
             //product attributes
             CreateMap<ProductAttribute, ProductAttributeModel>()
                 .ForMember(dest => dest.Locales, mo => mo.Ignore())

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Discounts;
+using Nop.Core.Extensions;
 using Nop.Services;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
@@ -24,6 +26,7 @@ using Nop.Services.Security;
 using Nop.Services.Seo;
 using Nop.Services.Stores;
 using Nop.Services.Vendors;
+using Nop.Web.Areas.Admin.Infrastructure.Cache;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Kendoui;
 using Nop.Web.Framework.Mvc;
@@ -57,31 +60,32 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IWorkContext _workContext;
         private readonly IImportManager _importManager;
         private readonly IStaticCacheManager _cacheManager;
-        
+        private readonly IProductAttributeService _productAttributeService;
+        private readonly ISpecificationAttributeService _specificationAttributeService;
         #endregion
-        
+
         #region Ctor
 
         public CategoryController(ICategoryService categoryService, ICategoryTemplateService categoryTemplateService,
-            IManufacturerService manufacturerService, IProductService productService, 
+            IManufacturerService manufacturerService, IProductService productService,
             ICustomerService customerService,
-            IUrlRecordService urlRecordService, 
-            IPictureService pictureService, 
+            IUrlRecordService urlRecordService,
+            IPictureService pictureService,
             ILanguageService languageService,
-            ILocalizationService localizationService, 
+            ILocalizationService localizationService,
             ILocalizedEntityService localizedEntityService,
             IDiscountService discountService,
             IPermissionService permissionService,
-            IAclService aclService, 
+            IAclService aclService,
             IStoreService storeService,
             IStoreMappingService storeMappingService,
-            IExportManager exportManager, 
-            IVendorService vendorService, 
+            IExportManager exportManager,
+            IVendorService vendorService,
             ICustomerActivityService customerActivityService,
             CatalogSettings catalogSettings,
             IWorkContext workContext,
-            IImportManager importManager, 
-            IStaticCacheManager cacheManager)
+            IImportManager importManager,
+            IStaticCacheManager cacheManager, IProductAttributeService productAttributeService, ISpecificationAttributeService specificationAttributeService)
         {
             this._categoryService = categoryService;
             this._categoryTemplateService = categoryTemplateService;
@@ -105,12 +109,14 @@ namespace Nop.Web.Areas.Admin.Controllers
             this._workContext = workContext;
             this._importManager = importManager;
             this._cacheManager = cacheManager;
+            _productAttributeService = productAttributeService;
+            _specificationAttributeService = specificationAttributeService;
         }
-        
+
         #endregion
-        
+
         #region Utilities
-        
+
         protected virtual void UpdateLocales(Category category, CategoryModel model)
         {
             foreach (var localized in model.Locales)
@@ -145,14 +151,60 @@ namespace Nop.Web.Areas.Admin.Controllers
                 _urlRecordService.SaveSlug(category, seName, localized.LanguageId);
             }
         }
-        
+        protected virtual void UpdateLocales(ProductAttributeMapping pam, CategoryProductAttributeMappingModel model)
+        {
+            foreach (var localized in model.Locales)
+            {
+                _localizedEntityService.SaveLocalizedValue(pam,
+                    x => x.TextPrompt,
+                    localized.TextPrompt,
+                    localized.LanguageId);
+            }
+        }
+
+
         protected virtual void UpdatePictureSeoNames(Category category)
         {
             var picture = _pictureService.GetPictureById(category.PictureId);
             if (picture != null)
                 _pictureService.SetSeoFilename(picture.Id, _pictureService.GetPictureSeName(category.Name));
         }
-        
+
+        protected virtual void PrepareCategoryModel(CategoryModel model)
+        {
+            if (model != null)
+            {
+                //specification attributes
+                model.AddSpecificationAttributeModel.AvailableAttributes = _cacheManager
+                    .Get(ModelCacheEventConsumer.SPEC_ATTRIBUTES_MODEL_KEY, () =>
+                    {
+                        var availableSpecificationAttributes = new List<SelectListItem>();
+                        foreach (var sa in _specificationAttributeService.GetSpecificationAttributes())
+                        {
+                            availableSpecificationAttributes.Add(new SelectListItem
+                            {
+                                Text = sa.Name,
+                                Value = sa.Id.ToString()
+                            });
+                        }
+                        return availableSpecificationAttributes;
+                    });
+
+                //options of preselected specification attribute
+                if (model.AddSpecificationAttributeModel.AvailableAttributes.Any())
+                {
+                    var selectedAttributeId = int.Parse(model.AddSpecificationAttributeModel.AvailableAttributes.First().Value);
+                    foreach (var sao in _specificationAttributeService.GetSpecificationAttributeOptionsBySpecificationAttribute(selectedAttributeId))
+                        model.AddSpecificationAttributeModel.AvailableOptions.Add(new SelectListItem
+                        {
+                            Text = sao.Name,
+                            Value = sao.Id.ToString()
+                        });
+                }
+                //default specs values
+                model.AddSpecificationAttributeModel.ShowOnProductPage = true;
+            }
+        }
         protected virtual void PrepareAllCategoriesModel(CategoryModel model)
         {
             if (model == null)
@@ -183,7 +235,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 });
             }
         }
-        
+
         protected virtual void PrepareDiscountModel(CategoryModel model, Category category, bool excludeProperties)
         {
             if (model == null)
@@ -202,7 +254,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 });
             }
         }
-        
+
         protected virtual void PrepareAclModel(CategoryModel model, Category category, bool excludeProperties)
         {
             if (model == null)
@@ -246,7 +298,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 }
             }
         }
-        
+
         protected virtual void PrepareStoresMappingModel(CategoryModel model, Category category, bool excludeProperties)
         {
             if (model == null)
@@ -266,7 +318,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 });
             }
         }
-        
+
         protected virtual void SaveStoreMappings(Category category, CategoryModel model)
         {
             category.LimitedToStores = model.SelectedStoreIds.Any();
@@ -290,9 +342,9 @@ namespace Nop.Web.Areas.Admin.Controllers
                 }
             }
         }
-        
+
         #endregion
-        
+
         #region List
 
         public virtual IActionResult Index()
@@ -318,7 +370,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCategories))
                 return AccessDeniedKendoGridJson();
 
-            var categories = _categoryService.GetAllCategories(model.SearchCategoryName, 
+            var categories = _categoryService.GetAllCategories(model.SearchCategoryName,
                 model.SearchStoreId, command.Page - 1, command.PageSize, true);
             var gridModel = new DataSourceResult
             {
@@ -334,7 +386,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
         #endregion
-        
+
         #region Create / Edit / Delete
 
         public virtual IActionResult Create()
@@ -360,7 +412,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             model.PageSizeOptions = _catalogSettings.DefaultCategoryPageSizeOptions;
             model.Published = true;
             model.IncludeInTopMenu = true;
-            model.AllowCustomersToSelectPageSize = true;            
+            model.AllowCustomersToSelectPageSize = true;
 
             return View(model);
         }
@@ -432,7 +484,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 return AccessDeniedView();
 
             var category = _categoryService.GetCategoryById(id);
-            if (category == null || category.Deleted) 
+            if (category == null || category.Deleted)
                 //No category found with the specified id
                 return RedirectToAction("List");
 
@@ -447,6 +499,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 locale.MetaTitle = category.GetLocalized(x => x.MetaTitle, languageId, false, false);
                 locale.SeName = category.GetSeName(languageId, false, false);
             });
+            PrepareCategoryModel(model);
             //templates
             PrepareTemplatesModel(model);
             //categories
@@ -457,7 +510,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             PrepareAclModel(model, category, false);
             //Stores
             PrepareStoresMappingModel(model, category, false);
-
+            model.CategoryProductAttributesExist = _productAttributeService.GetAllProductAttributes().Any();
             return View(model);
         }
 
@@ -524,7 +577,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     //selected tab
                     SaveSelectedTabName();
 
-                    return RedirectToAction("Edit", new {id = category.Id});
+                    return RedirectToAction("Edit", new { id = category.Id });
                 }
                 return RedirectToAction("List");
             }
@@ -541,7 +594,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             PrepareAclModel(model, category, true);
             //Stores
             PrepareStoresMappingModel(model, category, true);
-
+            model.CategoryProductAttributesExist = _productAttributeService.GetAllProductAttributes().Any();
             return View(model);
         }
 
@@ -636,7 +689,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
         #endregion
-        
+
         #region Products
 
         [HttpPost]
@@ -699,7 +752,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCategories))
                 return AccessDeniedView();
-            
+
             var model = new CategoryModel.AddCategoryProductModel();
             //categories
             model.AvailableCategories.Add(new SelectListItem { Text = _localizationService.GetResource("Admin.Common.All"), Value = "0" });
@@ -754,7 +807,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             return Json(gridModel);
         }
-        
+
         [HttpPost]
         [FormValueRequired("save")]
         public virtual IActionResult ProductAddPopup(CategoryModel.AddCategoryProductModel model)
@@ -787,6 +840,606 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             ViewBag.RefreshPage = true;
             return View(model);
+        }
+
+        #endregion
+
+        #region Category Attribute Mapping
+        [HttpPost]
+        public virtual IActionResult CategoryProductAttributeMappingList(DataSourceRequest command, int categoryId)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedKendoGridJson();
+
+            var category = _categoryService.GetCategoryById(categoryId);
+            if (category == null)
+                throw new ArgumentException("No category found with the specified id");
+            var attributes = _productAttributeService.GetCategoryProductAttributeMappingsByCateId(categoryId);
+            var attributesModel = attributes
+                .Select(x =>
+                {
+                    var attributeModel = new CategoryProductAttributeMappingModel();
+                    PrepareCategoryProductAttributeMappingModel(attributeModel, x, x.Category, false);
+                    return attributeModel;
+                })
+                .ToList();
+
+            var gridModel = new DataSourceResult
+            {
+                Data = attributesModel,
+                Total = attributesModel.Count
+            };
+
+            return Json(gridModel);
+        }
+        protected virtual void PrepareCategoryProductAttributeMappingModel(CategoryProductAttributeMappingModel model,
+            CategoryProductAttributeMapping pam, Category category, bool excludeProperties)
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            if (category == null)
+                throw new ArgumentNullException(nameof(category));
+
+            model.CategoryId = category.Id;
+
+            foreach (var productAttribute in _productAttributeService.GetAllProductAttributes())
+            {
+                model.AvailableProductAttributes.Add(new SelectListItem
+                {
+                    Text = productAttribute.Name,
+                    Value = productAttribute.Id.ToString()
+                });
+            }
+
+            if (pam == null)
+                return;
+
+            model.Id = pam.Id;
+            model.ProductAttribute = _productAttributeService.GetProductAttributeById(pam.ProductAttributeId).Name;
+            model.AttributeControlType = pam.AttributeControlType.GetLocalizedEnum(_localizationService, _workContext);
+            model.IsUpdateProduct = true;
+            if (!excludeProperties)
+            {
+                model.ProductAttributeId = pam.ProductAttributeId;
+                model.TextPrompt = pam.TextPrompt;
+                model.IsRequired = pam.IsRequired;
+                model.AttributeControlTypeId = pam.AttributeControlTypeId;
+                model.DisplayOrder = pam.DisplayOrder;
+                model.ValidationMinLength = pam.ValidationMinLength;
+                model.ValidationMaxLength = pam.ValidationMaxLength;
+                model.ValidationFileAllowedExtensions = pam.ValidationFileAllowedExtensions;
+                model.ValidationFileMaximumSize = pam.ValidationFileMaximumSize;
+                model.DefaultValue = pam.DefaultValue;
+            }
+
+            if (pam.ValidationRulesAllowed())
+            {
+                var validationRules = new StringBuilder(string.Empty);
+                if (pam.ValidationMinLength != null)
+                    validationRules.AppendFormat("{0}: {1}<br />",
+                        _localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.ValidationRules.MinLength"),
+                        pam.ValidationMinLength);
+                if (pam.ValidationMaxLength != null)
+                    validationRules.AppendFormat("{0}: {1}<br />",
+                        _localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.ValidationRules.MaxLength"),
+                        pam.ValidationMaxLength);
+                if (!string.IsNullOrEmpty(pam.ValidationFileAllowedExtensions))
+                    validationRules.AppendFormat("{0}: {1}<br />",
+                        _localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.ValidationRules.FileAllowedExtensions"),
+                        WebUtility.HtmlEncode(pam.ValidationFileAllowedExtensions));
+                if (pam.ValidationFileMaximumSize != null)
+                    validationRules.AppendFormat("{0}: {1}<br />",
+                        _localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.ValidationRules.FileMaximumSize"),
+                        pam.ValidationFileMaximumSize);
+                if (!string.IsNullOrEmpty(pam.DefaultValue))
+                    validationRules.AppendFormat("{0}: {1}<br />",
+                        _localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.ValidationRules.DefaultValue"),
+                        WebUtility.HtmlEncode(pam.DefaultValue));
+                model.ValidationRulesString = validationRules.ToString();
+            }
+
+        }
+
+        public virtual IActionResult CategoryProductAttributeMappingCreate(int categoryId)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            var category = _categoryService.GetCategoryById(categoryId);
+            if (category == null)
+                throw new ArgumentException("No product found with the specified id");
+
+
+            var model = new CategoryProductAttributeMappingModel();
+            PrepareCategoryProductAttributeMappingModel(model, null, category, false);
+            //locales
+            AddLocales(_languageService, model.Locales);
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        public virtual IActionResult CategoryProductAttributeMappingCreate(CategoryProductAttributeMappingModel model, bool continueEditing)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            var category = _categoryService.GetCategoryById(model.CategoryId);
+            if (category == null)
+                throw new ArgumentException("No product found with the specified id");
+
+            //ensure this attribute is not mapped yet
+            if (_productAttributeService.GetCategoryProductAttributeMappingsByCateId(category.Id)
+                .Any(x => x.ProductAttributeId == model.ProductAttributeId))
+            {
+                //redisplay form
+                ErrorNotification(_localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.AlreadyExists"));
+                //model
+                PrepareCategoryProductAttributeMappingModel(model, null, category, true);
+                return View(model);
+            }
+
+            //insert mapping
+            var categoryProductAttributeMapping = new CategoryProductAttributeMapping
+            {
+                CategoryId = model.CategoryId,
+                ProductAttributeId = model.ProductAttributeId,
+                TextPrompt = model.TextPrompt,
+                IsRequired = model.IsRequired,
+                AttributeControlTypeId = model.AttributeControlTypeId,
+                DisplayOrder = model.DisplayOrder,
+                ValidationMinLength = model.ValidationMinLength,
+                ValidationMaxLength = model.ValidationMaxLength,
+                ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions,
+                ValidationFileMaximumSize = model.ValidationFileMaximumSize,
+                DefaultValue = model.DefaultValue
+            };
+            _productAttributeService.InsertCategoryProductAttributeMapping(categoryProductAttributeMapping);
+            UpdateLocales(categoryProductAttributeMapping, model);
+
+            if (model.IsUpdateProduct)
+            {
+                //Get list product
+                var productCategories = _categoryService.GetProductCategoriesByCategoryId(model.CategoryId, showHidden: true);
+                //predefined values
+                var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
+                foreach (var product in productCategories)
+                {
+                    if (_productAttributeService.GetProductAttributeMappingsByProductId(product.Id)
+                        .Any(x => x.ProductAttributeId == model.ProductAttributeId))
+                    {
+                        continue;
+                    }
+
+                    //insert mapping
+                    var productAttributeMapping = new ProductAttributeMapping
+                    {
+                        ProductId = product.ProductId,
+                        ProductAttributeId = model.ProductAttributeId,
+                        TextPrompt = model.TextPrompt,
+                        IsRequired = model.IsRequired,
+                        AttributeControlTypeId = model.AttributeControlTypeId,
+                        DisplayOrder = model.DisplayOrder,
+                        ValidationMinLength = model.ValidationMinLength,
+                        ValidationMaxLength = model.ValidationMaxLength,
+                        ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions,
+                        ValidationFileMaximumSize = model.ValidationFileMaximumSize,
+                        DefaultValue = model.DefaultValue
+                    };
+                    _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
+                    UpdateLocales(productAttributeMapping, model);
+
+                    if (productAttributeMapping.Id > 0 && !_productAttributeService.GetProductAttributeValues(productAttributeMapping.Id).Any() )
+                    {
+                        foreach (var predefinedValue in predefinedValues)
+                        {
+                            var pav = new ProductAttributeValue
+                            {
+                                ProductAttributeMappingId = productAttributeMapping.Id,
+                                AttributeValueType = AttributeValueType.Simple,
+                                Name = predefinedValue.Name,
+                                PriceAdjustment = predefinedValue.PriceAdjustment,
+                                WeightAdjustment = predefinedValue.WeightAdjustment,
+                                Cost = predefinedValue.Cost,
+                                IsPreSelected = predefinedValue.IsPreSelected,
+                                DisplayOrder = predefinedValue.DisplayOrder
+                            };
+                            _productAttributeService.InsertProductAttributeValue(pav);
+                            //locales
+                            var languages = _languageService.GetAllLanguages(true);
+                            //localization
+                            foreach (var lang in languages)
+                            {
+                                var name = predefinedValue.GetLocalized(x => x.Name, lang.Id, false, false);
+                                if (!string.IsNullOrEmpty(name))
+                                    _localizedEntityService.SaveLocalizedValue(pav, x => x.Name, name, lang.Id);
+                            }
+                        }
+                    }
+                }
+
+
+            }
+            SuccessNotification(_localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.Added"));
+
+            if (continueEditing)
+            {
+                //selected tab
+                SaveSelectedTabName();
+
+                return RedirectToAction("CategoryProductAttributeMappingEdit", new { id = categoryProductAttributeMapping.Id });
+            }
+
+            SaveSelectedTabName("tab-product-attributes");
+            return RedirectToAction("Edit", new { id = category.Id });
+        }
+
+        public virtual IActionResult CategoryProductAttributeMappingEdit(int id)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            var pam = _productAttributeService.GetCategoryProductAttributeMapping(id);
+            if (pam == null)
+                throw new ArgumentException("No product attribute mapping found with the specified id");
+
+            var category = _categoryService.GetCategoryById(pam.CategoryId);
+            if (category == null)
+                throw new ArgumentException("No product found with the specified id");
+
+            var model = new CategoryProductAttributeMappingModel();
+            PrepareCategoryProductAttributeMappingModel(model, pam, category, false);
+
+            //locales
+            AddLocales(_languageService, model.Locales, (locale, languageId) =>
+            {
+                locale.TextPrompt = pam.GetLocalized(x => x.TextPrompt, languageId, false, false);
+            });
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        public virtual IActionResult CategoryProductAttributeMappingEdit(CategoryProductAttributeMappingModel model, bool continueEditing)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            var categoryProductAttributeMapping = _productAttributeService.GetCategoryProductAttributeMapping(model.Id);
+            if (categoryProductAttributeMapping == null)
+                throw new ArgumentException("No category product attribute mapping found with the specified id");
+
+            var category = _categoryService.GetCategoryById(model.CategoryId);
+            if (category == null)
+                throw new ArgumentException("No product found with the specified id");
+
+            //ensure this attribute is not mapped yet
+            if (_productAttributeService.GetCategoryProductAttributeMappingsByCateId(category.Id)
+                .Any(x => x.ProductAttributeId == model.ProductAttributeId && x.Id != categoryProductAttributeMapping.Id))
+            {
+                //redisplay form
+                ErrorNotification(_localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.AlreadyExists"));
+                //model
+                PrepareCategoryProductAttributeMappingModel(model, categoryProductAttributeMapping, category, true);
+                return View(model);
+            }
+
+            categoryProductAttributeMapping.ProductAttributeId = model.ProductAttributeId;
+            categoryProductAttributeMapping.TextPrompt = model.TextPrompt;
+            categoryProductAttributeMapping.IsRequired = model.IsRequired;
+            categoryProductAttributeMapping.AttributeControlTypeId = model.AttributeControlTypeId;
+            categoryProductAttributeMapping.DisplayOrder = model.DisplayOrder;
+            categoryProductAttributeMapping.ValidationMinLength = model.ValidationMinLength;
+            categoryProductAttributeMapping.ValidationMaxLength = model.ValidationMaxLength;
+            categoryProductAttributeMapping.ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions;
+            categoryProductAttributeMapping.ValidationFileMaximumSize = model.ValidationFileMaximumSize;
+            categoryProductAttributeMapping.DefaultValue = model.DefaultValue;
+            _productAttributeService.UpdateCategoryProductAttributeMapping(categoryProductAttributeMapping);
+
+            UpdateLocales(categoryProductAttributeMapping, model);
+            if (model.IsUpdateProduct)
+            {
+                //Get list product
+                var productCategories = _categoryService.GetProductCategoriesByCategoryId(model.CategoryId, showHidden: true);
+                //predefined values
+                var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
+                foreach (var product in productCategories)
+                {
+                    var productAttributeMapping = _productAttributeService.GetProductAttributeMappingsByProductId(product.ProductId)
+                        .FirstOrDefault(x => x.ProductAttributeId == model.ProductAttributeId);
+                    if (productAttributeMapping == null)
+                    {
+                        //insert mapping
+                        productAttributeMapping = new ProductAttributeMapping
+                        {
+                            ProductId = product.ProductId,
+                            ProductAttributeId = model.ProductAttributeId,
+                            TextPrompt = model.TextPrompt,
+                            IsRequired = model.IsRequired,
+                            AttributeControlTypeId = model.AttributeControlTypeId,
+                            DisplayOrder = model.DisplayOrder,
+                            ValidationMinLength = model.ValidationMinLength,
+                            ValidationMaxLength = model.ValidationMaxLength,
+                            ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions,
+                            ValidationFileMaximumSize = model.ValidationFileMaximumSize,
+                            DefaultValue = model.DefaultValue
+                        };
+                        _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
+                    }
+                    else
+                    {
+                        productAttributeMapping.ProductAttributeId = model.ProductAttributeId;
+                        productAttributeMapping.TextPrompt = model.TextPrompt;
+                        productAttributeMapping.IsRequired = model.IsRequired;
+                        productAttributeMapping.AttributeControlTypeId = model.AttributeControlTypeId;
+                        productAttributeMapping.DisplayOrder = model.DisplayOrder;
+                        productAttributeMapping.ValidationMinLength = model.ValidationMinLength;
+                        productAttributeMapping.ValidationMaxLength = model.ValidationMaxLength;
+                        productAttributeMapping.ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions;
+                        productAttributeMapping.ValidationFileMaximumSize = model.ValidationFileMaximumSize;
+                        productAttributeMapping.DefaultValue = model.DefaultValue;
+                        _productAttributeService.UpdateProductAttributeMapping(productAttributeMapping);
+
+                    }
+                    if (productAttributeMapping.Id > 0 && !_productAttributeService.GetProductAttributeValues(productAttributeMapping.Id).Any())
+                    {
+                        foreach (var predefinedValue in predefinedValues)
+                        {
+                            var pav = new ProductAttributeValue
+                            {
+                                ProductAttributeMappingId = productAttributeMapping.Id,
+                                AttributeValueType = AttributeValueType.Simple,
+                                Name = predefinedValue.Name,
+                                PriceAdjustment = predefinedValue.PriceAdjustment,
+                                WeightAdjustment = predefinedValue.WeightAdjustment,
+                                Cost = predefinedValue.Cost,
+                                IsPreSelected = predefinedValue.IsPreSelected,
+                                DisplayOrder = predefinedValue.DisplayOrder
+                            };
+                            _productAttributeService.InsertProductAttributeValue(pav);
+                            //locales
+                            var languages = _languageService.GetAllLanguages(true);
+                            //localization
+                            foreach (var lang in languages)
+                            {
+                                var name = predefinedValue.GetLocalized(x => x.Name, lang.Id, false, false);
+                                if (!string.IsNullOrEmpty(name))
+                                    _localizedEntityService.SaveLocalizedValue(pav, x => x.Name, name, lang.Id);
+                            }
+                        }
+                    }
+                    UpdateLocales(productAttributeMapping, model);
+                }
+
+
+            }
+            SuccessNotification(_localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.Updated"));
+            if (continueEditing)
+            {
+                //selected tab
+                SaveSelectedTabName();
+
+                return RedirectToAction("CategoryProductAttributeMappingEdit", new { id = categoryProductAttributeMapping.Id });
+            }
+
+            SaveSelectedTabName("tab-product-attributes");
+            return RedirectToAction("Edit", new { id = category.Id });
+        }
+
+        [HttpPost]
+        public virtual IActionResult CategoryProductAttributeMappingDelete(int id)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            var categoryProductAttributeMapping = _productAttributeService.GetCategoryProductAttributeMapping(id);
+            if (categoryProductAttributeMapping == null)
+                throw new ArgumentException("No category attribute mapping found with the specified id");
+
+            var categoryId = categoryProductAttributeMapping.CategoryId;
+            var category = _categoryService.GetCategoryById(categoryId);
+            if (category == null)
+                throw new ArgumentException("No category found with the specified id");
+            _productAttributeService.DeleteCategoryProductAttributeMapping(categoryProductAttributeMapping);
+
+            SuccessNotification(_localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.Deleted"));
+            SaveSelectedTabName("tab-product-attributes");
+            return RedirectToAction("Edit", new { id = categoryId });
+        }
+        protected virtual void UpdateLocales(CategoryProductAttributeMapping pam, CategoryProductAttributeMappingModel model)
+        {
+            foreach (var localized in model.Locales)
+            {
+                _localizedEntityService.SaveLocalizedValue(pam,
+                    x => x.TextPrompt,
+                    localized.TextPrompt,
+                    localized.LanguageId);
+            }
+        }
+
+        [HttpPost]
+        public virtual IActionResult CategorySpecificationAttributeAdd(int attributeTypeId, int specificationAttributeOptionId,
+            string customValue, bool allowFiltering, bool showOnProductPage,
+            int displayOrder, int categoryId)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+
+            //we allow filtering only for "Option" attribute type
+            if (attributeTypeId != (int)SpecificationAttributeType.Option)
+            {
+                allowFiltering = false;
+            }
+            //we don't allow CustomValue for "Option" attribute type
+            if (attributeTypeId == (int)SpecificationAttributeType.Option)
+            {
+                customValue = null;
+            }
+
+            var psa = new CategorySpecificationAttribute
+            {
+                AttributeTypeId = attributeTypeId,
+                SpecificationAttributeOptionId = specificationAttributeOptionId,
+                CategoryId = categoryId,
+                CustomValue = customValue,
+                AllowFiltering = allowFiltering,
+                ShowOnProductPage = showOnProductPage,
+                DisplayOrder = displayOrder,
+            };
+            _specificationAttributeService.InsertCategorySpecificationAttribute(psa);
+
+            if (psa.Id > 0)
+            {
+                //Get list product
+                var productCategories = _categoryService.GetProductCategoriesByCategoryId(categoryId, showHidden: true);
+                foreach (var product in productCategories)
+                {
+                    if (_specificationAttributeService.GetProductSpecificationAttributes(product.Id)
+                        .Any(x => x.ProductId == product.ProductId && x.SpecificationAttributeOptionId == specificationAttributeOptionId))
+                    {
+                        continue;
+                    }
+                    //insert mapping
+                    var psaProduct = new ProductSpecificationAttribute
+                    {
+                        AttributeTypeId = attributeTypeId,
+                        SpecificationAttributeOptionId = specificationAttributeOptionId,
+                        ProductId = product.ProductId,
+                        CustomValue = customValue,
+                        AllowFiltering = allowFiltering,
+                        ShowOnProductPage = showOnProductPage,
+                        DisplayOrder = displayOrder,
+                    };
+                    _specificationAttributeService.InsertProductSpecificationAttribute(psaProduct);
+                }
+            }
+            return Json(new { Result = true });
+        }
+
+
+        [HttpPost]
+        public virtual IActionResult CategorySpecAttrList(DataSourceRequest command, int categoryId)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedKendoGridJson();
+
+
+
+            var productrSpecs = _specificationAttributeService.GetCategorySpecificationAttributes(categoryId);
+
+            var productrSpecsModel = productrSpecs
+                .Select(x =>
+                {
+                    var psaModel = new CategorySpecificationAttributeModel
+                    {
+                        Id = x.Id,
+                        AttributeTypeId = x.AttributeTypeId,
+                        AttributeTypeName = x.AttributeType.GetLocalizedEnum(_localizationService, _workContext),
+                        AttributeId = x.SpecificationAttributeOption.SpecificationAttribute.Id,
+                        AttributeName = x.SpecificationAttributeOption.SpecificationAttribute.Name,
+                        AllowFiltering = x.AllowFiltering,
+                        ShowOnProductPage = x.ShowOnProductPage,
+                        DisplayOrder = x.DisplayOrder
+                    };
+                    switch (x.AttributeType)
+                    {
+                        case SpecificationAttributeType.Option:
+                            psaModel.ValueRaw = WebUtility.HtmlEncode(x.SpecificationAttributeOption.Name);
+                            psaModel.SpecificationAttributeOptionId = x.SpecificationAttributeOptionId;
+                            break;
+                        case SpecificationAttributeType.CustomText:
+                            psaModel.ValueRaw = WebUtility.HtmlEncode(x.CustomValue);
+                            break;
+                        case SpecificationAttributeType.CustomHtmlText:
+                            //do not encode?
+                            //psaModel.ValueRaw = x.CustomValue;
+                            psaModel.ValueRaw = WebUtility.HtmlEncode(x.CustomValue);
+                            break;
+                        case SpecificationAttributeType.Hyperlink:
+                            psaModel.ValueRaw = x.CustomValue;
+                            break;
+                        default:
+                            break;
+                    }
+                    return psaModel;
+                })
+                .ToList();
+
+            var gridModel = new DataSourceResult
+            {
+                Data = productrSpecsModel,
+                Total = productrSpecsModel.Count
+            };
+
+            return Json(gridModel);
+        }
+
+        [HttpPost]
+        public virtual IActionResult CategorySpecAttrUpdate(CategorySpecificationAttributeModel model)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            var psa = _specificationAttributeService.GetCategorySpecificationAttributeById(model.Id);
+            if (psa == null)
+                return Content("No category specification attribute found with the specified id");
+
+            //we allow filtering and change option only for "Option" attribute type
+            if (model.AttributeTypeId == (int)SpecificationAttributeType.Option)
+            {
+                psa.AllowFiltering = model.AllowFiltering;
+                psa.SpecificationAttributeOptionId = model.SpecificationAttributeOptionId;
+            }
+
+            psa.ShowOnProductPage = model.ShowOnProductPage;
+            psa.DisplayOrder = model.DisplayOrder;
+            _specificationAttributeService.UpdateCategorySpecificationAttribute(psa);
+            //Get list product
+            var productCategories = _categoryService.GetProductCategoriesByCategoryId(psa.CategoryId, showHidden: true);
+            foreach (var product in productCategories)
+            {
+                var psaProduct = _specificationAttributeService.GetProductSpecificationAttributeById(product.ProductId);
+
+                //we allow filtering and change option only for "Option" attribute type
+                if (model.AttributeTypeId == (int)SpecificationAttributeType.Option)
+                {
+                    psa.AllowFiltering = model.AllowFiltering;
+                    psa.SpecificationAttributeOptionId = model.SpecificationAttributeOptionId;
+                }
+
+                psa.ShowOnProductPage = model.ShowOnProductPage;
+                psa.DisplayOrder = model.DisplayOrder;
+                _specificationAttributeService.UpdateProductSpecificationAttribute(psaProduct);
+            }
+            return new NullJsonResult();
+        }
+
+        [HttpPost]
+        public virtual IActionResult CategorySpecAttrDelete(int id)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            var psa = _specificationAttributeService.GetCategorySpecificationAttributeById(id);
+            if (psa == null)
+                throw new ArgumentException("No specification attribute found with the specified id");
+            ////Get list product
+            //var productCategories = _categoryService.GetProductCategoriesByCategoryId(psa.CategoryId, showHidden: true);
+            //foreach (var product in productCategories)
+            //{
+            //    var specAttributeProducts = _specificationAttributeService.GetProductSpecificationAttributes(product.ProductId);
+            //    foreach (var spec in specAttributeProducts)
+            //    {
+            //        if (spec.SpecificationAttributeOptionId == psa.SpecificationAttributeOptionId)
+            //        {
+            //            _specificationAttributeService.DeleteProductSpecificationAttribute(spec);
+            //        }
+            //    }
+            //}
+            _specificationAttributeService.DeleteCategorySpecificationAttribute(psa);
+            
+            return new NullJsonResult();
         }
 
         #endregion

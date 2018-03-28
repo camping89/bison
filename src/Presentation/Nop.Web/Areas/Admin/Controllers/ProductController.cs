@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Primitives;
+using Newtonsoft.Json;
 using Nop.Web.Areas.Admin.Extensions;
 using Nop.Web.Areas.Admin.Helpers;
 using Nop.Web.Areas.Admin.Infrastructure.Cache;
@@ -99,7 +100,6 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly ISettingService _settingService;
         private readonly TaxSettings _taxSettings;
         private readonly VendorSettings _vendorSettings;
-        private readonly ICategoryAttributeService _categoryAttributeService;
         #endregion
 
         #region Ctor
@@ -147,7 +147,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             IDownloadService downloadService,
             ISettingService settingService,
             TaxSettings taxSettings,
-            VendorSettings vendorSettings, ICategoryAttributeService categoryAttributeService)
+            VendorSettings vendorSettings)
         {
             this._productService = productService;
             this._productTemplateService = productTemplateService;
@@ -193,7 +193,6 @@ namespace Nop.Web.Areas.Admin.Controllers
             this._settingService = settingService;
             this._taxSettings = taxSettings;
             this._vendorSettings = vendorSettings;
-            _categoryAttributeService = categoryAttributeService;
         }
 
         #endregion
@@ -1241,7 +1240,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public virtual IActionResult ProductList(DataSourceRequest command, ProductListModel model)
+        public virtual IActionResult ProductList(DataSourceRequest command, Sort[] sort, ProductListModel model)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
                 return AccessDeniedKendoGridJson();
@@ -1265,7 +1264,28 @@ namespace Nop.Web.Areas.Admin.Controllers
                 overridePublished = true;
             else if (model.SearchPublishedId == 2)
                 overridePublished = false;
+            ProductSortingEnum sortingEnum = ProductSortingEnum.Position;
+            //sorting
+            var first = sort?.FirstOrDefault();
+            if (first != null)
+                switch (first.Field)
+                {
+                    case "Name":
+                        sortingEnum = ProductSortingEnum.NameAsc;
+                        if (first.Dir == "desc")
+                        {
+                            sortingEnum = ProductSortingEnum.NameDesc;
+                        }
 
+                        break;
+                    case "Price":
+                        sortingEnum = ProductSortingEnum.PriceAsc;
+                        if (first.Dir == "desc")
+                        {
+                            sortingEnum = ProductSortingEnum.PriceDesc;
+                        }
+                        break;
+                }
             var products = _productService.SearchProducts(
                 categoryIds: categoryIds,
                 manufacturerId: model.SearchManufacturerId,
@@ -1277,7 +1297,8 @@ namespace Nop.Web.Areas.Admin.Controllers
                 pageIndex: command.Page - 1,
                 pageSize: command.PageSize,
                 showHidden: true,
-                overridePublished: overridePublished
+                overridePublished: overridePublished,
+                orderBy: sortingEnum
             );
             var gridModel = new DataSourceResult
             {
@@ -1354,10 +1375,6 @@ namespace Nop.Web.Areas.Admin.Controllers
             PrepareCategoryMappingModel(model, null, false);
             PrepareManufacturerMappingModel(model, null, false);
             PrepareDiscountMappingModel(model, null, false);
-            foreach (var cateAttr in _categoryAttributeService.GetAllCategoryAttributes().ToList())
-            {
-                model.CategoryAttributeModels.Add(cateAttr.ToModel());
-            }
             return View(model);
         }
 
@@ -1448,6 +1465,8 @@ namespace Nop.Web.Areas.Admin.Controllers
         //edit product
         public virtual IActionResult Edit(int id)
         {
+            
+
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
                 return AccessDeniedView();
 
@@ -1478,19 +1497,9 @@ namespace Nop.Web.Areas.Admin.Controllers
             PrepareCategoryMappingModel(model, product, false);
             PrepareManufacturerMappingModel(model, product, false);
             PrepareDiscountMappingModel(model, product, false);
-            foreach (var cateAttr in _categoryAttributeService.GetAllCategoryAttributes().ToList())
-            {
-                var cateAttrModel = cateAttr.ToModel();
-                var productCateAttrValue = _productAttributeService.GetProductAttributeValueByCateAttributeMappingId(cateAttr.Id);
-                if (productCateAttrValue != null)
-                {
-                    cateAttrModel.ValueForProduct = productCateAttrValue.Name;
-                }
-                model.CategoryAttributeModels.Add(cateAttrModel);
-            }
             return View(model);
         }
-
+       
         [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
         public virtual IActionResult Edit(ProductModel model, bool continueEditing)
         {
@@ -2617,7 +2626,6 @@ namespace Nop.Web.Areas.Admin.Controllers
                 DisplayOrder = displayOrder,
             };
             _specificationAttributeService.InsertProductSpecificationAttribute(psa);
-
             return Json(new { Result = true });
         }
 

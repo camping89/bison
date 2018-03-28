@@ -6,10 +6,8 @@ namespace Nop.Core.Domain.Catalog
     /// <summary>
     /// Represents a category attribute mapping
     /// </summary>
-    public partial class CategoryAttributeMapping : BaseEntity, ILocalizedEntity
+    public partial class CategoryProductAttributeMapping : BaseEntity, ILocalizedEntity
     {
-        private ICollection<ProductAttributeValue> _productAttributeValues;
-
         /// <summary>
         /// Gets or sets the category identifier
         /// </summary>
@@ -18,7 +16,7 @@ namespace Nop.Core.Domain.Catalog
         /// <summary>
         /// Gets or sets the category attribute identifier
         /// </summary>
-        public int CategoryAttributeId { get; set; }
+        public int ProductAttributeId { get; set; }
 
         /// <summary>
         /// Gets or sets a value a text prompt
@@ -89,26 +87,14 @@ namespace Nop.Core.Domain.Catalog
                 AttributeControlTypeId = (int)value;
             }
         }
-
-        /// <summary>
-        /// Gets the category attribute
-        /// </summary>
-        public virtual CategoryAttribute CategoryAttribute { get; set; }
+        //validation fields
 
         /// <summary>
         /// Gets the category
         /// </summary>
         public virtual Category Category { get; set; }
 
-        /// <summary>
-        /// Gets the product attribute values
-        /// </summary>
-        public virtual ICollection<ProductAttributeValue> ProductAttributeValues
-        {
-            get { return _productAttributeValues ?? (_productAttributeValues = new List<ProductAttributeValue>()); }
-            protected set { _productAttributeValues = value; }
-        }
-
+        public virtual ProductAttribute ProductAttribute { get; set; }
     }
 
 }

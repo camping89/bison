@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Orders;
+using Nop.Web.Areas.Admin.Models.Catalog;
 using Nop.Web.Framework.Mvc.ModelBinding;
 using Nop.Web.Framework.Mvc.Models;
 using Nop.Web.Models.Media;
@@ -28,6 +29,7 @@ namespace Nop.Web.Models.Catalog
             ProductManufacturers = new List<ManufacturerBriefInfoModel>();
             ProductReviewOverview = new ProductReviewOverviewModel();
             TierPrices = new List<TierPriceModel>();
+            CategoryAttributeMappingModels = new List<CategoryProductAttributeMappingModel>();
         }
 
         //picture(s)
@@ -105,6 +107,8 @@ namespace Nop.Web.Models.Catalog
         public bool DisplayDiscontinuedMessage { get; set; }
 
         public string CurrentStoreName { get; set; }
+
+        public List<CategoryProductAttributeMappingModel> CategoryAttributeMappingModels { get; set; }
 
         #region Nested Classes
 

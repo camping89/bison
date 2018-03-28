@@ -51,7 +51,6 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
             SelectedDiscountIds = new List<int>();
             AvailableDiscounts = new List<SelectListItem>();
-            CategoryAttributeModels = new List<CategoryAttributeModel>();
         }
 
         [NopResourceDisplayName("Admin.Catalog.Products.Fields.ID")]
@@ -423,8 +422,7 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
         //stock quantity history
         public StockQuantityHistoryModel StockQuantityHistory { get; set; }
-
-        public List<CategoryAttributeModel> CategoryAttributeModels { get; set; }
+        
         #region Nested classes
 
         public partial class AddRequiredProductModel : BaseNopModel

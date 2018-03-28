@@ -144,5 +144,29 @@ namespace Nop.Services.Catalog
 
         #endregion
 
+
+        #region Category specification attribute
+
+        
+        void DeleteCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute);
+
+        
+        IList<CategorySpecificationAttribute> GetCategorySpecificationAttributes(int categoryId = 0,
+            int specificationAttributeOptionId = 0, bool? allowFiltering = null, bool? showOnProductPage = null);
+
+        
+        CategorySpecificationAttribute GetCategorySpecificationAttributeById(int categorySpecificationAttributeId);
+
+       
+        void InsertCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute);
+
+        
+        void UpdateCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute);
+
+       
+        int GetCategorySpecificationAttributeCount(int categoryId = 0, int specificationAttributeOptionId = 0);
+
+        #endregion
+
     }
 }

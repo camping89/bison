@@ -31,7 +31,7 @@ namespace Nop.Services.Catalog
         /// <param name="productAttributeId">Product attribute identifier</param>
         /// <returns>Product attribute </returns>
         ProductAttribute GetProductAttributeById(int productAttributeId);
-
+       
         /// <summary>
         /// Inserts a product attribute
         /// </summary>
@@ -74,8 +74,6 @@ namespace Nop.Services.Catalog
         /// <param name="productAttributeMappingId">Product attribute mapping identifier</param>
         /// <returns>Product attribute mapping</returns>
         ProductAttributeMapping GetProductAttributeMappingById(int productAttributeMappingId);
-
-        ProductAttributeValue GetProductAttributeValueByCateAttributeMappingId(int categoryAttributeMappingId);
 
         /// <summary>
         /// Inserts a product attribute mapping
@@ -205,6 +203,21 @@ namespace Nop.Services.Catalog
         void UpdateProductAttributeCombination(ProductAttributeCombination combination);
 
         #endregion
-       
+
+        #region Category Mapping Product Attribute
+
+        IList<CategoryProductAttributeMapping> GetCategoryProductAttributeMappingsByCateId(int categoryId);
+
+        CategoryProductAttributeMapping GetCategoryProductAttributeMapping(int id);
+
+        void DeleteCategoryProductAttributeMapping(CategoryProductAttributeMapping entity);
+
+
+        
+        void InsertCategoryProductAttributeMapping(CategoryProductAttributeMapping categoryProductAttributeMapping);
+        
+        void UpdateCategoryProductAttributeMapping(CategoryProductAttributeMapping categoryProductAttributeMapping);
+
+        #endregion
     }
 }

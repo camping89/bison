@@ -1,8 +1,12 @@
 ﻿@model CategoryModel
 @inject IEventPublisher eventPublisher
-
+@inject AdminAreaSettings adminAreaSettings
+@{
+    var defaultGridPageSize = adminAreaSettings.DefaultGridPageSize;
+    var gridPageSizes = adminAreaSettings.GridPageSizes;
+}
 <div asp-validation-summary="All"></div>
-<input asp-for="Id" type="hidden"/>
+<input asp-for="Id" type="hidden" />
 
 <div class="content">
     <div class="form-horizontal">
@@ -16,6 +20,8 @@
         <nop-tabs id="category-edit">
             <nop-tab asp-name="tab-info" asp-title="@T("Admin.Catalog.Categories.Info")" asp-default="true">@await Html.PartialAsync("_CreateOrUpdate.Info", Model)</nop-tab>
             <nop-tab asp-name="tab-seo" asp-title="@T("Admin.Common.SEO")" class="advanced-setting">@await Html.PartialAsync("_CreateOrUpdate.SEO", Model)</nop-tab>
+            <nop-tab asp-name="tab-product-attributes" asp-title="@T("Admin.Catalog.Categories.CategoryProductAttributes")" class="advanced-setting">@await Html.PartialAsync("_CreateOrUpdate.CategoryProductAttributes", Model)</nop-tab>
+            <nop-tab asp-name="tab-specification-attributes" asp-title="@T("Admin.Catalog.Attributes.SpecificationAttributes")" class="advanced-setting">@await Html.PartialAsync("_CreateOrUpdate.CategorySpecificationAttributes", Model)</nop-tab>
             <nop-tab asp-name="tab-products" asp-title="@T("Admin.Catalog.Categories.Products")">@await Html.PartialAsync("_CreateOrUpdate.Products", Model)</nop-tab>
         </nop-tabs>
     </div>

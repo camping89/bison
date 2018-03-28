@@ -84,6 +84,15 @@
                         @await Html.PartialAsync("_DeliveryInfo", Model)
                         <!--sample download-->
                         @await Html.PartialAsync("_DownloadSample", Model)
+                        @*@foreach (var cateAttr in Model.CategoryAttributeMappingModels)
+                        {
+                            <div class="additional-details">
+                                <div class="sku">
+                                    <span class="label">@cateAttr.CategoryAttributeModel.Name:</span>
+                                    <span class="value" itemprop="cateattr" id="cateattr-@cateAttr.Id">@cateAttr.ValueForProduct</span>
+                                </div>
+                            </div>
+                        }*@
                         <!--attributes-->
                         @{
                             var dataDictAttributes = new ViewDataDictionary(ViewData);

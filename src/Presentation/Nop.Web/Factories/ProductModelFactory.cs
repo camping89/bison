@@ -24,6 +24,7 @@ using Nop.Services.Shipping.Date;
 using Nop.Services.Stores;
 using Nop.Services.Tax;
 using Nop.Services.Vendors;
+using Nop.Web.Areas.Admin.Extensions;
 using Nop.Web.Framework.Security.Captcha;
 using Nop.Web.Infrastructure.Cache;
 using Nop.Web.Models.Catalog;
@@ -1361,6 +1362,7 @@ namespace Nop.Web.Factories
                 }
             }
 
+            //GetCategoryAttributeMappingModels(model);
             return model;
         }
 

@@ -16,12 +16,6 @@ namespace Nop.Core.Domain.Catalog
         /// Gets or sets the attribute value type identifier
         /// </summary>
         public int AttributeValueTypeId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the category attribute mapping identifier
-        /// </summary>
-        public int CategoryAttributeMappingId { get; set; }
-
         /// <summary>
         /// Gets or sets the associated product identifier (used only with AttributeValueType.AssociatedToProduct)
         /// </summary>

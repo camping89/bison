@@ -45,13 +45,7 @@ namespace Nop.Services.Catalog
         /// {0} : product attribute mapping ID
         /// </remarks>
         private const string PRODUCTATTRIBUTEMAPPINGS_BY_ID_KEY = "Nop.productattributemapping.id-{0}";
-        /// <summary>
-        /// Key for caching
-        /// </summary>
-        /// <remarks>
-        /// {0} : product attribute mapping ID
-        /// </remarks>
-        private const string PRODUCTCATEGORYATTRIBUTEMAPPINGS_BY_ID_KEY = "Nop.productcategoryattributemapping.id-{0}";
+        
         /// <summary>
         /// Key for caching
         /// </summary>
@@ -90,6 +84,10 @@ namespace Nop.Services.Catalog
         /// </summary>
         private const string PRODUCTATTRIBUTECOMBINATIONS_PATTERN_KEY = "Nop.productattributecombination.";
 
+        private const string CATEGORY_PRODUCTATTRIBUTE_ALL_KEY = "Nop.categoryproductattribute.all-{0}";
+        private const string CATEGORY_PRODUCTATTRIBUTE_BY_ID_KEY = "Nop.categoryproductattribute.id-{0}";
+        private const string CATEGORY_PRODUCTATTRIBUTE_PATTERN_KEY = "Nop.categoryproductattribute.";
+
         #endregion
 
         #region Fields
@@ -99,6 +97,7 @@ namespace Nop.Services.Catalog
         private readonly IRepository<ProductAttributeCombination> _productAttributeCombinationRepository;
         private readonly IRepository<ProductAttributeValue> _productAttributeValueRepository;
         private readonly IRepository<PredefinedProductAttributeValue> _predefinedProductAttributeValueRepository;
+        private readonly IRepository<CategoryProductAttributeMapping> _categoryProductAttributeMappingRepository;
         private readonly IEventPublisher _eventPublisher;
         private readonly ICacheManager _cacheManager;
 
@@ -122,7 +121,7 @@ namespace Nop.Services.Catalog
             IRepository<ProductAttributeCombination> productAttributeCombinationRepository,
             IRepository<ProductAttributeValue> productAttributeValueRepository,
             IRepository<PredefinedProductAttributeValue> predefinedProductAttributeValueRepository,
-            IEventPublisher eventPublisher)
+            IEventPublisher eventPublisher, IRepository<CategoryProductAttributeMapping> categoryProductAttributeMappingRepository)
         {
             this._cacheManager = cacheManager;
             this._productAttributeRepository = productAttributeRepository;
@@ -131,6 +130,7 @@ namespace Nop.Services.Catalog
             this._productAttributeValueRepository = productAttributeValueRepository;
             this._predefinedProductAttributeValueRepository = predefinedProductAttributeValueRepository;
             this._eventPublisher = eventPublisher;
+            _categoryProductAttributeMappingRepository = categoryProductAttributeMappingRepository;
         }
 
         #endregion
@@ -192,7 +192,7 @@ namespace Nop.Services.Catalog
             var key = string.Format(PRODUCTATTRIBUTES_BY_ID_KEY, productAttributeId);
             return _cacheManager.Get(key, () => _productAttributeRepository.GetById(productAttributeId));
         }
-
+       
         /// <summary>
         /// Inserts a product attribute
         /// </summary>
@@ -310,22 +310,6 @@ namespace Nop.Services.Catalog
             return _cacheManager.Get(key, () => _productAttributeMappingRepository.GetById(productAttributeMappingId));
         }
         
-        public virtual ProductAttributeValue GetProductAttributeValueByCateAttributeMappingId(int categoryAttributeMappingId)
-        {
-            if (categoryAttributeMappingId == 0)
-                return null;
-
-            var key = string.Format(PRODUCTCATEGORYATTRIBUTEMAPPINGS_BY_ID_KEY, categoryAttributeMappingId);
-            return _cacheManager.Get(key, () =>
-            {
-                var query = from pam in _productAttributeValueRepository.Table
-                    orderby pam.DisplayOrder, pam.Id
-                    where pam.CategoryAttributeMappingId == categoryAttributeMappingId
-                    select pam;
-                var productAttributeMappings = query.FirstOrDefault();
-                return productAttributeMappings;
-            });
-        }
         /// <summary>
         /// Inserts a product attribute mapping
         /// </summary>
@@ -685,9 +669,71 @@ namespace Nop.Services.Catalog
             //event notification
             _eventPublisher.EntityUpdated(combination);
         }
-
         #endregion
 
+        #region Category Mapping Product Attribute
+
+
+        public IList<CategoryProductAttributeMapping> GetCategoryProductAttributeMappingsByCateId(int categoryId)
+        {
+            return _cacheManager.Get(CATEGORY_PRODUCTATTRIBUTE_ALL_KEY, () =>
+            {
+                var query = from pa in _categoryProductAttributeMappingRepository.Table
+                            where pa.CategoryId == categoryId
+                    orderby pa.DisplayOrder
+                    select pa;
+                return query.ToList();
+            });
+        }
+
+        public CategoryProductAttributeMapping GetCategoryProductAttributeMapping(int id)
+        {
+            if (id == 0)
+                return null;
+
+            var key = string.Format(CATEGORY_PRODUCTATTRIBUTE_BY_ID_KEY, id);
+            return _cacheManager.Get(key, () => _categoryProductAttributeMappingRepository.GetById(id));
+        }
+
+        public void DeleteCategoryProductAttributeMapping(CategoryProductAttributeMapping entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+            _categoryProductAttributeMappingRepository.Delete(entity);
+            //cache
+            _cacheManager.RemoveByPattern(CATEGORY_PRODUCTATTRIBUTE_PATTERN_KEY);
+            //event notification
+            _eventPublisher.EntityDeleted(entity);
+        }
+
+        public virtual void InsertCategoryProductAttributeMapping(CategoryProductAttributeMapping categoryProductAttributeMapping)
+        {
+            if (categoryProductAttributeMapping == null)
+                throw new ArgumentNullException(nameof(categoryProductAttributeMapping));
+
+            _categoryProductAttributeMappingRepository.Insert(categoryProductAttributeMapping);
+
+            //cache
+            _cacheManager.RemoveByPattern(CATEGORY_PRODUCTATTRIBUTE_PATTERN_KEY);
+
+            //event notification
+            _eventPublisher.EntityInserted(categoryProductAttributeMapping);
+        }
+        
+        public virtual void UpdateCategoryProductAttributeMapping(CategoryProductAttributeMapping categoryProductAttributeMapping)
+        {
+            if (categoryProductAttributeMapping == null)
+                throw new ArgumentNullException(nameof(categoryProductAttributeMapping));
+
+            _categoryProductAttributeMappingRepository.Update(categoryProductAttributeMapping);
+
+            //cache
+            _cacheManager.RemoveByPattern(CATEGORY_PRODUCTATTRIBUTE_PATTERN_KEY);
+            //event notification
+            _eventPublisher.EntityUpdated(categoryProductAttributeMapping);
+        }
+
+        #endregion
         #endregion
     }
 }
