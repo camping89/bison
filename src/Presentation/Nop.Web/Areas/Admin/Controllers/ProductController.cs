@@ -1265,7 +1265,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 overridePublished = true;
             else if (model.SearchPublishedId == 2)
                 overridePublished = false;
-            ProductSortingEnum sortingEnum = ProductSortingEnum.Position;
+            ProductSortingEnum sortingEnum = ProductSortingEnum.UpdatedOnDesc;
             //sorting
             var first = sort?.FirstOrDefault();
             if (first != null)
@@ -1284,6 +1284,13 @@ namespace Nop.Web.Areas.Admin.Controllers
                         if (first.Dir == "desc")
                         {
                             sortingEnum = ProductSortingEnum.PriceDesc;
+                        }
+                        break;
+                    case "UpdatedOn":
+                        sortingEnum = ProductSortingEnum.UpdatedOnAsc;
+                        if (first.Dir == "desc")
+                        {
+                            sortingEnum = ProductSortingEnum.UpdatedOnDesc;
                         }
                         break;
                 }
@@ -1308,7 +1315,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     var productModel = x.ToModel();
                 //little performance optimization: ensure that "FullDescription" is not returned
                 productModel.FullDescription = "";
-
+                    productModel.UpdatedOn = x.UpdatedOnUtc;
                 //picture
                 var defaultProductPicture = _pictureService.GetPicturesByProductId(x.Id, 1).FirstOrDefault();
                     productModel.PictureThumbnailUrl = _pictureService.GetPictureUrl(defaultProductPicture, 75, true);
@@ -1695,6 +1702,39 @@ namespace Nop.Web.Areas.Admin.Controllers
                 _productService.DeleteProducts(_productService.GetProductsByIds(selectedIds.ToArray()).Where(p => _workContext.CurrentVendor == null || p.VendorId == _workContext.CurrentVendor.Id).ToList());
             }
 
+            return Json(new { Result = true });
+        }
+
+        [HttpPost]
+        public virtual IActionResult AddProductToCategoriesSelected(ICollection<int> selectedIdsProducToAdd,ICollection<int> SelectedCategoryIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            if (selectedIdsProducToAdd == null || SelectedCategoryIds == null) return Json(new {Result = true});
+            foreach (var categoryId in SelectedCategoryIds)
+            {
+                foreach (var productId in selectedIdsProducToAdd)
+                {
+                    var existingProductCategories = _categoryService.GetProductCategoriesByProductId(productId, true);
+
+                    //delete categories
+                    foreach (var existingProductCategory in existingProductCategories)
+                        if (!SelectedCategoryIds.Contains(existingProductCategory.CategoryId))
+                            _categoryService.DeleteProductCategory(existingProductCategory);
+                    //find next display order
+                    var displayOrder = 1;
+                    var existingCategoryMapping = _categoryService.GetProductCategoriesByCategoryId(categoryId, showHidden: true);
+                    if (existingCategoryMapping.Any())
+                        displayOrder = existingCategoryMapping.Max(x => x.DisplayOrder) + 1;
+                    _categoryService.InsertProductCategory(new ProductCategory
+                    {
+                        ProductId = productId,
+                        CategoryId = categoryId,
+                        DisplayOrder = displayOrder
+                    });
+                }
+            }
             return Json(new { Result = true });
         }
 

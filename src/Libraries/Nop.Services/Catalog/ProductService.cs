@@ -461,6 +461,16 @@ namespace Nop.Services.Catalog
                 //creation date
                 query = query.OrderByDescending(p => p.CreatedOnUtc);
             }
+            else if (orderBy == ProductSortingEnum.UpdatedOnAsc)
+            {
+                //creation date
+                query = query.OrderBy(p => p.UpdatedOnUtc);
+            }
+            else if (orderBy == ProductSortingEnum.UpdatedOnDesc)
+            {
+                //creation date
+                query = query.OrderByDescending(p => p.UpdatedOnUtc);
+            }
             else
             {
                 //actually this code is not reachable

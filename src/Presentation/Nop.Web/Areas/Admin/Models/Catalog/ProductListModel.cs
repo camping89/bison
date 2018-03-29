@@ -16,6 +16,7 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
             AvailableVendors = new List<SelectListItem>();
             AvailableProductTypes = new List<SelectListItem>();
             AvailablePublishedOptions = new List<SelectListItem>();
+            SelectedCategoryIds = new List<int>();
         }
 
         [NopResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
@@ -39,6 +40,10 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
         [NopResourceDisplayName("Admin.Catalog.Products.List.GoDirectlyToSku")]
         public string GoDirectlyToSku { get; set; }
+        
+        //categories
+        [NopResourceDisplayName("Admin.Catalog.Products.Fields.Categories")]
+        public IList<int> SelectedCategoryIds { get;set; }
         
         public bool IsLoggedInAsVendor { get; set; }
 

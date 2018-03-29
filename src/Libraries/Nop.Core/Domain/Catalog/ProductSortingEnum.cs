@@ -32,6 +32,7 @@
         /// <summary>
         /// Product update date
         /// </summary>
-        UpdatedOn = 16,
+        UpdatedOnAsc = 20,
+        UpdatedOnDesc = 21,
     }
 }

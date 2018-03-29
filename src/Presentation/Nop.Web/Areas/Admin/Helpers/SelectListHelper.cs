@@ -33,8 +33,13 @@ namespace Nop.Web.Areas.Admin.Helpers
             var listItems = cacheManager.Get(cacheKey, () =>
             {
                 var categories = categoryService.GetAllCategories(showHidden: showHidden);
+                //return categories.Select(c => new SelectListItem
+                //{
+                //    Text = c.GetFormattedBreadCrumb(categories),
+                //    Value = c.Id.ToString()
+                //});
                 var tempCates = categories;
-                List<SelectListItem> listItemResults = new List<SelectListItem>();
+                var listItemResults = new List<SelectListItem>();
                 foreach (var cate in categories)
                 {
                     if (cate.ParentCategoryId == 0 && tempCates.Count(t=>t.ParentCategoryId ==cate.Id ) == 0)
@@ -53,11 +58,6 @@ namespace Nop.Web.Areas.Admin.Helpers
                         });
                     }
                 }
-                //return categories.Select(c => new SelectListItem
-                //{
-                //    Text = c.GetFormattedBreadCrumb(categories),
-                //    Value = c.Id.ToString()
-                //});
                 return listItemResults;
             });
 
