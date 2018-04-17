@@ -45,6 +45,7 @@
 
     <!-- We copy the \Logs directory -->
     <Content Include="Logs\**" CopyToPublishDirectory="PreserveNewest" />
+    <None Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Remove="Themes\BisonTheme\Content\js\libs\jquery.mousewheel.min.js" />
     <None Include="Themes\HouseDecor\Views\Shared\Head.cshtml" />
     <None Include="Themes\HouseDecor\Views\_ViewImports.cshtml" />

@@ -181,3 +181,4 @@ src/Presentation/Nop.Web/wwwroot/files/exportimport/*
 !src/Presentation/Nop.Web/wwwroot/files/exportimport/Index.htm
 src/packages/*
 /publish-debug
+/publish-release

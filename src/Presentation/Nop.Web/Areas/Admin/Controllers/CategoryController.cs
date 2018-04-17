@@ -1,19 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Nop.Web.Areas.Admin.Extensions;
-using Nop.Web.Areas.Admin.Helpers;
-using Nop.Web.Areas.Admin.Models.Catalog;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Discounts;
-using Nop.Core.Extensions;
 using Nop.Services;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
@@ -26,11 +17,19 @@ using Nop.Services.Security;
 using Nop.Services.Seo;
 using Nop.Services.Stores;
 using Nop.Services.Vendors;
+using Nop.Web.Areas.Admin.Extensions;
+using Nop.Web.Areas.Admin.Helpers;
 using Nop.Web.Areas.Admin.Infrastructure.Cache;
+using Nop.Web.Areas.Admin.Models.Catalog;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Kendoui;
 using Nop.Web.Framework.Mvc;
 using Nop.Web.Framework.Mvc.Filters;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text;
 
 namespace Nop.Web.Areas.Admin.Controllers
 {
@@ -61,6 +60,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IImportManager _importManager;
         private readonly IStaticCacheManager _cacheManager;
         private readonly IProductAttributeService _productAttributeService;
+        private readonly ICategoryAttributeService _categoryAttributeService;
         private readonly ISpecificationAttributeService _specificationAttributeService;
         #endregion
 
@@ -854,7 +854,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             var category = _categoryService.GetCategoryById(categoryId);
             if (category == null)
                 throw new ArgumentException("No category found with the specified id");
-            var attributes = _productAttributeService.GetCategoryProductAttributeMappingsByCateId(categoryId);
+            var attributes = _categoryAttributeService.GetByCatId(categoryId);
             var attributesModel = attributes
                 .Select(x =>
                 {
@@ -969,7 +969,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 throw new ArgumentException("No product found with the specified id");
 
             //ensure this attribute is not mapped yet
-            if (_productAttributeService.GetCategoryProductAttributeMappingsByCateId(category.Id)
+            if (_categoryAttributeService.GetByCatId(category.Id)
                 .Any(x => x.ProductAttributeId == model.ProductAttributeId))
             {
                 //redisplay form
@@ -994,8 +994,10 @@ namespace Nop.Web.Areas.Admin.Controllers
                 ValidationFileMaximumSize = model.ValidationFileMaximumSize,
                 DefaultValue = model.DefaultValue
             };
-            _productAttributeService.InsertCategoryProductAttributeMapping(categoryProductAttributeMapping);
+            _categoryAttributeService.Insert(categoryProductAttributeMapping);
             UpdateLocales(categoryProductAttributeMapping, model);
+
+            // insert mapping for all children category
 
             if (model.IsUpdateProduct)
             {
@@ -1029,7 +1031,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
                     UpdateLocales(productAttributeMapping, model);
 
-                    if (productAttributeMapping.Id > 0 && !_productAttributeService.GetProductAttributeValues(productAttributeMapping.Id).Any() )
+                    if (productAttributeMapping.Id > 0 && !_productAttributeService.GetProductAttributeValues(productAttributeMapping.Id).Any())
                     {
                         foreach (var predefinedValue in predefinedValues)
                         {
@@ -1079,7 +1081,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
                 return AccessDeniedView();
 
-            var pam = _productAttributeService.GetCategoryProductAttributeMapping(id);
+            var pam = _categoryAttributeService.Get(id);
             if (pam == null)
                 throw new ArgumentException("No product attribute mapping found with the specified id");
 
@@ -1105,7 +1107,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
                 return AccessDeniedView();
 
-            var categoryProductAttributeMapping = _productAttributeService.GetCategoryProductAttributeMapping(model.Id);
+            var categoryProductAttributeMapping = _categoryAttributeService.Get(model.Id);
             if (categoryProductAttributeMapping == null)
                 throw new ArgumentException("No category product attribute mapping found with the specified id");
 
@@ -1114,7 +1116,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 throw new ArgumentException("No product found with the specified id");
 
             //ensure this attribute is not mapped yet
-            if (_productAttributeService.GetCategoryProductAttributeMappingsByCateId(category.Id)
+            if (_categoryAttributeService.GetByCatId(category.Id)
                 .Any(x => x.ProductAttributeId == model.ProductAttributeId && x.Id != categoryProductAttributeMapping.Id))
             {
                 //redisplay form
@@ -1134,7 +1136,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             categoryProductAttributeMapping.ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions;
             categoryProductAttributeMapping.ValidationFileMaximumSize = model.ValidationFileMaximumSize;
             categoryProductAttributeMapping.DefaultValue = model.DefaultValue;
-            _productAttributeService.UpdateCategoryProductAttributeMapping(categoryProductAttributeMapping);
+            _categoryAttributeService.Update(categoryProductAttributeMapping);
 
             UpdateLocales(categoryProductAttributeMapping, model);
             if (model.IsUpdateProduct)
@@ -1232,7 +1234,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
                 return AccessDeniedView();
 
-            var categoryProductAttributeMapping = _productAttributeService.GetCategoryProductAttributeMapping(id);
+            var categoryProductAttributeMapping = _categoryAttributeService.Get(id);
             if (categoryProductAttributeMapping == null)
                 throw new ArgumentException("No category attribute mapping found with the specified id");
 
@@ -1240,7 +1242,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             var category = _categoryService.GetCategoryById(categoryId);
             if (category == null)
                 throw new ArgumentException("No category found with the specified id");
-            _productAttributeService.DeleteCategoryProductAttributeMapping(categoryProductAttributeMapping);
+            _categoryAttributeService.Delete(categoryProductAttributeMapping);
 
             SuccessNotification(_localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.Deleted"));
             SaveSelectedTabName("tab-product-attributes");
@@ -1438,7 +1440,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             //    }
             //}
             _specificationAttributeService.DeleteCategorySpecificationAttribute(psa);
-            
+
             return new NullJsonResult();
         }
 

@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
+using System.Collections.Generic;
 
 namespace Nop.Services.Catalog
 {
@@ -31,7 +31,7 @@ namespace Nop.Services.Catalog
         /// <param name="productAttributeId">Product attribute identifier</param>
         /// <returns>Product attribute </returns>
         ProductAttribute GetProductAttributeById(int productAttributeId);
-       
+
         /// <summary>
         /// Inserts a product attribute
         /// </summary>
@@ -204,20 +204,5 @@ namespace Nop.Services.Catalog
 
         #endregion
 
-        #region Category Mapping Product Attribute
-
-        IList<CategoryProductAttributeMapping> GetCategoryProductAttributeMappingsByCateId(int categoryId);
-
-        CategoryProductAttributeMapping GetCategoryProductAttributeMapping(int id);
-
-        void DeleteCategoryProductAttributeMapping(CategoryProductAttributeMapping entity);
-
-
-        
-        void InsertCategoryProductAttributeMapping(CategoryProductAttributeMapping categoryProductAttributeMapping);
-        
-        void UpdateCategoryProductAttributeMapping(CategoryProductAttributeMapping categoryProductAttributeMapping);
-
-        #endregion
     }
 }
