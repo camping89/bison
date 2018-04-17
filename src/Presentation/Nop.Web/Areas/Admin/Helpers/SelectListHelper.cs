@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Nop.Web.Areas.Admin.Infrastructure.Cache;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core.Caching;
 using Nop.Services.Catalog;
 using Nop.Services.Vendors;
+using Nop.Web.Areas.Admin.Infrastructure.Cache;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Nop.Web.Areas.Admin.Helpers
 {
@@ -33,32 +33,11 @@ namespace Nop.Web.Areas.Admin.Helpers
             var listItems = cacheManager.Get(cacheKey, () =>
             {
                 var categories = categoryService.GetAllCategories(showHidden: showHidden);
-                //return categories.Select(c => new SelectListItem
-                //{
-                //    Text = c.GetFormattedBreadCrumb(categories),
-                //    Value = c.Id.ToString()
-                //});
-                var tempCates = categories;
-                var listItemResults = new List<SelectListItem>();
-                foreach (var cate in categories)
+                return categories.Select(c => new SelectListItem
                 {
-                    if (cate.ParentCategoryId == 0 && tempCates.Count(t=>t.ParentCategoryId ==cate.Id ) == 0)
-                    {
-                        listItemResults.Add(new SelectListItem
-                        {
-                            Text = cate.GetFormattedBreadCrumb(categories),
-                            Value = cate.Id.ToString()
-                        });
-                    }else if (cate.ParentCategoryId != 0 && tempCates.Count(t=>t.ParentCategoryId ==cate.Id ) == 0)
-                    {
-                        listItemResults.Add(new SelectListItem
-                        {
-                            Text = cate.GetFormattedBreadCrumb(categories),
-                            Value = cate.Id.ToString()
-                        });
-                    }
-                }
-                return listItemResults;
+                    Text = c.GetFormattedBreadCrumb(categories),
+                    Value = c.Id.ToString()
+                });
             });
 
             var result = new List<SelectListItem>();
