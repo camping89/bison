@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Logging;
-using Nop.Plugin.Integration.KiotViet.Integration.KiotViet;
-using Nop.Services.Logging;
-using Nop.Services.Tasks;
-using Newtonsoft.Json;
-using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Media;
 using Nop.Core.Extensions;
+using Nop.Plugin.Integration.KiotViet.Integration.KiotViet;
 using Nop.Plugin.Integration.KiotViet.Integration.KiotViet.Entities;
 using Nop.Services.Catalog;
+using Nop.Services.Logging;
 using Nop.Services.Media;
 using Nop.Services.Seo;
+using Nop.Services.Tasks;
+using System;
+using System.Linq;
+using System.Net;
 
 namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
 {
@@ -28,9 +25,9 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
         private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly IProductAttributeService _productAttributeService;
         private ILogger _logger;
-        public SyncProductTask(ILogger logger, ICategoryService categoryService, 
-            IProductService productService, IUrlRecordService urlRecordService, 
-            IPictureService pictureService, 
+        public SyncProductTask(ILogger logger, ICategoryService categoryService,
+            IProductService productService, IUrlRecordService urlRecordService,
+            IPictureService pictureService,
             ISpecificationAttributeService specificationAttributeService, IProductAttributeService productAttributeService)
         {
             _logger = logger;
@@ -41,16 +38,14 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
             _specificationAttributeService = specificationAttributeService;
             _productAttributeService = productAttributeService;
             _apiConsumer = new KiotVietApiConsumer();
-            _kiotVietService = new KiotVietService(categoryService,urlRecordService);
+            _kiotVietService = new KiotVietService(categoryService, urlRecordService);
         }
 
         public void Execute()
         {
-            _logger.InsertLog(LogLevel.Information, "Start sync data KiotViet to Bison nopcommerce.");
-            //Sync Catalog 
-            //_kiotVietService.InsertKiotVietCatalog(_apiConsumer.GetKVCategories());
-            
-            var uncategory = _categoryService.GetAllCategories("Unmapped Products",showHidden: true).FirstOrDefault();
+            _logger.InsertLog(LogLevel.Information, "Start to sync data KiotViet to Bison nopcommerce.");
+
+            var uncategory = _categoryService.GetAllCategories("KiotViet", showHidden: true).FirstOrDefault();
             if (uncategory != null)
             {
                 var lstProducts = _apiConsumer.GetAllProducts();
@@ -94,7 +89,7 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
             _logger.InsertLog(LogLevel.Information, "End sync data KiotViet to Bison nopcommerce.");
         }
 
-        private void InsertProductPictureFromUrl(string urlImage,string seName,int productId)
+        private void InsertProductPictureFromUrl(string urlImage, string seName, int productId)
         {
             var webClient = new WebClient();
             var imageBytes = webClient.DownloadData(urlImage);
@@ -106,7 +101,7 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                 DisplayOrder = 0,
             });
         }
-        private void SaveCategoryMappings(int productId,int categoryId)
+        private void SaveCategoryMappings(int productId, int categoryId)
         {
             if (categoryId > 0)
             {
@@ -176,7 +171,7 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                 Published = true,
                 StockQuantity = stock,
                 ManageInventoryMethodId = 1 //1 track inventory product
-        };
+            };
         }
     }
 }
