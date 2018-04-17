@@ -552,17 +552,17 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" id="btn-add-products-to-categories" class="btn btn-primary" >
+                        <button type="button" id="btn-add-products-to-categories" class="btn btn-primary">
                             @T("Admin.Common.Save")
                         </button>
                     </div>
                 </div>
-                
+
             </form>
         </div>
     </div>
 </div>
-
+@await Html.PartialAsync("_AlertDialog")
 <script type="text/javascript">
     $(document).ready(function () {
         $('#btn-add-products-to-categories').click(function (e) {
@@ -571,16 +571,18 @@
             $('#add-producttocate-selected-form #selectedIdsProducToAdd').val(ids);
             var catesSeleted = $('#SelectedCategoryIds').val();
             if (selectedIds.length === 0) {
-                alert('@T("Admin.AddProductToCategories.ChoosesProductAlert")');
-                $('#add-producttocate-window').modal('toggle'); 
+                $('#add-producttocate-window').modal('toggle');
+                $('#alertModal').modal("show");
+                $('#alert-dialog-error').html('@T("Admin.AddProductToCategories.ChoosesProductAlert")');
                 return;
             }
             if (catesSeleted == null || catesSeleted === "" || catesSeleted.length === 0) {
-                alert('@T("Admin.AddProductToCategories.ChoosesCategoriesAlert")');
+                $('#alertModal').modal("show");
+                $('#alert-dialog-error').html('@T("Admin.AddProductToCategories.ChoosesCategoriesAlert")');
                 return;
             }
             if (confirm ('@T("Admin.Products.AddProductsToCategories.ConfirmMessage")')) {
-                
+
                 var postData = { selectedIdsProducToAdd: selectedIds, SelectedCategoryIds: catesSeleted };
                 addAntiForgeryToken(postData);
                 $.ajax({
@@ -593,7 +595,7 @@
                         selectedIds = [];
                         catesSeleted = [];
                         $('#SelectedCategoryIds').val();
-                        $('#add-producttocate-window').modal('toggle'); 
+                        $('#add-producttocate-window').modal('toggle');
                         //reload grid
                         var grid = $('#products-grid').data('kendoGrid');
                         grid.dataSource.read();
@@ -604,7 +606,7 @@
                     traditional: true
                 });
             }
-            
+
         });
     });
 </script>
