@@ -85,7 +85,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             CatalogSettings catalogSettings,
             IWorkContext workContext,
             IImportManager importManager,
-            IStaticCacheManager cacheManager, IProductAttributeService productAttributeService, ISpecificationAttributeService specificationAttributeService)
+            IStaticCacheManager cacheManager, IProductAttributeService productAttributeService, ISpecificationAttributeService specificationAttributeService, ICategoryAttributeService categoryAttributeService)
         {
             this._categoryService = categoryService;
             this._categoryTemplateService = categoryTemplateService;
@@ -111,6 +111,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             this._cacheManager = cacheManager;
             _productAttributeService = productAttributeService;
             _specificationAttributeService = specificationAttributeService;
+            _categoryAttributeService = categoryAttributeService;
         }
 
         #endregion
