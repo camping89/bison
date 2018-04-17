@@ -994,7 +994,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 ValidationFileMaximumSize = model.ValidationFileMaximumSize,
                 DefaultValue = model.DefaultValue
             };
-            _categoryAttributeService.Insert(categoryProductAttributeMapping, true);
+            var listCateIds = _categoryAttributeService.Insert(categoryProductAttributeMapping, true);
             UpdateLocales(categoryProductAttributeMapping, model);
 
 
@@ -1002,11 +1002,14 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             if (model.IsUpdateProduct)
             {
-                //Get list product
+                //predefined values
+                var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
+
+                foreach (var cateId in listCateIds)
                 {
-                    var productCategories = _categoryService.GetProductCategoriesByCategoryId(model.CategoryId, showHidden: true);
-                    //predefined values
-                    var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
+                    //Get list product
+                    var productCategories = _categoryService.GetProductCategoriesByCategoryId(cateId, showHidden: true);
+
                     foreach (var product in productCategories)
                     {
                         if (_productAttributeService.GetProductAttributeMappingsByProductId(product.Id)

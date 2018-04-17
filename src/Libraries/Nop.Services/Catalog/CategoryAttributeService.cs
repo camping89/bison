@@ -14,7 +14,7 @@ namespace Nop.Services.Catalog
         CategoryProductAttributeMapping Get(int id);
         void Delete(CategoryProductAttributeMapping mapping);
         void Insert(CategoryProductAttributeMapping mapping);
-        void Insert(CategoryProductAttributeMapping mapping, bool cascadeToChildren);
+        List<int> Insert(CategoryProductAttributeMapping mapping, bool cascadeToChildren);
         void Update(CategoryProductAttributeMapping mapping);
     }
 
@@ -85,20 +85,23 @@ namespace Nop.Services.Catalog
             _eventPublisher.EntityInserted(mapping);
         }
 
-        public virtual void Insert(CategoryProductAttributeMapping mapping, bool cascadeToChildren)
+        public virtual List<int> Insert(CategoryProductAttributeMapping mapping, bool cascadeToChildren)
         {
             if (mapping == null)
                 throw new ArgumentNullException(nameof(mapping));
-
+            var listCategories = new List<int>();
             if (GetByCatId(mapping.CategoryId).All(x => x.ProductAttributeId != mapping.ProductAttributeId))
             {
+                listCategories.Add(mapping.CategoryId);
                 Insert(mapping);
                 foreach (var category in _categoryService.GetAllCategoriesByParentCategoryId(mapping.CategoryId, true, true))
                 {
                     mapping.CategoryId = category.Id;
+                    listCategories.Add(category.Id);
                     Insert(mapping);
                 }
             }
+            return listCategories;
         }
 
         public virtual void Update(CategoryProductAttributeMapping mapping)
