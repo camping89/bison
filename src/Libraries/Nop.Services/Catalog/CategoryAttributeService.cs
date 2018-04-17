@@ -12,12 +12,13 @@ namespace Nop.Services.Catalog
     {
         IList<CategoryProductAttributeMapping> GetByCatId(int categoryId);
         CategoryProductAttributeMapping Get(int id);
-        void Delete(CategoryProductAttributeMapping entity);
-        void Insert(CategoryProductAttributeMapping categoryProductAttributeMapping);
-        void Update(CategoryProductAttributeMapping categoryProductAttributeMapping);
+        void Delete(CategoryProductAttributeMapping mapping);
+        void Insert(CategoryProductAttributeMapping mapping);
+        void Insert(CategoryProductAttributeMapping mapping, bool cascadeToChildren);
+        void Update(CategoryProductAttributeMapping mapping);
     }
 
-    public class CategoryAttributeService
+    public class CategoryAttributeService : ICategoryAttributeService
     {
         private const string CATEGORY_PRODUCTATTRIBUTE_ALL_KEY = "Nop.categoryproductattribute.all-{0}";
         private const string CATEGORY_PRODUCTATTRIBUTE_BY_ID_KEY = "Nop.categoryproductattribute.id-{0}";
@@ -25,23 +26,24 @@ namespace Nop.Services.Catalog
 
         private readonly IEventPublisher _eventPublisher;
         private readonly ICacheManager _cacheManager;
-        private readonly IRepository<CategoryProductAttributeMapping> _categoryProductAttributeMappingRepository;
+        private readonly IRepository<CategoryProductAttributeMapping> _repo;
+        private readonly ICategoryService _categoryService;
 
         #region Category Mapping Product Attribute
 
-        public CategoryAttributeService(ICacheManager cacheManager, IRepository<CategoryProductAttributeMapping> categoryProductAttributeMappingRepository, IEventPublisher eventPublisher)
+        public CategoryAttributeService(ICacheManager cacheManager, IRepository<CategoryProductAttributeMapping> repo, IEventPublisher eventPublisher, ICategoryService categoryService)
         {
             _cacheManager = cacheManager;
-            _categoryProductAttributeMappingRepository = categoryProductAttributeMappingRepository;
+            _repo = repo;
             _eventPublisher = eventPublisher;
+            _categoryService = categoryService;
         }
-
 
         public IList<CategoryProductAttributeMapping> GetByCatId(int categoryId)
         {
             return _cacheManager.Get(CATEGORY_PRODUCTATTRIBUTE_ALL_KEY, () =>
             {
-                var query = from pa in _categoryProductAttributeMappingRepository.Table
+                var query = from pa in _repo.Table
                             where pa.CategoryId == categoryId
                             orderby pa.DisplayOrder
                             select pa;
@@ -55,45 +57,61 @@ namespace Nop.Services.Catalog
                 return null;
 
             var key = string.Format(CATEGORY_PRODUCTATTRIBUTE_BY_ID_KEY, id);
-            return _cacheManager.Get(key, () => _categoryProductAttributeMappingRepository.GetById(id));
+            return _cacheManager.Get(key, () => _repo.GetById(id));
         }
 
-        public void Delete(CategoryProductAttributeMapping entity)
+        public void Delete(CategoryProductAttributeMapping mapping)
         {
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
-            _categoryProductAttributeMappingRepository.Delete(entity);
+            if (mapping == null)
+                throw new ArgumentNullException(nameof(mapping));
+            _repo.Delete(mapping);
             //cache
             _cacheManager.RemoveByPattern(CATEGORY_PRODUCTATTRIBUTE_PATTERN_KEY);
             //event notification
-            _eventPublisher.EntityDeleted(entity);
+            _eventPublisher.EntityDeleted(mapping);
         }
 
-        public virtual void Insert(CategoryProductAttributeMapping categoryProductAttributeMapping)
+        public virtual void Insert(CategoryProductAttributeMapping mapping)
         {
-            if (categoryProductAttributeMapping == null)
-                throw new ArgumentNullException(nameof(categoryProductAttributeMapping));
+            if (mapping == null)
+                throw new ArgumentNullException(nameof(mapping));
 
-            _categoryProductAttributeMappingRepository.Insert(categoryProductAttributeMapping);
+            _repo.Insert(mapping);
 
             //cache
             _cacheManager.RemoveByPattern(CATEGORY_PRODUCTATTRIBUTE_PATTERN_KEY);
 
             //event notification
-            _eventPublisher.EntityInserted(categoryProductAttributeMapping);
+            _eventPublisher.EntityInserted(mapping);
         }
 
-        public virtual void Update(CategoryProductAttributeMapping categoryProductAttributeMapping)
+        public virtual void Insert(CategoryProductAttributeMapping mapping, bool cascadeToChildren)
         {
-            if (categoryProductAttributeMapping == null)
-                throw new ArgumentNullException(nameof(categoryProductAttributeMapping));
+            if (mapping == null)
+                throw new ArgumentNullException(nameof(mapping));
 
-            _categoryProductAttributeMappingRepository.Update(categoryProductAttributeMapping);
+            if (GetByCatId(mapping.CategoryId).All(x => x.ProductAttributeId != mapping.ProductAttributeId))
+            {
+                Insert(mapping);
+                foreach (var category in _categoryService.GetAllCategoriesByParentCategoryId(mapping.CategoryId, true, true))
+                {
+                    mapping.CategoryId = category.Id;
+                    Insert(mapping);
+                }
+            }
+        }
+
+        public virtual void Update(CategoryProductAttributeMapping mapping)
+        {
+            if (mapping == null)
+                throw new ArgumentNullException(nameof(mapping));
+
+            _repo.Update(mapping);
 
             //cache
             _cacheManager.RemoveByPattern(CATEGORY_PRODUCTATTRIBUTE_PATTERN_KEY);
             //event notification
-            _eventPublisher.EntityUpdated(categoryProductAttributeMapping);
+            _eventPublisher.EntityUpdated(mapping);
         }
 
         #endregion

@@ -272,7 +272,7 @@
                                             title: "@T("Admin.Catalog.Products.Fields.Price")",
                                             width: 150,
                                             //if not a grouped product, then display
-                                            template: "# if(ProductTypeId != @((int) ProductType.GroupedProduct)) {# #:Price# #}  #"
+                                            template: '# if(ProductTypeId != @((int) ProductType.GroupedProduct)) {# #: kendo.toString(Price, "n0") # #}  #'
                                         }, {
                                             field: "StockQuantityStr",
                                             title: "@T("Admin.Catalog.Products.Fields.StockQuantity")",

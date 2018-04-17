@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Nop.Core.Domain.Localization;
 
 namespace Nop.Core.Domain.Catalog
@@ -78,14 +77,8 @@ namespace Nop.Core.Domain.Catalog
         /// </summary>
         public AttributeControlType AttributeControlType
         {
-            get
-            {
-                return (AttributeControlType)AttributeControlTypeId;
-            }
-            set
-            {
-                AttributeControlTypeId = (int)value;
-            }
+            get => (AttributeControlType)AttributeControlTypeId;
+            set => AttributeControlTypeId = (int)value;
         }
         //validation fields
 

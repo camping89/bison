@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Nop.Core;
+﻿using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
@@ -17,6 +15,8 @@ using Nop.Services.Tax;
 using Nop.Tests;
 using NUnit.Framework;
 using Rhino.Mocks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Nop.Services.Tests.Catalog
 {
@@ -28,7 +28,6 @@ namespace Nop.Services.Tests.Catalog
         private IRepository<ProductAttributeCombination> _productAttributeCombinationRepo;
         private IRepository<ProductAttributeValue> _productAttributeValueRepo;
         private IRepository<PredefinedProductAttributeValue> _predefinedProductAttributeValueRepo;
-        private IRepository<CategoryProductAttributeMapping> _categoryProductAttributeMappingRepo;
         private IProductAttributeService _productAttributeService;
         private IProductAttributeParser _productAttributeParser;
         private IDbContext _context;
@@ -210,7 +209,7 @@ namespace Nop.Services.Tests.Catalog
                 _productAttributeCombinationRepo,
                 _productAttributeValueRepo,
                 _predefinedProductAttributeValueRepo,
-                _eventPublisher,_categoryProductAttributeMappingRepo);
+                _eventPublisher);
 
             _context = MockRepository.GenerateMock<IDbContext>();
 

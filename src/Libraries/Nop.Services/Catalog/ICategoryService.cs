@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
+using System.Collections.Generic;
 
 namespace Nop.Services.Catalog
 {
@@ -136,7 +136,5 @@ namespace Nop.Services.Catalog
         /// <param name="categoryIds">Category identifiers</param>
         /// <returns>Categories</returns>
         List<Category> GetCategoriesByIds(int[] categoryIds);
-
-        Category GetCategoryByKVCateId(int kvCateid);
     }
 }

@@ -970,8 +970,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 throw new ArgumentException("No product found with the specified id");
 
             //ensure this attribute is not mapped yet
-            if (_categoryAttributeService.GetByCatId(category.Id)
-                .Any(x => x.ProductAttributeId == model.ProductAttributeId))
+            if (_categoryAttributeService.GetByCatId(category.Id).Any(x => x.ProductAttributeId == model.ProductAttributeId))
             {
                 //redisplay form
                 ErrorNotification(_localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.AlreadyExists"));
@@ -995,73 +994,74 @@ namespace Nop.Web.Areas.Admin.Controllers
                 ValidationFileMaximumSize = model.ValidationFileMaximumSize,
                 DefaultValue = model.DefaultValue
             };
-            _categoryAttributeService.Insert(categoryProductAttributeMapping);
+            _categoryAttributeService.Insert(categoryProductAttributeMapping, true);
             UpdateLocales(categoryProductAttributeMapping, model);
+
 
             // insert mapping for all children category
 
             if (model.IsUpdateProduct)
             {
                 //Get list product
-                var productCategories = _categoryService.GetProductCategoriesByCategoryId(model.CategoryId, showHidden: true);
-                //predefined values
-                var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
-                foreach (var product in productCategories)
                 {
-                    if (_productAttributeService.GetProductAttributeMappingsByProductId(product.Id)
-                        .Any(x => x.ProductAttributeId == model.ProductAttributeId))
+                    var productCategories = _categoryService.GetProductCategoriesByCategoryId(model.CategoryId, showHidden: true);
+                    //predefined values
+                    var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
+                    foreach (var product in productCategories)
                     {
-                        continue;
-                    }
-
-                    //insert mapping
-                    var productAttributeMapping = new ProductAttributeMapping
-                    {
-                        ProductId = product.ProductId,
-                        ProductAttributeId = model.ProductAttributeId,
-                        TextPrompt = model.TextPrompt,
-                        IsRequired = model.IsRequired,
-                        AttributeControlTypeId = model.AttributeControlTypeId,
-                        DisplayOrder = model.DisplayOrder,
-                        ValidationMinLength = model.ValidationMinLength,
-                        ValidationMaxLength = model.ValidationMaxLength,
-                        ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions,
-                        ValidationFileMaximumSize = model.ValidationFileMaximumSize,
-                        DefaultValue = model.DefaultValue
-                    };
-                    _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
-                    UpdateLocales(productAttributeMapping, model);
-
-                    if (productAttributeMapping.Id > 0 && !_productAttributeService.GetProductAttributeValues(productAttributeMapping.Id).Any())
-                    {
-                        foreach (var predefinedValue in predefinedValues)
+                        if (_productAttributeService.GetProductAttributeMappingsByProductId(product.Id)
+                            .Any(x => x.ProductAttributeId == model.ProductAttributeId))
                         {
-                            var pav = new ProductAttributeValue
+                            continue;
+                        }
+
+                        //insert mapping
+                        var productAttributeMapping = new ProductAttributeMapping
+                        {
+                            ProductId = product.ProductId,
+                            ProductAttributeId = model.ProductAttributeId,
+                            TextPrompt = model.TextPrompt,
+                            IsRequired = model.IsRequired,
+                            AttributeControlTypeId = model.AttributeControlTypeId,
+                            DisplayOrder = model.DisplayOrder,
+                            ValidationMinLength = model.ValidationMinLength,
+                            ValidationMaxLength = model.ValidationMaxLength,
+                            ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions,
+                            ValidationFileMaximumSize = model.ValidationFileMaximumSize,
+                            DefaultValue = model.DefaultValue
+                        };
+                        _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
+                        UpdateLocales(productAttributeMapping, model);
+
+                        if (productAttributeMapping.Id > 0 && !_productAttributeService.GetProductAttributeValues(productAttributeMapping.Id).Any())
+                        {
+                            foreach (var predefinedValue in predefinedValues)
                             {
-                                ProductAttributeMappingId = productAttributeMapping.Id,
-                                AttributeValueType = AttributeValueType.Simple,
-                                Name = predefinedValue.Name,
-                                PriceAdjustment = predefinedValue.PriceAdjustment,
-                                WeightAdjustment = predefinedValue.WeightAdjustment,
-                                Cost = predefinedValue.Cost,
-                                IsPreSelected = predefinedValue.IsPreSelected,
-                                DisplayOrder = predefinedValue.DisplayOrder
-                            };
-                            _productAttributeService.InsertProductAttributeValue(pav);
-                            //locales
-                            var languages = _languageService.GetAllLanguages(true);
-                            //localization
-                            foreach (var lang in languages)
-                            {
-                                var name = predefinedValue.GetLocalized(x => x.Name, lang.Id, false, false);
-                                if (!string.IsNullOrEmpty(name))
-                                    _localizedEntityService.SaveLocalizedValue(pav, x => x.Name, name, lang.Id);
+                                var pav = new ProductAttributeValue
+                                {
+                                    ProductAttributeMappingId = productAttributeMapping.Id,
+                                    AttributeValueType = AttributeValueType.Simple,
+                                    Name = predefinedValue.Name,
+                                    PriceAdjustment = predefinedValue.PriceAdjustment,
+                                    WeightAdjustment = predefinedValue.WeightAdjustment,
+                                    Cost = predefinedValue.Cost,
+                                    IsPreSelected = predefinedValue.IsPreSelected,
+                                    DisplayOrder = predefinedValue.DisplayOrder
+                                };
+                                _productAttributeService.InsertProductAttributeValue(pav);
+                                //locales
+                                var languages = _languageService.GetAllLanguages(true);
+                                //localization
+                                foreach (var lang in languages)
+                                {
+                                    var name = predefinedValue.GetLocalized(x => x.Name, lang.Id, false, false);
+                                    if (!string.IsNullOrEmpty(name))
+                                        _localizedEntityService.SaveLocalizedValue(pav, x => x.Name, name, lang.Id);
+                                }
                             }
                         }
                     }
                 }
-
-
             }
             SuccessNotification(_localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.Added"));
 
