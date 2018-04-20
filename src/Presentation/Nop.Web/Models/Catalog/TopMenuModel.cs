@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Nop.Web.Framework.Mvc.Models;
+using System.Collections.Generic;
 using System.Linq;
-using Nop.Web.Framework.Mvc.Models;
 
 namespace Nop.Web.Models.Catalog
 {
@@ -10,11 +10,13 @@ namespace Nop.Web.Models.Catalog
         {
             Categories = new List<CategorySimpleModel>();
             Topics = new List<TopicModel>();
+            CateSpecificationAttributes = new List<CateSpecificationAttributeSimpleModel>();
         }
 
         public IList<CategorySimpleModel> Categories { get; set; }
         public IList<TopicModel> Topics { get; set; }
-
+        
+        public List<CateSpecificationAttributeSimpleModel> CateSpecificationAttributes { get; set; }
         public bool BlogEnabled { get; set; }
         public bool NewProductsEnabled { get; set; }
         public bool ForumEnabled { get; set; }
@@ -56,6 +58,22 @@ namespace Nop.Web.Models.Catalog
             public int Level { get; set; }
             public bool ResponsiveMobileMenu { get; set; }
             public CategorySimpleModel Category { get; set; }
+        }
+
+        public class SpecAttrLineModel : BaseNopModel
+        {
+            public int Level { get; set; }
+            public bool ResponsiveMobileMenu { get; set; }
+            public CategorySimpleModel Category { get; set; }
+            public CateSpecificationAttributeSimpleModel CateSpecAttr { get; set; }
+        }
+
+        public class SpecAttrOptionLineModel : BaseNopModel
+        {
+            public int Level { get; set; }
+            public bool ResponsiveMobileMenu { get; set; }
+            public CategorySimpleModel Category { get; set; }
+            public CateSaoSimpleModel CateSaoModel { get; set; }
         }
 
         #endregion

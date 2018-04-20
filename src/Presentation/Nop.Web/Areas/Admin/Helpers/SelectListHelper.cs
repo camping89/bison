@@ -54,6 +54,37 @@ namespace Nop.Web.Areas.Admin.Helpers
             return result;
         }
 
+        public static List<SelectListItem> GetSpecificationOptionList(ISpecificationAttributeService service, int specificationAttributeId, bool showHidden = false)
+        {
+            if (service == null)
+                throw new ArgumentNullException(nameof(service));
+
+            if (service == null)
+                throw new ArgumentNullException(nameof(service));
+
+            var specificationAttributeOption = service.GetSpecificationAttributeOptionsBySpecificationAttribute(specificationAttributeId);
+            var listItems = specificationAttributeOption.Select(c => new SelectListItem
+            {
+                Text = c.GetFormattedSpecBreadCrumb(service),
+                Value = c.Id.ToString()
+            });
+
+            var result = new List<SelectListItem>();
+            //clone the list to ensure that "selected" property is not set
+            foreach (var item in listItems)
+            {
+                result.Add(new SelectListItem
+                {
+                    Text = item.Text,
+                    Value = item.Value
+                });
+            }
+
+            return result;
+        }
+
+
+
         /// <summary>
         /// Get manufacturer list
         /// </summary>

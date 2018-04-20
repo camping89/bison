@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Core.Caching;
@@ -27,6 +24,9 @@ using Nop.Web.Framework.Events;
 using Nop.Web.Infrastructure.Cache;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Models.Media;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Nop.Web.Factories
 {
@@ -515,6 +515,53 @@ namespace Nop.Web.Factories
             return model;
         }
 
+        public ProductFilterModel PrepareProductFilterModel(CatalogPagingFilteringModel command)
+        {
+            var model = new ProductFilterModel();
+            
+            
+            //sorting
+            PrepareSortingOptions(model.PagingFilteringContext, command);
+            //view mode
+            PrepareViewModes(model.PagingFilteringContext, command);
+            //page size
+            PreparePageSizeOptions(model.PagingFilteringContext, command,
+                _catalogSettings.SearchPageAllowCustomersToSelectPageSize,
+                _catalogSettings.SearchPagePageSizeOptions,
+                _catalogSettings.SearchPageProductsPerPage);
+            //products
+            IList<int> alreadyFilteredSpecOptionIds = model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds(_webHelper);
+            IList<int> childSpecOptionIds = new List<int>();
+            childSpecOptionIds = _specificationAttributeService.GetSpecificationAttributeOptionsByParentIds(alreadyFilteredSpecOptionIds.ToArray()).Select(s=>s.Id).ToList();
+            foreach (var childId in childSpecOptionIds)
+            {
+                alreadyFilteredSpecOptionIds.Add(childId);
+            }
+            var products = _productService.SearchProducts(out IList<int> filterableSpecificationAttributeOptionIds,
+                true,
+                categoryIds: null,
+                storeId: _storeContext.CurrentStore.Id,
+                visibleIndividuallyOnly: true,
+                featuredProducts: _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : (bool?) false,
+                filteredSpecs: alreadyFilteredSpecOptionIds,
+                orderBy: (ProductSortingEnum) command.OrderBy,
+                pageIndex: command.PageNumber - 1,
+                pageSize: command.PageSize);
+            model.Products = _productModelFactory.PrepareProductOverviewModels(products).ToList();
+
+            model.PagingFilteringContext.LoadPagedList(products);
+
+            //specs
+            model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
+                filterableSpecificationAttributeOptionIds != null ? filterableSpecificationAttributeOptionIds.ToArray() : null, 
+                _specificationAttributeService, 
+                _webHelper, 
+                _workContext,
+                _cacheManager);
+            
+            return model;
+        }
+
         /// <summary>
         /// Prepare category template view path
         /// </summary>
@@ -577,7 +624,8 @@ namespace Nop.Web.Factories
         {
             //categories
             var cachedCategoriesModel = PrepareCategorySimpleModels();
-
+            //cateSpecificationAttributes 
+            var cateSpecificationAttributes = PrepareCateSpecificationAttributeSimpleModels();
             //top menu topics
             var topicCacheKey = string.Format(ModelCacheEventConsumer.TOPIC_TOP_MENU_MODEL_KEY, 
                 _workContext.WorkingLanguage.Id,
@@ -598,6 +646,7 @@ namespace Nop.Web.Factories
             {
                 Categories = cachedCategoriesModel,
                 Topics = cachedTopicModel,
+                CateSpecificationAttributes = cateSpecificationAttributes,
                 NewProductsEnabled = _catalogSettings.NewProductsEnabled,
                 BlogEnabled = _blogSettings.Enabled,
                 ForumEnabled = _forumSettings.ForumsEnabled,
@@ -715,7 +764,7 @@ namespace Nop.Web.Factories
                     SeName = category.GetSeName(),
                     IncludeInTopMenu = category.IncludeInTopMenu
                 };
-
+                
                 //number of products in each category
                 if (_catalogSettings.ShowCategoryProductNumber)
                 {
@@ -744,7 +793,48 @@ namespace Nop.Web.Factories
 
             return result;
         }
-        
+
+        public List<CateSpecificationAttributeSimpleModel> PrepareCateSpecificationAttributeSimpleModels()
+        {
+            var cateSpecificationAttributes = new List<CateSpecificationAttributeSimpleModel>();
+            var categorySpecAttrIds = _specificationAttributeService.GetSpecificationAttributes().Where(s=>s.IsShowOnTopMenu).Select(s=>s.Id).ToList();
+            foreach (var spectAttrId in categorySpecAttrIds)
+            {
+                var specAttr = _specificationAttributeService.GetSpecificationAttributeById(spectAttrId);
+                if (specAttr != null)
+                {
+                    var cateSpecAttrSimple = new CateSpecificationAttributeSimpleModel
+                    {
+                        Id = specAttr.Id,
+                        SpecificationAttrName = specAttr.Name,
+                        IsShowTopMenu = specAttr.IsShowOnTopMenu
+                    };
+                    var lstSao = _specificationAttributeService.GetSpecificationAttributeOptionsBySpecificationAttribute(spectAttrId);
+                    cateSpecAttrSimple.CateSaoSimpleModels = GetCateSaoSimpleModels(0,lstSao);
+                    cateSpecificationAttributes.Add(cateSpecAttrSimple);
+                }
+                    
+            }
+            return cateSpecificationAttributes;
+        }
+        private List<CateSaoSimpleModel> GetCateSaoSimpleModels(int saoRootId,IList<SpecificationAttributeOption> lstSao)
+        {
+            var result = new List<CateSaoSimpleModel>();
+            var rootSaos = lstSao.Where(s => s.ParentSpecificationAttributeId == saoRootId).ToList();
+            foreach (var saoItem in rootSaos)
+            {
+                var simpleItem = new CateSaoSimpleModel()
+                {
+                    Id = saoItem.Id,
+                    SpecificationAttrName = saoItem.Name
+                };
+               var subSpecs = GetCateSaoSimpleModels(saoItem.Id, lstSao);
+                simpleItem.SubCateSaoSimpleModels.AddRange(subSpecs);
+                result.Add(simpleItem);
+            }
+
+            return result;
+        }
         #endregion
         
         #region Manufacturers

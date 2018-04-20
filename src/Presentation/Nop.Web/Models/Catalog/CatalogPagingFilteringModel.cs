@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Extensions;
 using Nop.Services.Catalog;
 using Nop.Services.Localization;
 using Nop.Web.Framework.Mvc.Models;
 using Nop.Web.Framework.UI.Paging;
 using Nop.Web.Infrastructure.Cache;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace Nop.Web.Models.Catalog
 {
@@ -406,7 +407,8 @@ namespace Nop.Web.Models.Catalog
                         SpecificationAttributeOptionId = sao.Id,
                         SpecificationAttributeOptionName = sao.GetLocalized(x => x.Name, workContext.WorkingLanguage.Id),
                         SpecificationAttributeOptionColorRgb = sao.ColorSquaresRgb,
-                        SpecificationAttributeOptionDisplayOrder = sao.DisplayOrder
+                        SpecificationAttributeOptionDisplayOrder = sao.DisplayOrder,
+                        ParentSpecificationAttributeOptionId = sao.ParentSpecificationAttributeId
                     }).ToList());
 
                 if (!allFilters.Any())
@@ -431,16 +433,17 @@ namespace Nop.Web.Models.Catalog
                         SpecificationAttributeName = x.SpecificationAttributeName,
                         SpecificationAttributeOptionName = x.SpecificationAttributeOptionName,
                         SpecificationAttributeOptionColorRgb = x.SpecificationAttributeOptionColorRgb
-                    }).ToList();
 
+                    }).ToList();
+                var allSpecAttributeIds = alreadyFilteredOptions.Select(_ => _.SpecificationAttributeId).Distinct().ToList();
+                var allFilterAfterCheck = alreadyFilteredSpecOptionIds.Count > 0 ? allFilters.Where(t => (t.SpecificationAttributeId.IsNotIn(allSpecAttributeIds) && t.ParentSpecificationAttributeOptionId == 0) || (t.ParentSpecificationAttributeOptionId.IsIn(alreadyFilteredSpecOptionIds))) : allFilters;
                 //get not filtered specification options
-                NotFilteredItems = allFilters.Except(alreadyFilteredOptions).Select(x =>
+                NotFilteredItems = allFilterAfterCheck.Except(alreadyFilteredOptions).Select(x =>
                 {
                     //filter URL
                     var alreadyFiltered = alreadyFilteredSpecOptionIds.Concat(new List<int> { x.SpecificationAttributeOptionId });
                     var queryString = $"{QUERYSTRINGPARAM}={GenerateFilteredSpecQueryParam(alreadyFiltered.ToList())}";
                     var filterUrl = webHelper.ModifyQueryString(webHelper.GetThisPageUrl(true), queryString, null);
-
                     return new SpecificationFilterItem()
                     {
                         SpecificationAttributeName = x.SpecificationAttributeName,

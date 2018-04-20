@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using Nop.Core.Domain.Catalog;
+﻿using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Vendors;
 using Nop.Web.Models.Catalog;
+using System.Collections.Generic;
 
 namespace Nop.Web.Factories
 {
@@ -46,6 +46,9 @@ namespace Nop.Web.Factories
         /// <returns>Category model</returns>
         CategoryModel PrepareCategoryModel(Category category, CatalogPagingFilteringModel command);
 
+        ProductFilterModel PrepareProductFilterModel(CatalogPagingFilteringModel command);
+
+        List<CateSpecificationAttributeSimpleModel> PrepareCateSpecificationAttributeSimpleModels();
         /// <summary>
         /// Prepare category template view path
         /// </summary>

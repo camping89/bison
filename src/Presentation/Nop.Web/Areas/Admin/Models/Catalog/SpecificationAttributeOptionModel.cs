@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using FluentValidation.Attributes;
+﻿using FluentValidation.Attributes;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Web.Areas.Admin.Validators.Catalog;
 using Nop.Web.Framework.Localization;
 using Nop.Web.Framework.Mvc.ModelBinding;
 using Nop.Web.Framework.Mvc.Models;
+using System.Collections.Generic;
 
 namespace Nop.Web.Areas.Admin.Models.Catalog
 {
@@ -13,10 +14,12 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         public SpecificationAttributeOptionModel()
         {
             Locales = new List<SpecificationAttributeOptionLocalizedModel>();
+            AvailableOptions = new List<SelectListItem>();
         }
 
         public int SpecificationAttributeId { get; set; }
-
+        [NopResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.ParentSpecificationAttributeId")]
+        public int ParentSpecificationAttributeId { get; set; }
         [NopResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.Name")]
         public string Name { get; set; }
 
@@ -30,7 +33,10 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
         [NopResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.NumberOfAssociatedProducts")]
         public int NumberOfAssociatedProducts { get; set; }
-        
+        public string Breadcrumb { get; set; }
+
+        [NopResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.AvailableOptions")]
+        public IList<SelectListItem> AvailableOptions { get; set; }
         public IList<SpecificationAttributeOptionLocalizedModel> Locales { get; set; }
     }
 

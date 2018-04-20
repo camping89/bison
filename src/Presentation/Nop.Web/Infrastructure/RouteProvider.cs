@@ -72,6 +72,10 @@ namespace Nop.Web.Infrastructure
             //product search
             routeBuilder.MapLocalizedRoute("ProductSearch", "search/",
 				new { controller = "Catalog", action = "Search" });
+            
+            //product filter
+            routeBuilder.MapLocalizedRoute("ProductFilter", "productfilter/",
+				new { controller = "Catalog", action = "ProductFilter" });
 
             routeBuilder.MapLocalizedRoute("ProductSearchAutoComplete", "catalog/searchtermautocomplete",
 				new { controller = "Catalog", action = "SearchTermAutoComplete" });

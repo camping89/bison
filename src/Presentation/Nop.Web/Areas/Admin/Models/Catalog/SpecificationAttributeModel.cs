@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using FluentValidation.Attributes;
+﻿using FluentValidation.Attributes;
 using Nop.Web.Areas.Admin.Validators.Catalog;
 using Nop.Web.Framework.Localization;
 using Nop.Web.Framework.Mvc.ModelBinding;
 using Nop.Web.Framework.Mvc.Models;
+using System.Collections.Generic;
 
 namespace Nop.Web.Areas.Admin.Models.Catalog
 {
@@ -17,6 +17,8 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
         [NopResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Fields.Name")]
         public string Name { get; set; }
+        [NopResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Fields.IsShowOnTopMenu")]
+        public bool IsShowOnTopMenu { get;set; }
 
         [NopResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Fields.DisplayOrder")]
         public int DisplayOrder {get;set;}

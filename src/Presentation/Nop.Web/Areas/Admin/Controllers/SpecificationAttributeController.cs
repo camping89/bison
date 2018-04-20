@@ -1,16 +1,18 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Nop.Web.Areas.Admin.Extensions;
-using Nop.Web.Areas.Admin.Models.Catalog;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core.Domain.Catalog;
 using Nop.Services.Catalog;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
 using Nop.Services.Security;
+using Nop.Web.Areas.Admin.Extensions;
+using Nop.Web.Areas.Admin.Helpers;
+using Nop.Web.Areas.Admin.Models.Catalog;
 using Nop.Web.Framework.Kendoui;
 using Nop.Web.Framework.Mvc;
 using Nop.Web.Framework.Mvc.Filters;
+using System;
+using System.Linq;
 
 namespace Nop.Web.Areas.Admin.Controllers
 {
@@ -30,9 +32,9 @@ namespace Nop.Web.Areas.Admin.Controllers
         #region Ctor
 
         public SpecificationAttributeController(ISpecificationAttributeService specificationAttributeService,
-            ILanguageService languageService, 
+            ILanguageService languageService,
             ILocalizedEntityService localizedEntityService,
-            ILocalizationService localizationService, 
+            ILocalizationService localizationService,
             ICustomerActivityService customerActivityService,
             IPermissionService permissionService)
         {
@@ -45,7 +47,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
         #endregion
-        
+
         #region Utilities
 
         protected virtual void UpdateAttributeLocales(SpecificationAttribute specificationAttribute, SpecificationAttributeModel model)
@@ -71,7 +73,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
         #endregion
-        
+
         #region Specification attributes
 
         //list
@@ -104,7 +106,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             return Json(gridModel);
         }
-        
+
         //create
         public virtual IActionResult Create()
         {
@@ -197,7 +199,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     //selected tab
                     SaveSelectedTabName();
 
-                    return RedirectToAction("Edit",  new {id = specificationAttribute.Id});
+                    return RedirectToAction("Edit", new { id = specificationAttribute.Id });
                 }
                 return RedirectToAction("List");
             }
@@ -241,12 +243,13 @@ namespace Nop.Web.Areas.Admin.Controllers
             var options = _specificationAttributeService.GetSpecificationAttributeOptionsBySpecificationAttribute(specificationAttributeId);
             var gridModel = new DataSourceResult
             {
-                Data = options.Select(x => 
+                Data = options.Select(x =>
                     {
                         var model = x.ToModel();
                         //in order to save performance to do not check whether a product is deleted, etc
                         model.NumberOfAssociatedProducts = _specificationAttributeService
                             .GetProductSpecificationAttributeCount(0, x.Id);
+                        model.Breadcrumb = x.GetFormattedSpecBreadCrumb(_specificationAttributeService);
                         //locales
                         //AddLocales(_languageService, model.Locales, (locale, languageId) =>
                         //{
@@ -270,6 +273,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             {
                 SpecificationAttributeId = specificationAttributeId
             };
+            PrepareAllSpecificationAttributeOptionsModel(model, specificationAttributeId);
             //locales
             AddLocales(_languageService, model.Locales);
             return View(model);
@@ -299,7 +303,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 ViewBag.RefreshPage = true;
                 return View(model);
             }
-
+            PrepareAllSpecificationAttributeOptionsModel(model, model.SpecificationAttributeId);
             //If we got this far, something failed, redisplay form
             return View(model);
         }
@@ -323,7 +327,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             {
                 locale.Name = sao.GetLocalized(x => x.Name, languageId, false, false);
             });
-
+            PrepareAllSpecificationAttributeOptionsModel(model, sao.SpecificationAttributeId);
             return View(model);
         }
 
@@ -352,7 +356,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 ViewBag.RefreshPage = true;
                 return View(model);
             }
-
+            PrepareAllSpecificationAttributeOptionsModel(model, sao.SpecificationAttributeId);
             //If we got this far, something failed, redisplay form
             return View(model);
         }
@@ -388,10 +392,23 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             var options = _specificationAttributeService.GetSpecificationAttributeOptionsBySpecificationAttribute(Convert.ToInt32(attributeId));
             var result = (from o in options
-                          select new { id = o.Id, name = o.Name }).ToList();
+                          select new { id = o.Id, name = o.GetFormattedSpecBreadCrumb(_specificationAttributeService) }).ToList();
             return Json(result);
         }
+        protected virtual void PrepareAllSpecificationAttributeOptionsModel(SpecificationAttributeOptionModel model, int specificationAttributeId)
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
 
+            model.AvailableOptions.Add(new SelectListItem
+            {
+                Text = _localizationService.GetResource("Admin.SpecificationAttribute.SpecificationAttributeOptions.Fields.Parent.None"),
+                Value = "0"
+            });
+            var categories = SelectListHelper.GetSpecificationOptionList(_specificationAttributeService, specificationAttributeId, true);
+            foreach (var c in categories)
+                model.AvailableOptions.Add(c);
+        }
         #endregion
     }
 }

@@ -26,7 +26,8 @@ namespace Nop.Core.Domain.Catalog
         /// Gets or sets the display order
         /// </summary>
         public int DisplayOrder { get; set; }
-        
+
+        public int ParentSpecificationAttributeId { get; set; }
         /// <summary>
         /// Gets or sets the specification attribute
         /// </summary>

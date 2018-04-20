@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using Nop.Core.Domain.Localization;
+using System.Collections.Generic;
 
 namespace Nop.Core.Domain.Catalog
 {
@@ -19,6 +19,8 @@ namespace Nop.Core.Domain.Catalog
         /// Gets or sets the display order
         /// </summary>
         public int DisplayOrder { get; set; }
+
+        public bool IsShowOnTopMenu { get;set; }
 
         /// <summary>
         /// Gets or sets the specification attribute options

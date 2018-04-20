@@ -599,12 +599,13 @@ namespace Nop.Web.Areas.Admin.Controllers
                 if (model.AddSpecificationAttributeModel.AvailableAttributes.Any())
                 {
                     var selectedAttributeId = int.Parse(model.AddSpecificationAttributeModel.AvailableAttributes.First().Value);
-                    foreach (var sao in _specificationAttributeService.GetSpecificationAttributeOptionsBySpecificationAttribute(selectedAttributeId))
-                        model.AddSpecificationAttributeModel.AvailableOptions.Add(new SelectListItem
-                        {
-                            Text = sao.Name,
-                            Value = sao.Id.ToString()
-                        });
+                    model.AddSpecificationAttributeModel.AvailableOptions = SelectListHelper.GetSpecificationOptionList(_specificationAttributeService, selectedAttributeId);
+                    //foreach (var sao in _specificationAttributeService.GetSpecificationAttributeOptionsBySpecificationAttribute(selectedAttributeId))
+                    //    model.AddSpecificationAttributeModel.AvailableOptions.Add(new SelectListItem
+                    //    {
+                    //        Text = sao.Name,
+                    //        Value = sao.Id.ToString()
+                    //    });
                 }
                 //default specs values
                 model.AddSpecificationAttributeModel.ShowOnProductPage = true;

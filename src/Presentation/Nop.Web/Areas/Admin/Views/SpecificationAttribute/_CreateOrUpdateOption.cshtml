@@ -48,31 +48,40 @@
             <div class="panel panel-default panel-popup">
                 <div class="panel-body">
                     @(Html.LocalizedEditor<SpecificationAttributeOptionModel, SpecificationAttributeOptionLocalizedModel>("specificationattribute-localized",
-                    @<div>
-                        <div class="form-group">
-                            <div class="col-sm-3">
-                                <nop-label asp-for="@Model.Locales[item].Name" />
+                            @<div>
+                                <div class="form-group">
+                                    <div class="col-sm-3">
+                                        <nop-label asp-for="@Model.Locales[item].Name" />
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <nop-editor asp-for="@Model.Locales[item].Name" />
+                                        <span asp-validation-for="@Model.Locales[item].Name"></span>
+                                    </div>
+                                </div>
+                                <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
                             </div>
-                            <div class="col-sm-9">
-                                <nop-editor asp-for="@Model.Locales[item].Name" />
-                                <span asp-validation-for="@Model.Locales[item].Name"></span>
-                            </div>
+,
+                                            @<div>
+                                                <div class="form-group">
+                                                    <div class="col-sm-3">
+                                                        <nop-label asp-for="Name" />
+                                                    </div>
+                                                    <div class="col-sm-9">
+                                                        <nop-editor asp-for="Name" asp-required="true" />
+                                                        <span asp-validation-for="Name"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                                                  ))
+                    <div class="form-group">
+                        <div class="col-sm-3">
+                            <nop-label asp-for="ParentSpecificationAttributeId" />
                         </div>
-                        <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
-                    </div>
-    ,
-                    @<div>
-                        <div class="form-group">
-                            <div class="col-sm-3">
-                                <nop-label asp-for="Name" />
-                            </div>
-                            <div class="col-sm-9">
-                                <nop-editor asp-for="Name" asp-required="true" />
-                                <span asp-validation-for="Name"></span>
-                            </div>
+                        <div class="col-sm-3">
+                                <nop-select asp-for="ParentSpecificationAttributeId" asp-items="Model.AvailableOptions" />
+                                <span asp-validation-for="ParentSpecificationAttributeId"></span>
                         </div>
                     </div>
-    ))
                     <div class="form-group">
                         <div class="col-sm-3">
                             <nop-label asp-for="EnableColorSquaresRgb" />

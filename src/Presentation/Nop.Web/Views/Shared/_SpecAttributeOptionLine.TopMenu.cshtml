@@ -1,0 +1,30 @@
+﻿@model TopMenuModel.SpecAttrOptionLineModel
+<li>
+    <a href="@Url.RouteUrl("ProductFilter")?specs=@Model.CateSaoModel.Id">@Model.CateSaoModel.SpecificationAttrName</a>
+    @{
+        var subSpecs = Model.CateSaoModel.SubCateSaoSimpleModels;
+
+        var levelClass = "";
+        if (Model.Level == 0)
+        {
+            levelClass = "first-level";
+        }
+        if (subSpecs.Count > 0)
+        {
+        <div class="sublist-toggle"></div>
+        <ul class="sublist @levelClass">
+            @foreach (var subItem in subSpecs)
+                {
+                    var categoryLineModel = new TopMenuModel.SpecAttrOptionLineModel()
+                    {
+                        CateSaoModel = subItem,
+                        Level = Model.Level + 1,
+                        ResponsiveMobileMenu = Model.ResponsiveMobileMenu,
+                        Category = Model.Category
+                    };
+                    @await Html.PartialAsync("_SpecAttributeOptionLine.TopMenu", categoryLineModel)
+                }
+        </ul>
+        }
+    }
+</li>

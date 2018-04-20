@@ -8,6 +8,16 @@
     @{
         var rootCategories = Model.Categories.Where(x => x.IncludeInTopMenu).ToList();
     }
+
+    @foreach (var cateSpec in Model.CateSpecificationAttributes)
+    {
+        var specAttr = new TopMenuModel.SpecAttrLineModel
+        {
+            CateSpecAttr = cateSpec,
+            ResponsiveMobileMenu = true
+        };
+        @await Html.PartialAsync("_SpecAttributeLine.TopMenu", specAttr)
+    }
     @foreach (var category in rootCategories)
     {
         var categoryLineModel = new TopMenuModel.CategoryLineModel
@@ -57,6 +67,16 @@
         {
             <li><a href="@Url.RouteUrl("HomePage")">@T("HomePage")</a></li>
         }
+        
+        @foreach (var cateSpec in Model.CateSpecificationAttributes)
+        {
+            var specAttr = new TopMenuModel.SpecAttrLineModel
+            {
+                CateSpecAttr = cateSpec,
+                ResponsiveMobileMenu = true
+            };
+            @await Html.PartialAsync("_SpecAttributeLine.TopMenu", specAttr)
+        }
         @foreach (var category in rootCategoriesResponsive)
         {
             var categoryLineModel = new TopMenuModel.CategoryLineModel
@@ -66,6 +86,7 @@
             };
             @await Html.PartialAsync("_CategoryLine.TopMenu", categoryLineModel)
         }
+        
         @foreach (var topic in Model.Topics)
         {
             <li><a href="@Url.RouteUrl("Topic", new { SeName = topic.SeName })">@topic.Name</a></li>

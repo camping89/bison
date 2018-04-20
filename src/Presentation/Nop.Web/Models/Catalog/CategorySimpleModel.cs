@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Nop.Web.Framework.Mvc.Models;
+﻿using Nop.Web.Framework.Mvc.Models;
+using System.Collections.Generic;
 
 namespace Nop.Web.Models.Catalog
 {
@@ -17,7 +17,6 @@ namespace Nop.Web.Models.Catalog
         public int? NumberOfProducts { get; set; }
 
         public bool IncludeInTopMenu { get; set; }
-
         public List<CategorySimpleModel> SubCategories { get; set; }
     }
 }

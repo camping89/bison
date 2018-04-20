@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
-using Nop.Web.Framework.Mvc.Models;
+﻿using Nop.Web.Framework.Mvc.Models;
 using Nop.Web.Models.Media;
+using System.Collections.Generic;
 
 namespace Nop.Web.Models.Catalog
 {
+    public partial class ProductFilterModel : CategoryModel
+    {
+
+    }
     public partial class CategoryModel : BaseNopEntityModel
     {
         public CategoryModel()
@@ -55,4 +59,5 @@ namespace Nop.Web.Models.Catalog
 
 		#endregion
     }
+
 }

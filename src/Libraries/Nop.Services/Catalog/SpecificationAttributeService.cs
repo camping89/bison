@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Data;
 using Nop.Core.Domain.Catalog;
 using Nop.Services.Events;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Nop.Services.Catalog
 {
@@ -32,13 +32,13 @@ namespace Nop.Services.Catalog
         /// </summary>
         private const string PRODUCTSPECIFICATIONATTRIBUTE_PATTERN_KEY = "Nop.productspecificationattribute.";
         private const string CATEGORYSPECIFICATIONATTRIBUTE_ALLBYPRODUCTID_KEY = "Nop.categoryspecificationattribute.allbycategoryid-{0}-{1}-{2}-{3}";
-        
+
         private const string CATEGORYSPECIFICATIONATTRIBUTE_PATTERN_KEY = "Nop.categoryspecificationattribute.";
 
         #endregion
 
         #region Fields
-        
+
         private readonly IRepository<SpecificationAttribute> _specificationAttributeRepository;
         private readonly IRepository<SpecificationAttributeOption> _specificationAttributeOptionRepository;
         private readonly IRepository<ProductSpecificationAttribute> _productSpecificationAttributeRepository;
@@ -199,6 +199,26 @@ namespace Nop.Services.Catalog
             return sortedSpecificationAttributeOptions;
         }
 
+        public virtual IList<SpecificationAttributeOption> GetSpecificationAttributeOptionsByParentIds(int[] specificationAttributeOptionIds)
+        {
+            if (specificationAttributeOptionIds == null || specificationAttributeOptionIds.Length == 0)
+                return new List<SpecificationAttributeOption>();
+
+            var query = from sao in _specificationAttributeOptionRepository.Table
+                        where specificationAttributeOptionIds.Contains(sao.ParentSpecificationAttributeId)
+                        select sao;
+            var specificationAttributeOptions = query.ToList();
+            //sort by passed identifiers
+            var sortedSpecificationAttributeOptions = new List<SpecificationAttributeOption>();
+            foreach (var id in specificationAttributeOptionIds)
+            {
+                var sao = specificationAttributeOptions.Find(x => x.ParentSpecificationAttributeId == id);
+                if (sao != null)
+                    sortedSpecificationAttributeOptions.Add(sao);
+            }
+            return sortedSpecificationAttributeOptions;
+        }
+
         /// <summary>
         /// Gets a specification attribute option by specification attribute id
         /// </summary>
@@ -210,8 +230,9 @@ namespace Nop.Services.Catalog
                         orderby sao.DisplayOrder, sao.Id
                         where sao.SpecificationAttributeId == specificationAttributeId
                         select sao;
-            var specificationAttributeOptions = query.ToList();
-            return specificationAttributeOptions;
+            var specificationAttributeOptions = query.OrderBy(c => c.ParentSpecificationAttributeId).ThenBy(c => c.DisplayOrder).ThenBy(c => c.Id).ToList();
+            var sortedpecificationAttributeOptions = specificationAttributeOptions.SortSaoForTree();
+            return sortedpecificationAttributeOptions;
         }
 
         /// <summary>
@@ -315,9 +336,9 @@ namespace Nop.Services.Catalog
         {
             var allowFilteringCacheStr = allowFiltering.HasValue ? allowFiltering.ToString() : "null";
             var showOnProductPageCacheStr = showOnProductPage.HasValue ? showOnProductPage.ToString() : "null";
-            var key = string.Format(PRODUCTSPECIFICATIONATTRIBUTE_ALLBYPRODUCTID_KEY, 
+            var key = string.Format(PRODUCTSPECIFICATIONATTRIBUTE_ALLBYPRODUCTID_KEY,
                 productId, specificationAttributeOptionId, allowFilteringCacheStr, showOnProductPageCacheStr);
-            
+
             return _cacheManager.Get(key, () =>
             {
                 var query = _productSpecificationAttributeRepository.Table;
@@ -345,7 +366,7 @@ namespace Nop.Services.Catalog
         {
             if (productSpecificationAttributeId == 0)
                 return null;
-            
+
             return _productSpecificationAttributeRepository.GetById(productSpecificationAttributeId);
         }
 
@@ -403,7 +424,7 @@ namespace Nop.Services.Catalog
         #endregion
         #region Product specification attribute
 
-        
+
         public virtual void DeleteCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute)
         {
             if (categorySpecificationAttribute == null)
@@ -417,7 +438,7 @@ namespace Nop.Services.Catalog
             _eventPublisher.EntityDeleted(categorySpecificationAttribute);
         }
 
-       
+
         public virtual IList<CategorySpecificationAttribute> GetCategorySpecificationAttributes(int categoryId = 0,
             int specificationAttributeOptionId = 0, bool? allowFiltering = null, bool? showOnProductPage = null)
         {
@@ -443,7 +464,7 @@ namespace Nop.Services.Catalog
                 return productSpecificationAttributes;
             });
         }
-        
+
         public virtual CategorySpecificationAttribute GetCategorySpecificationAttributeById(int categorySpecificationAttributeId)
         {
             if (categorySpecificationAttributeId == 0)
@@ -452,7 +473,7 @@ namespace Nop.Services.Catalog
             return _categorySpecificationAttributeRepository.GetById(categorySpecificationAttributeId);
         }
 
-        
+
         public virtual void InsertCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute)
         {
             if (categorySpecificationAttribute == null)
@@ -466,7 +487,7 @@ namespace Nop.Services.Catalog
             _eventPublisher.EntityInserted(categorySpecificationAttribute);
         }
 
-        
+
         public virtual void UpdateCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute)
         {
             if (categorySpecificationAttribute == null)

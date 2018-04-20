@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Customers;
@@ -17,6 +16,7 @@ using Nop.Web.Framework;
 using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Framework.Security;
 using Nop.Web.Models.Catalog;
+using System.Linq;
 
 namespace Nop.Web.Controllers
 {
@@ -131,6 +131,25 @@ namespace Nop.Web.Controllers
             //template
             var templateViewPath = _catalogModelFactory.PrepareCategoryTemplateViewPath(category.CategoryTemplateId);
             return View(templateViewPath, model);
+        }
+
+        [HttpsRequirement(SslRequirement.No)]
+        public virtual IActionResult ProductFilter(CatalogPagingFilteringModel command)
+        {
+          
+            //'Continue shopping' URL
+            _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer, 
+                SystemCustomerAttributeNames.LastContinueShoppingPage, 
+                _webHelper.GetThisPageUrl(false),
+                _storeContext.CurrentStore.Id);
+            
+            //activity log
+            _customerActivityService.InsertActivity("PublicStore.ProductFilter", _localizationService.GetResource("ActivityLog.PublicStore.ProductFilter"));
+
+            //model
+            var model = _catalogModelFactory.PrepareProductFilterModel(command);
+            
+            return View("CategoryTemplate.ProductsInGridOrLines", model);
         }
 
         #endregion
