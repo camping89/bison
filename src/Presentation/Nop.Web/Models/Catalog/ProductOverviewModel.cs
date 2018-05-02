@@ -14,6 +14,7 @@ namespace Nop.Web.Models.Catalog
             DefaultPictureModel = new PictureModel();
             SpecificationAttributeModels = new List<ProductSpecificationModel>();
             ReviewOverviewModel = new ProductReviewOverviewModel();
+            ShowPriceProduct = true;
         }
 
         public string Name { get; set; }
@@ -26,7 +27,7 @@ namespace Nop.Web.Models.Catalog
         public ProductType ProductType { get; set; }
 
         public bool MarkAsNew { get; set; }
-
+        public bool ShowPriceProduct { get; set; }
         //price
         public ProductPriceModel ProductPrice { get; set; }
         //picture

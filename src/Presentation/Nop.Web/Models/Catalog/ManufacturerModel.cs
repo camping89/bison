@@ -20,7 +20,7 @@ namespace Nop.Web.Models.Catalog
         public string MetaDescription { get; set; }
         public string MetaTitle { get; set; }
         public string SeName { get; set; }
-
+        public bool ShowPriceProduct { get; set; }
         public PictureModel PictureModel { get; set; }
 
         public CatalogPagingFilteringModel PagingFilteringContext { get; set; }

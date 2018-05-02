@@ -1306,7 +1306,8 @@ namespace Nop.Web.Areas.Admin.Controllers
                 pageSize: command.PageSize,
                 showHidden: true,
                 overridePublished: overridePublished,
-                orderBy: sortingEnum
+                orderBy: sortingEnum,
+                onlyShowNoAddCategory: model.OnlyShowNoAddToCate
             );
             var gridModel = new DataSourceResult
             {
@@ -1731,6 +1732,32 @@ namespace Nop.Web.Areas.Admin.Controllers
                     {
                         ProductId = productId,
                         CategoryId = categoryId,
+                        DisplayOrder = displayOrder
+                    });
+                }
+            }
+            return Json(new { Result = true });
+        }
+
+        [HttpPost]
+        public virtual IActionResult AddProductToManufacturesSelected(ICollection<int> selectedIdsProducToAdd, ICollection<int> SelectedManufactureIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            if (selectedIdsProducToAdd == null || SelectedManufactureIds == null) return Json(new { Result = true });
+            foreach (var manufactureId in SelectedManufactureIds)
+            {
+                foreach (var productId in selectedIdsProducToAdd)
+                {
+                    var displayOrder = 1;
+                    var existingManufactureMapping = _manufacturerService.GetProductManufacturersByProductId(productId, showHidden: true);
+                    if (existingManufactureMapping.Any())
+                        displayOrder = existingManufactureMapping.Max(x => x.DisplayOrder) + 1;
+                    _manufacturerService.InsertProductManufacturer(new ProductManufacturer
+                    {
+                        ProductId = productId,
+                        ManufacturerId = manufactureId,
                         DisplayOrder = displayOrder
                     });
                 }

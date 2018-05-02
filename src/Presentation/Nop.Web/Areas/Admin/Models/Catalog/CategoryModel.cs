@@ -88,7 +88,9 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
         [NopResourceDisplayName("Admin.Catalog.Categories.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }
-        
+
+        [NopResourceDisplayName("Admin.Catalog.Categories.Fields.DisplayPriceProduct")]
+        public bool ShowPriceProduct { get; set; }
         public IList<CategoryLocalizedModel> Locales { get; set; }
 
         public string Breadcrumb { get; set; }

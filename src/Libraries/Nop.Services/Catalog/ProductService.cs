@@ -203,6 +203,7 @@ namespace Nop.Services.Catalog
         /// true - load only "Published" products
         /// false - load only "Unpublished" products
         /// </param>
+        /// <param name="onlyShowNoAddCategory"></param>
         /// <returns>Products</returns>
         protected virtual IPagedList<Product> SearchProductsUseLinq(ref IList<int> filterableSpecificationAttributeOptionIds,
             bool loadFilterableSpecificationAttributeOptionIds, int pageIndex, int pageSize, IList<int> categoryIds,
@@ -210,7 +211,7 @@ namespace Nop.Services.Catalog
             bool visibleIndividuallyOnly, bool markedAsNewOnly, bool? featuredProducts, decimal? priceMin, decimal? priceMax,
             int productTagId, string keywords, bool searchDescriptions, bool searchManufacturerPartNumber, bool searchSku,
             bool searchProductTags, bool searchLocalizedValue, int[] allowedCustomerRolesIds, int languageId,
-            IList<int> filteredSpecs, ProductSortingEnum orderBy, bool showHidden, bool? overridePublished)
+            IList<int> filteredSpecs, ProductSortingEnum orderBy, bool showHidden, bool? overridePublished, bool onlyShowNoAddCategory = false)
         {
             //products
             var query = _productRepository.Table;
@@ -324,10 +325,21 @@ namespace Nop.Services.Catalog
             //category filtering
             if (categoryIds != null && categoryIds.Any())
             {
-                query = from p in query
+                if (!onlyShowNoAddCategory)
+                {
+                    query = from p in query
                         from pc in p.ProductCategories.Where(pc => categoryIds.Contains(pc.CategoryId))
                         where (!featuredProducts.HasValue || featuredProducts.Value == pc.IsFeaturedProduct)
                         select p;
+                }
+                else
+                {
+                    query = from p in query
+                        from pc in p.ProductCategories.Where(pc => categoryIds.Contains(pc.CategoryId))
+                        where (!featuredProducts.HasValue || featuredProducts.Value == pc.IsFeaturedProduct) && p.ProductCategories.Count == 1
+                        select p;
+                }
+                
             }
 
             //manufacturer filtering
@@ -518,6 +530,7 @@ namespace Nop.Services.Catalog
         /// true - load only "Published" products
         /// false - load only "Unpublished" products
         /// </param>
+        /// <param name="onlyShowNoAddCategory"></param>
         /// <returns>Products</returns>
         protected virtual IPagedList<Product> SearchProductsUseStoredProcedure(ref IList<int> filterableSpecificationAttributeOptionIds,
             bool loadFilterableSpecificationAttributeOptionIds, int pageIndex, int pageSize, IList<int> categoryIds,
@@ -525,7 +538,7 @@ namespace Nop.Services.Catalog
             bool visibleIndividuallyOnly, bool markedAsNewOnly, bool? featuredProducts, decimal? priceMin, decimal? priceMax,
             int productTagId, string keywords, bool searchDescriptions, bool searchManufacturerPartNumber, bool searchSku,
             int[] allowedCustomerRolesIds, bool searchProductTags, bool searchLocalizedValue, int languageId,
-            IList<int> filteredSpecs, ProductSortingEnum orderBy, bool showHidden, bool? overridePublished)
+            IList<int> filteredSpecs, ProductSortingEnum orderBy, bool showHidden, bool? overridePublished, bool onlyShowNoAddCategory = false)
         {
             //pass category identifiers as comma-delimited string
             var commaSeparatedCategoryIds = categoryIds == null ? "" : string.Join(",", categoryIds);
@@ -574,7 +587,7 @@ namespace Nop.Services.Catalog
             var pShowHidden = _dataProvider.GetBooleanParameter("ShowHidden", showHidden);
             var pOverridePublished = _dataProvider.GetBooleanParameter("OverridePublished", overridePublished);
             var pLoadFilterableSpecificationAttributeOptionIds = _dataProvider.GetBooleanParameter("LoadFilterableSpecificationAttributeOptionIds", loadFilterableSpecificationAttributeOptionIds);
-
+            var ponlyShowNoAddCategory = _dataProvider.GetBooleanParameter("OnlyShowNoAddCategory", onlyShowNoAddCategory);
             //prepare output parameters
             var pFilterableSpecificationAttributeOptionIds = _dataProvider.GetOutputStringParameter("FilterableSpecificationAttributeOptionIds");
             pFilterableSpecificationAttributeOptionIds.Size = int.MaxValue - 1;
@@ -612,7 +625,8 @@ namespace Nop.Services.Catalog
                 pOverridePublished,
                 pLoadFilterableSpecificationAttributeOptionIds,
                 pFilterableSpecificationAttributeOptionIds,
-                pTotalRecords);
+                pTotalRecords,
+                ponlyShowNoAddCategory);
             //get filterable specification attribute option identifier
             var filterableSpecificationAttributeOptionIdsStr =
                 pFilterableSpecificationAttributeOptionIds.Value != DBNull.Value
@@ -896,6 +910,7 @@ namespace Nop.Services.Catalog
         /// true - load only "Published" products
         /// false - load only "Unpublished" products
         /// </param>
+        /// <param name="onlyShowNoAddCategory"></param>
         /// <returns>Products</returns>
         public virtual IPagedList<Product> SearchProducts(
             int pageIndex = 0,
@@ -921,7 +936,7 @@ namespace Nop.Services.Catalog
             IList<int> filteredSpecs = null,
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
             bool showHidden = false,
-            bool? overridePublished = null)
+            bool? overridePublished = null, bool onlyShowNoAddCategory = false)
         {
             return SearchProducts(out IList<int> _, false,
                 pageIndex, pageSize, categoryIds, manufacturerId,
@@ -929,7 +944,7 @@ namespace Nop.Services.Catalog
                 productType, visibleIndividuallyOnly, markedAsNewOnly, featuredProducts,
                 priceMin, priceMax, productTagId, keywords, searchDescriptions, searchManufacturerPartNumber, searchSku,
                 searchProductTags, languageId, filteredSpecs,
-                orderBy, showHidden, overridePublished);
+                orderBy, showHidden, overridePublished,onlyShowNoAddCategory);
         }
 
         /// <summary>
@@ -965,6 +980,7 @@ namespace Nop.Services.Catalog
         /// true - load only "Published" products
         /// false - load only "Unpublished" products
         /// </param>
+        /// <param name="onlyShowNoAddCategory"></param>
         /// <returns>Products</returns>
         public virtual IPagedList<Product> SearchProducts(
             out IList<int> filterableSpecificationAttributeOptionIds,
@@ -992,7 +1008,7 @@ namespace Nop.Services.Catalog
             IList<int> filteredSpecs = null,
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
             bool showHidden = false,
-            bool? overridePublished = null)
+            bool? overridePublished = null, bool onlyShowNoAddCategory = false)
         {
             filterableSpecificationAttributeOptionIds = new List<int>();
 
@@ -1025,12 +1041,12 @@ namespace Nop.Services.Catalog
             {
                 //stored procedures are enabled and supported by the database. 
                 //It's much faster than the LINQ implementation below 
-                products = SearchProductsUseStoredProcedure(ref filterableSpecificationAttributeOptionIds, loadFilterableSpecificationAttributeOptionIds, pageIndex, pageSize, categoryIds, manufacturerId, storeId, vendorId, warehouseId, productType, visibleIndividuallyOnly, markedAsNewOnly, featuredProducts, priceMin, priceMax, productTagId, keywords, searchDescriptions, searchManufacturerPartNumber, searchSku, allowedCustomerRolesIds, searchProductTags, searchLocalizedValue, languageId, filteredSpecs, orderBy, showHidden, overridePublished);
+                products = SearchProductsUseStoredProcedure(ref filterableSpecificationAttributeOptionIds, loadFilterableSpecificationAttributeOptionIds, pageIndex, pageSize, categoryIds, manufacturerId, storeId, vendorId, warehouseId, productType, visibleIndividuallyOnly, markedAsNewOnly, featuredProducts, priceMin, priceMax, productTagId, keywords, searchDescriptions, searchManufacturerPartNumber, searchSku, allowedCustomerRolesIds, searchProductTags, searchLocalizedValue, languageId, filteredSpecs, orderBy, showHidden, overridePublished,onlyShowNoAddCategory);
             }
             else
             {
                 //stored procedures aren't supported. Use LINQ
-                return SearchProductsUseLinq(ref filterableSpecificationAttributeOptionIds, loadFilterableSpecificationAttributeOptionIds, pageIndex, pageSize, categoryIds, manufacturerId, storeId, vendorId, warehouseId, productType, visibleIndividuallyOnly, markedAsNewOnly, featuredProducts, priceMin, priceMax, productTagId, keywords, searchDescriptions, searchManufacturerPartNumber, searchSku, searchProductTags, searchLocalizedValue, allowedCustomerRolesIds, languageId, filteredSpecs, orderBy, showHidden, overridePublished);
+                return SearchProductsUseLinq(ref filterableSpecificationAttributeOptionIds, loadFilterableSpecificationAttributeOptionIds, pageIndex, pageSize, categoryIds, manufacturerId, storeId, vendorId, warehouseId, productType, visibleIndividuallyOnly, markedAsNewOnly, featuredProducts, priceMin, priceMax, productTagId, keywords, searchDescriptions, searchManufacturerPartNumber, searchSku, searchProductTags, searchLocalizedValue, allowedCustomerRolesIds, languageId, filteredSpecs, orderBy, showHidden, overridePublished,onlyShowNoAddCategory);
             }
 
             return products;

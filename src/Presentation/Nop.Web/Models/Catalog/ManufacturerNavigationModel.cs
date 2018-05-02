@@ -22,5 +22,6 @@ namespace Nop.Web.Models.Catalog
         public string SeName { get; set; }
         
         public bool IsActive { get; set; }
+        public bool ShowPriceProduct { get; set; }
     }
 }

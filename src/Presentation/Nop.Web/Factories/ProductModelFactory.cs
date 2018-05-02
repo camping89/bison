@@ -1152,7 +1152,17 @@ namespace Nop.Web.Factories
 
                 //reviews
                 model.ReviewOverviewModel = PrepareProductReviewOverviewModel(product);
+                var manufactures = _manufacturerService.GetProductManufacturersByProductId(product.Id);
+                if (manufactures.Any(m=>m.Manufacturer.ShowPriceProduct == false))
+                {
+                    model.ShowPriceProduct = false;
+                }
 
+                var categories = _categoryService.GetProductCategoriesByProductId(product.Id);
+                if (categories.Any(c=>c.Category.ShowPriceProduct == false))
+                {
+                    model.ShowPriceProduct = false;
+                }
                 models.Add(model);
             }
             return models;

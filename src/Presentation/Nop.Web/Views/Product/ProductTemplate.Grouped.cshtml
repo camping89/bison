@@ -44,7 +44,7 @@
 }
 <!--product breadcrumb-->
 @section Breadcrumb
-{
+    {
     @await Html.PartialAsync("_ProductBreadcrumb", Model.Breadcrumb)
 }
 @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_after_breadcrumb", additionalData = Model.Id })
@@ -150,7 +150,18 @@
                                     @{
                                         var dataDictPrice = new ViewDataDictionary(ViewData);
                                         dataDictPrice.TemplateInfo.HtmlFieldPrefix = $"price_{variant.Id}";
-                                        @await Html.PartialAsync("_ProductPrice", variant.ProductPrice, dataDictPrice)
+                                        if (Model.ShowPriceProduct)
+                                        {
+                                            @await Html.PartialAsync("_ProductPrice", variant.ProductPrice, dataDictPrice)
+                                        }
+                                        else
+                                        {
+                                            <div class="prices" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+                                                <div class="product-price call-for-price">
+                                                    <span>@T("Products.CallForPrice")</span>
+                                                </div>
+                                            </div>
+                                        }
                                     }
                                     <!--price breaks-->
                                     @await Html.PartialAsync("_ProductTierPrices", variant.TierPrices)
@@ -167,7 +178,7 @@
                                     }
                                 </div>
                             </div>
-                                        }
+                        }
                         @if (Model.AssociatedProducts.Count == 0)
                         {
                             <div class="no-associated-products">

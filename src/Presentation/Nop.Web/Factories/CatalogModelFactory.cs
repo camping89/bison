@@ -352,6 +352,7 @@ namespace Nop.Web.Factories
                 MetaDescription = category.GetLocalized(x => x.MetaDescription),
                 MetaTitle = category.GetLocalized(x => x.MetaTitle),
                 SeName = category.GetSeName(),
+                ShowPriceProduct = category.ShowPriceProduct
             };
 
             //sorting
@@ -859,6 +860,7 @@ namespace Nop.Web.Factories
                 MetaDescription = manufacturer.GetLocalized(x => x.MetaDescription),
                 MetaTitle = manufacturer.GetLocalized(x => x.MetaTitle),
                 SeName = manufacturer.GetSeName(),
+                ShowPriceProduct = manufacturer.ShowPriceProduct
             };
 
             //sorting

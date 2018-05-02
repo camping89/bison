@@ -34,6 +34,7 @@ namespace Nop.Web.Controllers
 
         private readonly IProductModelFactory _productModelFactory;
         private readonly IProductService _productService;
+        private readonly ICategoryService _categoryService;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
         private readonly ILocalizationService _localizationService;
@@ -74,7 +75,7 @@ namespace Nop.Web.Controllers
             CatalogSettings catalogSettings,
             ShoppingCartSettings shoppingCartSettings,
             LocalizationSettings localizationSettings,
-            CaptchaSettings captchaSettings)
+            CaptchaSettings captchaSettings, ICategoryService categoryService)
         {
             this._productModelFactory = productModelFactory;
             this._productService = productService;
@@ -95,6 +96,7 @@ namespace Nop.Web.Controllers
             this._shoppingCartSettings = shoppingCartSettings;
             this._localizationSettings = localizationSettings;
             this._captchaSettings = captchaSettings;
+            _categoryService = categoryService;
         }
 
         #endregion
@@ -172,6 +174,16 @@ namespace Nop.Web.Controllers
 
             //model
             var model = _productModelFactory.PrepareProductDetailsModel(product, updatecartitem, false);
+            if (model.ProductManufacturers.Any(m=>m.ShowPriceProduct == false))
+            {
+                model.ShowPriceProduct = false;
+            }
+
+            var categories = _categoryService.GetProductCategoriesByProductId(productId);
+            if (categories.Any(c=>c.Category.ShowPriceProduct == false))
+            {
+                model.ShowPriceProduct = false;
+            }
             //template
             var productTemplateViewPath = _productModelFactory.PrepareProductTemplateViewPath(product);
 

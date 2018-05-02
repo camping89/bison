@@ -40,10 +40,20 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
         [NopResourceDisplayName("Admin.Catalog.Products.List.GoDirectlyToSku")]
         public string GoDirectlyToSku { get; set; }
+
+
+        [NopResourceDisplayName("Admin.Catalog.Products.List.OnlyShowNoAddToCate")]
+        public bool OnlyShowNoAddToCate { get; set; }
+
+
         
         //categories
         [NopResourceDisplayName("Admin.Catalog.Products.Fields.Categories")]
         public IList<int> SelectedCategoryIds { get;set; }
+
+        //manufactures
+        [NopResourceDisplayName("Admin.Catalog.Products.Fields.Manufactures")]
+        public IList<int> SelectedManufactureIds { get;set; }
         
         public bool IsLoggedInAsVendor { get; set; }
 

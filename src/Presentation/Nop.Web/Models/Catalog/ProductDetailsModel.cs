@@ -25,11 +25,12 @@ namespace Nop.Web.Models.Catalog
             VendorModel = new VendorBriefInfoModel();
             Breadcrumb = new ProductBreadcrumbModel();
             ProductTags = new List<ProductTagModel>();
-            ProductSpecifications= new List<ProductSpecificationModel>();
+            ProductSpecifications = new List<ProductSpecificationModel>();
             ProductManufacturers = new List<ManufacturerBriefInfoModel>();
             ProductReviewOverview = new ProductReviewOverviewModel();
             TierPrices = new List<TierPriceModel>();
             CategoryAttributeMappingModels = new List<CategoryProductAttributeMappingModel>();
+            ShowPriceProduct = true;
         }
 
         //picture(s)
@@ -52,7 +53,7 @@ namespace Nop.Web.Models.Catalog
 
         public bool ShowManufacturerPartNumber { get; set; }
         public string ManufacturerPartNumber { get; set; }
-
+        public bool ShowPriceProduct { get; set; }
         public bool ShowGtin { get; set; }
         public string Gtin { get; set; }
 

@@ -122,6 +122,7 @@ namespace Nop.Core.Domain.Catalog
         public DateTime UpdatedOnUtc { get; set; }
 
         public int KiotVietCateId { get; set; }
+        public bool ShowPriceProduct { get; set; }
         /// <summary>
         /// Gets or sets the collection of applied discounts
         /// </summary>

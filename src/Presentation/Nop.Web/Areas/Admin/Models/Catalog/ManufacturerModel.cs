@@ -78,6 +78,8 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         [NopResourceDisplayName("Admin.Catalog.Manufacturers.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }
         
+        [NopResourceDisplayName("Admin.Catalog.Manufacturers.Fields.DisplayPriceProduct")]
+        public bool ShowPriceProduct { get; set; }
         public IList<ManufacturerLocalizedModel> Locales { get; set; }
 
         //ACL (customer roles)
