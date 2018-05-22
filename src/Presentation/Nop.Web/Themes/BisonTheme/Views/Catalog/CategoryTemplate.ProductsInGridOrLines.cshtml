@@ -23,17 +23,20 @@
     var breadcrumbDelimiter = commonSettings.BreadcrumbDelimiter;
 }
 @section LeftFilter
+{
+
+<div class="widget widget-filter">
+    <h2 class="title-widget title18">@T("Filtering.ShoppingBy")</h2>
+    <h3 class="title14 shop-option">@T("Filtering.FilterOptions")</h3>
+    @if (Model.PagingFilteringContext.PriceRangeFilter.Enabled)
     {
-    <div class="widget widget-filter">
-        @if (Model.PagingFilteringContext.PriceRangeFilter.Enabled)
-        {
-            @await Html.PartialAsync("_FilterPriceBox", Model.PagingFilteringContext.PriceRangeFilter)
-        }
-        @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
-        {
-            @await Html.PartialAsync("_FilterSpecsBox", Model.PagingFilteringContext.SpecificationFilter)
-        }
-    </div>
+        @await Html.PartialAsync("_FilterPriceBox", Model.PagingFilteringContext.PriceRangeFilter)
+    }
+    @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
+    {
+        @await Html.PartialAsync("_FilterSpecsBox", Model.PagingFilteringContext.SpecificationFilter)
+    }
+</div>
 }
 
 @*category breadcrumb*@
@@ -126,7 +129,7 @@
         }
 
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
-        <!--<div class="product-filters">
+        @*<div class="product-filters">
 
             @if (Model.PagingFilteringContext.PriceRangeFilter.Enabled)
             {
@@ -137,7 +140,7 @@
             {
                 @await Html.PartialAsync("_FilterSpecsBox", Model.PagingFilteringContext.SpecificationFilter)
             }
-        </div>-->
+        </div>*@
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_product_list", additionalData = Model.Id })
 
         @if (Model.Products.Count > 0)

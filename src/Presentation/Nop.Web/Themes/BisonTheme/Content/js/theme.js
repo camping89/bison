@@ -195,14 +195,16 @@ jQuery(document).ready(function(){
 		$('.range-filter').each(function(){
 			$(this).find( ".slider-range" ).slider({
 				range: true,
-				min: 0,
-				max: 800,
-				values: [ 50, 545 ],
+				min: 10000,
+				max: 80000000,
+				values: [ 10000, 80000000 ],
 				slide: function( event, ui ) {
-					$(this).parents('.range-filter').find( ".amount" ).html( '<span>'+ui.values[ 0 ]+'</span>' + '<span>' + ui.values[ 1 ]+'</span>');
+					$(this).parents('.range-filter').find( ".amount" ).html( '<span class="startprice">'+ui.values[ 0 ].format()+'</span>' + '<span class="endprice">' + ui.values[ 1 ].format()+'</span>');
 				}
 			});
-			$(this).find( ".amount" ).html('<span>'+$(this).find( ".slider-range" ).slider( "values", 0 )+'</span>' + '<span>'+$(this).find( ".slider-range" ).slider( "values", 1 )+'</span>');
+			$(this).find( ".amount" ).html('<span class="startprice">'+$(this).find( ".slider-range" ).slider( "values", 0 )+'</span>' + '<span class="endprice">'+$(this).find( ".slider-range" ).slider( "values", 1 )+'</span>');
+		    $(".startprice").html($(".startprice").text().toInt().format());
+		    $(".endprice").html($(".endprice").text().toInt().format());
 		});
 	}
 	//Qty Up-Down
@@ -365,3 +367,23 @@ jQuery(window).on('scroll',function(){
 	fixed_header();
 });
 })(jQuery); // End of use strict
+
+Number.prototype.format = function(n, x) {
+    var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\.' : '$') + ')';
+    return this.toFixed(Math.max(0, ~~n)).replace(new RegExp(re, 'g'), '$&,');
+};
+String.prototype.toInt = function() {
+    if (this != null || this != "") {
+        var c = this.replace(",", "");
+        return parseInt(c);
+    }
+    return 0;
+}
+
+String.prototype.toFloat = function() {
+    if (this != null || this != "") {
+        var c = this.replace(",", "");
+        return parseFloat(c);
+    }
+    return 0;
+}

@@ -3927,20 +3927,21 @@ body .scroll-top span {
 .amount > span {
   border: 1px solid #e5e5e5;
   color: #adadad;
-  display: inline-block;
+  display: block;
   height: 30px;
   line-height: 30px;
-  margin: 0 5px;
+  margin: 0;
   text-align: center;
-  width: 65px;
+  width: 100%;
 }
 .btn-filter-price {
   border: medium none;
   height: 30px;
   line-height: 30px;
+    margin: 5px auto;
 }
 .amount {
-  display: inline-block;
+  display: block;
   vertical-align: top;
 }
 .range-filter .ui-slider-range {
