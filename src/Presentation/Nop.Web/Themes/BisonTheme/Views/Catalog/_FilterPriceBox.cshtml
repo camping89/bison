@@ -25,7 +25,18 @@
 }
 @if (Model.Enabled)
 {
-    <div class="product-filter price-range-filter">
+<h3 class="title14 shop-option">@T("Filtering.FilterOptions")</h3>
+    <div class="filter-price">
+        <h3 class="title14">@T("Filtering.PriceRangeFilter")</h3>
+        <div class="range-filter">
+            <span class="currency-index">$</span>
+            <span class="amount"></span>
+            <button class="btn-filter-price shop-button title14">Filter</button>
+            <div class="slider-range"></div>
+        </div>
+    </div>
+    <!-- End Filter Price -->
+    @*<div class="product-filter price-range-filter">
         <div class="filter-title">
             <strong>@T("Filtering.PriceRangeFilter")</strong>
         </div>
@@ -52,5 +63,5 @@
             }
         </div>
 
-    </div>
+    </div>*@
 }

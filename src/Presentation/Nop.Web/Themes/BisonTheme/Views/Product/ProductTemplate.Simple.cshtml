@@ -71,7 +71,10 @@
                                     <li>
                                         @await Html.PartialAsync("_ProductReviewOverview", Model.ProductReviewOverview)
                                     </li>
-                                    @*<li><span class="inout-stock in-stock"><i class="fa fa-check-square" aria-hidden="true"></i>In stock</span></li>*@
+                                    <li>
+                                        <!--availability-->
+                                        @await Html.PartialAsync("_Availability", Model)
+                                    </li>
                                 </ul>
                                 <div class="product-price">
                                     @if (!string.IsNullOrEmpty(Model.ProductPrice.OldPrice))

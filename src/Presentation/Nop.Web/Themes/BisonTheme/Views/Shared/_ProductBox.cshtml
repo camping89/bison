@@ -53,7 +53,7 @@
                 <a href="javascript:;" class="compare-link" onclick="AjaxCart.addproducttocomparelist('@addtocomparelink');return false;" ></a>
             }
         </div>
-        @*<a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })" class="quickview-link title14 fancybox fancybox.iframe">@T("ProductBoxItem.PreOrder.Quickview")</a>*@
+        <a href="@Url.Action("ProductQuickViewDetails","Product",new {  mode = "quickview" , productId = Model.Id})" class="quickview-link title14 fancybox fancybox.iframe">@T("ProductBoxItem.PreOrder.Quickview")</a>
     </div>
     <div class="product-info">
         <h3 class="product-title title14"><a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">@Model.Name</a></h3>

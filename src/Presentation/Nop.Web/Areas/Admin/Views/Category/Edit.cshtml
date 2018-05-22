@@ -1,4 +1,5 @@
-﻿@model CategoryModel
+﻿@using Nop.Web.Framework.Mvc.Models
+@model CategoryModel
 @{
     //page title
     ViewBag.Title = T("Admin.Catalog.Categories.EditCategoryDetails").Text;
@@ -38,3 +39,4 @@
     @await Html.PartialAsync("_CreateOrUpdate", Model)
 </form>
 <nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="category-delete" />
+@await Html.PartialAsync("_ConfirmCustom", new ActionConfirmationModel())

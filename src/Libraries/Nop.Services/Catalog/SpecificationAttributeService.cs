@@ -45,6 +45,7 @@ namespace Nop.Services.Catalog
         private readonly IRepository<CategorySpecificationAttribute> _categorySpecificationAttributeRepository;
         private readonly ICacheManager _cacheManager;
         private readonly IEventPublisher _eventPublisher;
+        private readonly ICategoryService _categoryService;
 
         #endregion
 
@@ -62,7 +63,7 @@ namespace Nop.Services.Catalog
             IRepository<SpecificationAttribute> specificationAttributeRepository,
             IRepository<SpecificationAttributeOption> specificationAttributeOptionRepository,
             IRepository<ProductSpecificationAttribute> productSpecificationAttributeRepository,
-            IEventPublisher eventPublisher, IRepository<CategorySpecificationAttribute> categorySpecificationAttributeRepository)
+            IEventPublisher eventPublisher, IRepository<CategorySpecificationAttribute> categorySpecificationAttributeRepository, ICategoryService categoryService)
         {
             _cacheManager = cacheManager;
             _specificationAttributeRepository = specificationAttributeRepository;
@@ -70,6 +71,7 @@ namespace Nop.Services.Catalog
             _productSpecificationAttributeRepository = productSpecificationAttributeRepository;
             _eventPublisher = eventPublisher;
             _categorySpecificationAttributeRepository = categorySpecificationAttributeRepository;
+            _categoryService = categoryService;
         }
 
         #endregion
@@ -473,7 +475,14 @@ namespace Nop.Services.Catalog
             return _categorySpecificationAttributeRepository.GetById(categorySpecificationAttributeId);
         }
 
-
+        public IList<CategorySpecificationAttribute> GetByCatId(int categoryId)
+        {
+            var query = from pa in _categorySpecificationAttributeRepository.Table
+                where pa.CategoryId == categoryId
+                orderby pa.DisplayOrder
+                select pa;
+            return query.ToList();
+        }
         public virtual void InsertCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute)
         {
             if (categorySpecificationAttribute == null)
@@ -486,7 +495,24 @@ namespace Nop.Services.Catalog
             //event notification
             _eventPublisher.EntityInserted(categorySpecificationAttribute);
         }
-
+        public virtual List<int> Insert(CategorySpecificationAttribute mapping, bool cascadeToChildren)
+        {
+            if (mapping == null)
+                throw new ArgumentNullException(nameof(mapping));
+            var listCategories = new List<int>();
+            if (GetByCatId(mapping.CategoryId).All(x => x.SpecificationAttributeOptionId != mapping.SpecificationAttributeOptionId))
+            {
+                listCategories.Add(mapping.CategoryId);
+                InsertCategorySpecificationAttribute(mapping);
+                foreach (var category in _categoryService.GetAllCategoriesByParentCategoryId(mapping.CategoryId, true, true))
+                {
+                    mapping.CategoryId = category.Id;
+                    listCategories.Add(category.Id);
+                    InsertCategorySpecificationAttribute(mapping);
+                }
+            }
+            return listCategories;
+        }
 
         public virtual void UpdateCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute)
         {

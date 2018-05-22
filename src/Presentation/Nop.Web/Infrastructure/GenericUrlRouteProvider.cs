@@ -27,6 +27,7 @@ namespace Nop.Web.Infrastructure
                 new { controller = "Common", action = "GenericUrl" });
 
             //define this routes to use in UI views (in case if you want to customize some of them later)
+
             routeBuilder.MapLocalizedRoute("Product", "{SeName}", 
                 new { controller = "Product", action = "ProductDetails" });
 

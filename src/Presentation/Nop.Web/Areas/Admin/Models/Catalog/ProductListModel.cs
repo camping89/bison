@@ -40,12 +40,9 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
         [NopResourceDisplayName("Admin.Catalog.Products.List.GoDirectlyToSku")]
         public string GoDirectlyToSku { get; set; }
-
-
-        [NopResourceDisplayName("Admin.Catalog.Products.List.OnlyShowNoAddToCate")]
+        
+        [NopResourceDisplayName("Admin.Catalog.Products.List.SeachSingleCategory")]
         public bool OnlyShowNoAddToCate { get; set; }
-
-
         
         //categories
         [NopResourceDisplayName("Admin.Catalog.Products.Fields.Categories")]

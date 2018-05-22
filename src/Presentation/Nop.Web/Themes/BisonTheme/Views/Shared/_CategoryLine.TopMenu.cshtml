@@ -1,5 +1,13 @@
 ﻿@model TopMenuModel.CategoryLineModel
-<li class="menu-item-has-children">
+@{
+    //subcategories
+    var subCategories = Model.ResponsiveMobileMenu ?
+        //responsive (all categories)
+        Model.Category.SubCategories :
+        //standard design (only categories with "IncludeInTopMenu")
+        Model.Category.SubCategories.Where(x => x.IncludeInTopMenu).ToList();
+}
+<li class="@(subCategories.Count > 0 ? "menu-item-has-children" : string.Empty)">
     <a href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">@Model.Category.Name
     @if (Model.Category.NumberOfProducts.HasValue)
     {
@@ -7,12 +15,7 @@
     }
     </a>
     @{
-        //subcategories
-        var subCategories = Model.ResponsiveMobileMenu ?
-            //responsive (all categories)
-            Model.Category.SubCategories :
-            //standard design (only categories with "IncludeInTopMenu")
-            Model.Category.SubCategories.Where(x => x.IncludeInTopMenu).ToList();
+        
 
         var levelClass = "";
         if (Model.Level == 0)

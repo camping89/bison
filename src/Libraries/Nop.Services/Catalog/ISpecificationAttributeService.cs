@@ -161,7 +161,7 @@ namespace Nop.Services.Catalog
        
         void InsertCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute);
 
-        
+        List<int> Insert(CategorySpecificationAttribute mapping, bool cascadeToChildren);
         void UpdateCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute);
 
        

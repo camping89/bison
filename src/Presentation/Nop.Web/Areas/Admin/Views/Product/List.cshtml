@@ -30,12 +30,217 @@
             </button>
             <button type="button" name="addproductstomanufactures" class="btn bg-yellow" data-toggle="modal" data-target="#add-producttomanufacture-window">
                 <i class="fa fa-copy"></i>
-                @T("Admin.Common.AddProductsToManufacture")
+                @T("Admin.Common.AddManufacturersToProducts")
             </button>
             <button type="submit" name="download-catalog-pdf" class="btn bg-purple">
                 <i class="fa fa-file-pdf-o"></i>
                 @T("Admin.Catalog.Products.List.DownloadPDF")
             </button>
+            @*<div class="btn-group">
+                    <div class="onoffswitch">
+                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="show-price-mode">
+                        <label class="onoffswitch-label" for="show-price-mode">
+                            <span class="onoffswitch-inner"
+                                  data-locale-basic="@T("Admin.Common.ShowHidePrice.Hide")"
+                                  data-locale-advanced="@T("Admin.Common.ShowHidePrice.Show")"></span>
+                            <span class="onoffswitch-switch"></span>
+                        </label>
+                    </div>
+                    <script type="text/javascript">
+                        function checkAdvancedSettingsMode(advanced) {
+                            if (advanced) {
+                                $("body").addClass("advanced-settings-mode");
+                                $("body").removeClass("basic-settings-mode");
+                            } else {
+                                $("body").removeClass("advanced-settings-mode");
+                                $("body").addClass("basic-settings-mode");
+                            }
+                        }
+                        checkAdvancedSettingsMode($("#show-price-mode").is(':checked'));
+                        $(document).ready(function() {
+                            $("#show-price-mode").click(function() {
+                                checkAdvancedSettingsMode($(this).is(':checked'));
+                                var postData = {};
+                                if ($(this).is(':checked')) {
+                                    postData = {
+                                        productIds: selectedIds,
+                                        isShow: 'false'
+                                    };
+                                } else {
+                                    postData = {
+                                        productIds: selectedIds,
+                                        isShow: 'true'
+                                    };
+                                }
+
+                                addAntiForgeryToken(postData);
+
+                                $.ajax({
+                                    cache: false,
+                                    type: "POST",
+                                    url: "@(Url.Action("ShowOrHidePriceSelected", "Product"))",
+                                    data: postData,
+                                    complete: function(data) {
+                                        //reload grid
+                                        var grid = $('#products-grid').data('kendoGrid');
+                                        grid.dataSource.read();
+                                    },
+                                    error: function(xhr, ajaxOptions, thrownError) {
+                                        alert(thrownError);
+                                    },
+                                    traditional: true
+                                });
+                            });
+                        });
+                    </script>
+            </div>
+
+            <div class="btn-group">
+                
+                    <div class="onoffswitch">
+                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="show-stock-mode">
+                        <label class="onoffswitch-label" for="show-stock-mode">
+                            <span class="onoffswitch-inner"
+                                  data-locale-basic="@T("Admin.Common.ShowHideStock.Hide")"
+                                  data-locale-advanced="@T("Admin.Common.ShowHideStock.Show")"></span>
+                            <span class="onoffswitch-switch"></span>
+                        </label>
+                    </div>
+                    <script type="text/javascript">
+                        function checkAdvancedSettingsMode(advanced) {
+                            if (advanced) {
+                                $("body").addClass("advanced-settings-mode");
+                                $("body").removeClass("basic-settings-mode");
+                            } else {
+                                $("body").removeClass("advanced-settings-mode");
+                                $("body").addClass("basic-settings-mode");
+                            }
+                        }
+                        checkAdvancedSettingsMode($("#show-stock-mode").is(':checked'));
+                        $(document).ready(function() {
+                            $("#show-stock-mode").click(function() {
+                                checkAdvancedSettingsMode($(this).is(':checked'));
+                                var postData = {};
+                                if ($(this).is(':checked')) {
+                                    postData = {
+                                        productIds: selectedIds,
+                                        isShow: 'true'
+                                    };
+                                } else {
+                                    postData = {
+                                        productIds: selectedIds,
+                                        isShow: 'false'
+                                    };
+                                }
+
+                                addAntiForgeryToken(postData);
+
+                                $.ajax({
+                                    cache: false,
+                                    type: "POST",
+                                    url: "@(Url.Action("ShowOrHideStockSelected", "Product"))",
+                                    data: postData,
+                                    complete: function(data) {
+                                        //reload grid
+                                        var grid = $('#products-grid').data('kendoGrid');
+                                        grid.dataSource.read();
+                                    },
+                                    error: function(xhr, ajaxOptions, thrownError) {
+                                        alert(thrownError);
+                                    },
+                                    traditional: true
+                                });
+                            });
+                        });
+                    </script>
+                
+            </div>*@
+            <div class="btn-group">
+            <button type="button" class="btn btn-success">
+                @T("Admin.Common.ShowHideCallForPrice")
+            </button>
+            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">&nbsp;</span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li>
+                    <button type="button" id="show-price-selected">
+                        <i class="fa fa-file-code-o"></i>
+                        @T("Admin.Common.CallForPrice.Show")
+                    </button>
+                </li>
+                <li>
+                    <button type="button" id="hide-price-selected">
+                        <i class="fa fa-file-code-o"></i>
+                        @T("Admin.Common.CallForPrice.Hide")
+                    </button>
+                </li>
+                <li class="divider"></li>
+                <li>
+                    <button type="button" id="show-price-all">
+                        <i class="fa fa-file-code-o"></i>
+                        @T("Admin.Common.ResetShowCallForPrice")
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="btn btn-success">
+                @T("Admin.Common.ShowHideDisplayStockQuantity")
+            </button>
+            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <span class="caret"></span>
+                <span class="sr-only">&nbsp;</span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li>
+                    <button type="button" id="show-stock-selected">
+                        <i class="fa fa-file-code-o"></i>
+                        @T("Admin.Common.DisplayStockQuantity.Show")
+                    </button>
+                </li>
+                <li>
+                    <button type="button" id="hide-stock-selected">
+                        <i class="fa fa-file-code-o"></i>
+                        @T("Admin.Common.DisplayStockQuantity.Hide")
+                    </button>
+                </li>
+                <li class="divider"></li>
+                <li>
+                    <button type="button" id="show-stock-all">
+                        <i class="fa fa-file-code-o"></i>
+                        @T("Admin.Common.ResetShowDisplayStockQuantity")
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+            @*<div class="btn-group">
+                <button type="button" class="btn btn-success">
+                    @T("Admin.Common.ResetShowHide")
+                </button>
+                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">&nbsp;</span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li>
+                        <button type="button" id="show-stock-all">
+                            <i class="fa fa-file-code-o"></i>
+                            @T("Admin.Common.ResetShowStock")
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" id="show-price-all">
+                            <i class="fa fa-file-code-o"></i>
+                            @T("Admin.Common.ResetShowPrice")
+                        </button>
+                    </li>
+                </ul>
+            </div>*@
+
             <div class="btn-group">
                 <button type="button" class="btn btn-success">
                     <i class="fa fa-download"></i>
@@ -74,13 +279,13 @@
                 </ul>
             </div>
             @if (!Model.IsLoggedInAsVendor || Model.AllowVendorsToImportProducts)
-            {
-                //a vendor cannot import products
-                <button type="button" name="importexcel" class="btn bg-olive" data-toggle="modal" data-target="#importexcel-window">
-                    <i class="fa fa-upload"></i>
-                    @T("Admin.Common.Import")
-                </button>
-            }
+    {
+        //a vendor cannot import products
+        <button type="button" name="importexcel" class="btn bg-olive" data-toggle="modal" data-target="#importexcel-window">
+            <i class="fa fa-upload"></i>
+            @T("Admin.Common.Import")
+        </button>
+}
             <button type="button" id="delete-selected" class="btn bg-red">
                 <i class="fa fa-trash-o"></i>
                 @T("Admin.Common.Delete.Selected")
@@ -110,6 +315,15 @@
                                     </div>
                                     <div class="col-md-8">
                                         <nop-select asp-for="SearchCategoryId" asp-items="Model.AvailableCategories" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        <nop-label asp-for="OnlyShowNoAddToCate" />
+                                    </div>
+                                    <div class="col-md-8">
+                                        <nop-editor asp-for="OnlyShowNoAddToCate" />
                                     </div>
                                 </div>
                                 <div class="form-group" @(Model.AvailableCategories.SelectionIsNotPossible() ? Html.Raw("style=\"display:none\"") : null)>
@@ -168,14 +382,6 @@
                                     </div>
                                     <div class="col-md-8">
                                         <nop-select asp-for="SearchPublishedId" asp-items="Model.AvailablePublishedOptions" />
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="col-md-4">
-                                        <nop-label asp-for="OnlyShowNoAddToCate" />
-                                    </div>
-                                    <div class="col-md-8">
-                                        <nop-editor asp-for="OnlyShowNoAddToCate"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -380,6 +586,173 @@
                 });
                 return false;
             });
+
+            
+            //show or hide stock
+            $('#show-stock-selected').click(function(e) {
+                e.preventDefault();
+
+                var postData = {
+                    productIds: selectedIds,
+                    isShow: 'true'
+                };
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("ShowOrHideStockSelected", "Product"))",
+                    data: postData,
+                    complete: function(data) {
+                        //reload grid
+                        var grid = $('#products-grid').data('kendoGrid');
+                        grid.dataSource.read();
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+                return false;
+            });
+
+            
+            //hide or hide stock
+            $('#hide-stock-selected').click(function(e) {
+                e.preventDefault();
+
+                var postData = {
+                    productIds: selectedIds,
+                    isShow: 'false'
+                };
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("ShowOrHideStockSelected", "Product"))",
+                    data: postData,
+                    complete: function(data) {
+                        //reload grid
+                        var grid = $('#products-grid').data('kendoGrid');
+                        grid.dataSource.read();
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+                return false;
+            });
+            
+            //show or hide price
+            $('#show-price-selected').click(function(e) {
+                e.preventDefault();
+
+                var postData = {
+                    productIds: selectedIds,
+                    isShow: 'true'
+                };
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("ShowOrHidePriceSelected", "Product"))",
+                    data: postData,
+                    complete: function(data) {
+                        //reload grid
+                        var grid = $('#products-grid').data('kendoGrid');
+                        grid.dataSource.read();
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+                return false;
+            });
+
+            
+            //show or hide price
+            $('#hide-price-selected').click(function(e) {
+                e.preventDefault();
+
+                var postData = {
+                    productIds: selectedIds,
+                    isShow: 'false'
+                };
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("ShowOrHidePriceSelected", "Product"))",
+                    data: postData,
+                    complete: function(data) {
+                        //reload grid
+                        var grid = $('#products-grid').data('kendoGrid');
+                        grid.dataSource.read();
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+                return false;
+            });
+
+            //show price
+            $('#show-price-all').click(function(e) {
+                e.preventDefault();
+
+                var postData = {};
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("ResetShowPriceAll", "Product"))",
+                    data: postData,
+                    complete: function(data) {
+                        //reload grid
+                        var grid = $('#products-grid').data('kendoGrid');
+                        grid.dataSource.read();
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+                return false;
+            });
+
+            
+            //hide or hide stock
+            $('#show-stock-all').click(function(e) {
+                e.preventDefault();
+
+                var postData = {};
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("ResetShowStockAll", "Product"))",
+                    data: postData,
+                    complete: function(data) {
+                        //reload grid
+                        var grid = $('#products-grid').data('kendoGrid');
+                        grid.dataSource.read();
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+                return false;
+            });
+
 
             $('#mastercheckbox').click(function () {
                 $('.checkboxGroups').attr('checked', $(this).is(':checked')).change();

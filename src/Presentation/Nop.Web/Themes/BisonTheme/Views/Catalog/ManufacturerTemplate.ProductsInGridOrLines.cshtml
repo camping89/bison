@@ -18,9 +18,21 @@
         Html.AddCanonicalUrlParts(manufacturerUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
     }
 }
-<div class="page manufacturer-page">
-    <div class="page-title">
-        <h1>@Model.Name</h1>
+@section Breadcrumb
+    {
+    <div class="bread-crumb">
+
+    </div>
+}
+<div class="content-shop shop-grid">
+    <div class="shop-title-box">
+        <h2 class="title18 title-box5">@Model.Name</h2>
+        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_featured_products", additionalData = Model.Id })
+        @if (Model.Products.Count > 0)
+        {
+            @await Html.PartialAsync("_CatalogSelectors", Model.PagingFilteringContext)
+        }
+
     </div>
     <div class="page-body">
         @await Component.InvokeAsync("Widget", new { widgetZone = "manufacturerdetails_top", additionalData = Model.Id })
@@ -40,40 +52,60 @@
                     <strong>@T("Products.FeaturedProducts")</strong>
                 </div>
                 <div class="item-grid">
-                    @foreach (var product in Model.FeaturedProducts)
+                    @foreach (var item in Model.FeaturedProducts)
                     {
                         <div class="item-box">
-                            @await Html.PartialAsync("_ProductBox", product)
+                            @await Html.PartialAsync("_ProductBox", item)
                         </div>
                     }
                 </div>
             </div>
+
         }
         @await Component.InvokeAsync("Widget", new { widgetZone = "manufacturerdetails_after_featured_products", additionalData = Model.Id })
-        @if (Model.Products.Count > 0)
-        {
-            @await Html.PartialAsync("_CatalogSelectors", Model.PagingFilteringContext)
-        }
+
         @await Component.InvokeAsync("Widget", new { widgetZone = "manufacturerdetails_before_filters", additionalData = Model.Id })
         @*filtering*@
-        @if (Model.PagingFilteringContext.PriceRangeFilter.Enabled)
+        <!--<div class="product-filters">
+                @*filtering*@
+                @if (Model.PagingFilteringContext.PriceRangeFilter.Enabled)
+                {
+                    @await Html.PartialAsync("_FilterPriceBox", Model.PagingFilteringContext.PriceRangeFilter)
+                }
+                @*filtering*@
+        @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
         {
-            @await Html.PartialAsync("_FilterPriceBox", Model.PagingFilteringContext.PriceRangeFilter)
+            @await Html.PartialAsync("_FilterSpecsBox", Model.PagingFilteringContext.SpecificationFilter)
         }
-        @await Component.InvokeAsync("Widget", new { widgetZone = "manufacturerdetails_before_product_list", additionalData = Model.Id })
-
+            </div>-->
         @if (Model.Products.Count > 0)
         {
-            <div class="@(Model.PagingFilteringContext.ViewMode == "list" ? "product-list" : "product-grid")">
-                <div class="item-grid">
+            if (Model.PagingFilteringContext.ViewMode == "list")
+            {
+                <div class="list-shop-product">
+
                     @foreach (var product in Model.Products)
                     {
-                        <div class="item-box">
-                            @await Html.PartialAsync("_ProductBox", product)
-                        </div>
+                        @await Html.PartialAsync("_ProductBoxListView", product)
+
                     }
+
                 </div>
-            </div>
+            }
+            else
+            {
+                <div class="grid-shop-product">
+                    <div class="row">
+                        @foreach (var product in Model.Products)
+                        {
+                            <div class="col-md-4 col-sm-6 col-xs-6">
+                                @await Html.PartialAsync("_ProductBox", product)
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
         }
         @{
             var pager = Html.Pager(Model.PagingFilteringContext).QueryParam("pagenumber");

@@ -116,7 +116,7 @@
                         @{
                             var dataDictPrice = new ViewDataDictionary(ViewData);
                             dataDictPrice.TemplateInfo.HtmlFieldPrefix = $"price_{Model.Id}";
-                            if (Model.ShowPriceProduct)
+                            if (Model.ProductPrice.CallForPrice == false)
                             {
                                 @await Html.PartialAsync("_ProductPrice", Model.ProductPrice, dataDictPrice)
                             }

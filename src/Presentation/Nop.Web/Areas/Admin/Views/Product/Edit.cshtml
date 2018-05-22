@@ -1,4 +1,5 @@
-﻿@model ProductModel
+﻿@using Nop.Web.Framework.Mvc.Models
+@model ProductModel
 
 @{
     //page title
@@ -49,7 +50,7 @@
     //product editor settings modal
     @await Html.PartialAsync("_ProductEditorSettingsModal", Model)
 }
-
+@await Html.PartialAsync("_ConfirmCustom", new ActionConfirmationModel())
 @*copy product form*@
 <div id="copyproduct-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="copyproduct-window-title">
     <div class="modal-dialog">

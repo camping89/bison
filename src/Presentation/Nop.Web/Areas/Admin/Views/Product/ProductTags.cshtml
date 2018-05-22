@@ -1,4 +1,5 @@
-﻿@inject AdminAreaSettings adminAreaSettings
+﻿@using Nop.Web.Framework.Mvc.Models
+@inject AdminAreaSettings adminAreaSettings
 
 @{
     var defaultGridPageSize = adminAreaSettings.DefaultGridPageSize;
@@ -39,12 +40,12 @@
                                             dataType: "json",
                                             data: addAntiForgeryToken
                                         },
-                                        destroy: {
+                                        @*destroy: {
                                             url: "@Html.Raw(Url.Action("ProductTagDelete", "Product"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
-                                        }
+                                        }*@
                                     },
                                     schema: {
                                         data: "Data",
@@ -103,7 +104,8 @@
                                         attributes: { style: "text-align:center" },
                                         template: "<button onclick=\"javascript:OpenWindow('@Url.Content("~/Admin/Product/EditProductTag/")#=Id#?btnId=btnRefresh&formId=product-tags-form', 800, 320, true); return false;\" class='btn btn-default'><i class=\"fa fa-pencil\"></i>@T("Admin.Common.Edit")</button>"
                                     }, {
-                                        command: { name: "destroy", text: "@T("Admin.Common.Delete")" },
+                                        command: { //name: "destroy",
+                                            text: "@T("Admin.Common.Delete")", click: deleteTag },
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },
                                         title: "@T("Admin.Common.Delete")",
@@ -113,10 +115,41 @@
                             });
                         });
                     </script>
-                    <input type="submit" id="btnRefresh" style="display: none"/>
+                    <script>
+                        //Delete item grid
+                        function deleteTag(e) {
+                            e.preventDefault();
+
+                            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+                            var $confirm = $("#modalConfirmYesNo");
+                            $confirm.modal('show');
+                            $("#btnYesConfirmYesNo").off('click').click(function () {
+                                var postData = {
+                                    Id: dataItem.Id
+                                };
+                                addAntiForgeryToken(postData);
+
+                                $.ajax({
+                                    cache: false,
+                                    type: "POST",
+                                    url: "@(Url.Action("ProductTagDelete", "Product"))",
+                                    data: postData,
+                                    success: function(data) {
+                                        var grid = $("#product-tags-grid");
+                                        grid.data('kendoGrid').dataSource.read();
+                                    },
+                                    error: function(xhr, ajaxOptions, thrownError) {
+
+                                    }
+                                });
+                                $confirm.modal("hide");
+                            });
+                        }
+                    </script>
+                    <input type="submit" id="btnRefresh" style="display: none" />
                     <script type="text/javascript">
-                        $(document).ready(function() {
-                            $('#btnRefresh').click(function() {
+                        $(document).ready(function () {
+                            $('#btnRefresh').click(function () {
                                 //refresh grid
                                 var grid = $("#product-tags-grid").data('kendoGrid');
                                 grid.dataSource.read();
@@ -131,3 +164,5 @@
         </div>
     </div>
 </form>
+
+@await Html.PartialAsync("_ConfirmCustom", new ActionConfirmationModel())

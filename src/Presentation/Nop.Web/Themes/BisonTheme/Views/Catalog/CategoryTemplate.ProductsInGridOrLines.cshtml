@@ -22,6 +22,20 @@
 
     var breadcrumbDelimiter = commonSettings.BreadcrumbDelimiter;
 }
+@section LeftFilter
+    {
+    <div class="widget widget-filter">
+        @if (Model.PagingFilteringContext.PriceRangeFilter.Enabled)
+        {
+            @await Html.PartialAsync("_FilterPriceBox", Model.PagingFilteringContext.PriceRangeFilter)
+        }
+        @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
+        {
+            @await Html.PartialAsync("_FilterSpecsBox", Model.PagingFilteringContext.SpecificationFilter)
+        }
+    </div>
+}
+
 @*category breadcrumb*@
 @section Breadcrumb
     {
@@ -32,7 +46,7 @@
             @foreach (var cat in Model.CategoryBreadcrumb)
             {
                 var isLastCategory = cat.Id == Model.Id;
-                @if (isLastCategory)
+                if (isLastCategory)
                 {
                     <strong class="color">@cat.Name</strong>
                 }
@@ -70,26 +84,26 @@
         @*subcategories*@
         @if (Model.SubCategories.Count > 0)
         {
-            
-                <div class="list-adv5">
-                    <div class="row">
-                        @foreach (var item in Model.SubCategories)
-                        {
-                            <div class="col-md-4 col-sm-4 col-xs-12">
-                                <div class="item-adv1 banner-adv zoom-image line-scale">
-                                    <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title" class="adv-thumb-link"><img alt="@item.PictureModel.AlternateText" src="@item.PictureModel.ImageUrl" title="@item.PictureModel.Title" /></a>
-                                    <div class="banner-info black  pos-center">
-                                        <h2 class="title30 font-bold"> @item.Name</h2>
-                                        <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" class="title14 btn-caret black">@T("Category.HomePage.Shopnow")<i class="fa fa-caret-right" aria-hidden="true"></i></a>
-                                    </div>
+
+            <div class="list-adv5">
+                <div class="row">
+                    @foreach (var item in Model.SubCategories)
+                    {
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            <div class="item-adv1 banner-adv zoom-image line-scale">
+                                <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title" class="adv-thumb-link"><img alt="@item.PictureModel.AlternateText" src="@item.PictureModel.ImageUrl" title="@item.PictureModel.Title" /></a>
+                                <div class="banner-info black  pos-center">
+                                    <h2 class="title30 font-bold"> @item.Name</h2>
+                                    <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" class="title14 btn-caret black">@T("Category.HomePage.Shopnow")<i class="fa fa-caret-right" aria-hidden="true"></i></a>
                                 </div>
                             </div>
-                        }
+                        </div>
+                    }
 
-                    </div>
                 </div>
-                <!-- End adv -->
-           
+            </div>
+            <!-- End adv -->
+
         }
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_featured_products", additionalData = Model.Id })
         @*featured products*@
@@ -113,12 +127,12 @@
 
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
         <!--<div class="product-filters">
-            @*filtering*@
+
             @if (Model.PagingFilteringContext.PriceRangeFilter.Enabled)
             {
                 @await Html.PartialAsync("_FilterPriceBox", Model.PagingFilteringContext.PriceRangeFilter)
             }
-            @*filtering*@
+
             @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
             {
                 @await Html.PartialAsync("_FilterSpecsBox", Model.PagingFilteringContext.SpecificationFilter)
@@ -131,12 +145,13 @@
             if (Model.PagingFilteringContext.ViewMode == "list")
             {
                 <div class="list-shop-product">
-                    <div class="item-product item-product-list">
-                        @foreach (var product in Model.Products)
-                        {
-                            @await Html.PartialAsync("_ProductBoxListView", product)
-                        }
-                    </div>
+
+                    @foreach (var product in Model.Products)
+                    {
+                        @await Html.PartialAsync("_ProductBoxListView", product)
+
+                    }
+
                 </div>
             }
             else

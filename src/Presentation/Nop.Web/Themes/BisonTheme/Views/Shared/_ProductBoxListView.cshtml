@@ -43,29 +43,28 @@
                     <ins><span class="title14 color">@Model.ProductPrice.Price</span></ins>
 
                 </div>
-                <span class="inout-stock in-stock"><i class="fa fa-check-square" aria-hidden="true"></i>In stock</span>
-                <p class="desc">@Model.ShortDescription</p>
+                <p class="desc">@Html.Raw(Model.ShortDescription)</p>
                 <div class="product-extra-link">
                     @if (!Model.ProductPrice.DisableWishlistButton)
                     {
-                      <a href="#" class="wishlist-link" title="@T("ShoppingCart.AddToWishlist")" onclick="AjaxCart.addproducttocart_catalog('@addtowishlistlink');return false;"></a>
+                        <a href="#" class="wishlist-link" title="@T("ShoppingCart.AddToWishlist")" onclick="AjaxCart.addproducttocart_catalog('@addtowishlistlink');return false;"></a>
                     }
                     @if (!Model.ProductPrice.DisableBuyButton)
                     {
-                        var addToCartText = T("ShoppingCart.AddToCart");
+                        var addToCartText = T("ShoppingCart.AddToCart").Text;
                         if (Model.ProductPrice.IsRental)
                         {
-                            addToCartText = T("ShoppingCart.Rent");
+                            addToCartText = T("ShoppingCart.Rent").Text;
                         }
                         if (Model.ProductPrice.AvailableForPreOrder)
                         {
-                            addToCartText = T("ShoppingCart.PreOrder");
+                            addToCartText = T("ShoppingCart.PreOrder").Text;
                         }
-                      <a href="javascript:;" class="addcart-link" onclick="AjaxCart.addproducttocart_catalog('@addtocartlink');return false;">@(addToCartText)</a>
+                        <a href="javascript:;" class="addcart-link" onclick="AjaxCart.addproducttocart_catalog('@addtocartlink');return false;">@(addToCartText)</a>
                     }
                     @if (!Model.ProductPrice.DisableAddToCompareListButton)
                     {
-                      <a href="javascript:;" class="compare-link" onclick="AjaxCart.addproducttocomparelist('@addtocomparelink');return false;"></a>
+                        <a href="javascript:;" class="compare-link" onclick="AjaxCart.addproducttocomparelist('@addtocomparelink');return false;"></a>
                     }
                 </div>
             </div>

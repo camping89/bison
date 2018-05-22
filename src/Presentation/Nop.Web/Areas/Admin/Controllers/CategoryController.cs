@@ -1293,32 +1293,36 @@ namespace Nop.Web.Areas.Admin.Controllers
                 ShowOnProductPage = showOnProductPage,
                 DisplayOrder = displayOrder,
             };
-            _specificationAttributeService.InsertCategorySpecificationAttribute(psa);
+            var listCateIds = _specificationAttributeService.Insert(psa,true);
 
             if (psa.Id > 0)
             {
-                //Get list product
-                var productCategories = _categoryService.GetProductCategoriesByCategoryId(categoryId, showHidden: true);
-                foreach (var product in productCategories)
+                foreach (var cateId in listCateIds)
                 {
-                    if (_specificationAttributeService.GetProductSpecificationAttributes(product.Id)
-                        .Any(x => x.ProductId == product.ProductId && x.SpecificationAttributeOptionId == specificationAttributeOptionId))
+                    //Get list product
+                    var productCategories = _categoryService.GetProductCategoriesByCategoryId(cateId, showHidden: true);
+                    foreach (var product in productCategories)
                     {
-                        continue;
+                        if (_specificationAttributeService.GetProductSpecificationAttributes(product.Id)
+                            .Any(x => x.ProductId == product.ProductId && x.SpecificationAttributeOptionId == specificationAttributeOptionId))
+                        {
+                            continue;
+                        }
+                        //insert mapping
+                        var psaProduct = new ProductSpecificationAttribute
+                        {
+                            AttributeTypeId = attributeTypeId,
+                            SpecificationAttributeOptionId = specificationAttributeOptionId,
+                            ProductId = product.ProductId,
+                            CustomValue = customValue,
+                            AllowFiltering = allowFiltering,
+                            ShowOnProductPage = showOnProductPage,
+                            DisplayOrder = displayOrder,
+                        };
+                        _specificationAttributeService.InsertProductSpecificationAttribute(psaProduct);
                     }
-                    //insert mapping
-                    var psaProduct = new ProductSpecificationAttribute
-                    {
-                        AttributeTypeId = attributeTypeId,
-                        SpecificationAttributeOptionId = specificationAttributeOptionId,
-                        ProductId = product.ProductId,
-                        CustomValue = customValue,
-                        AllowFiltering = allowFiltering,
-                        ShowOnProductPage = showOnProductPage,
-                        DisplayOrder = displayOrder,
-                    };
-                    _specificationAttributeService.InsertProductSpecificationAttribute(psaProduct);
                 }
+                
             }
             return Json(new { Result = true });
         }

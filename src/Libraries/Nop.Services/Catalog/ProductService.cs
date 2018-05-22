@@ -652,6 +652,29 @@ namespace Nop.Services.Catalog
 
         #region Products
 
+        public void ShowOrHideStock(int[] productIds,bool isShow)
+        {
+            var commaSeparatedProductIds = productIds == null ? "" : string.Join(",", productIds);
+            var pProductIds = _dataProvider.GetStringParameter("ProductIds", commaSeparatedProductIds);
+            var pIsShow = _dataProvider.GetBooleanParameter("IsShow", isShow);
+            _dbContext.ExecuteStoredProcedure("spShowOrHideStock",pProductIds, pIsShow);
+        }
+
+        public void ShowOrHidePrice(int[] productIds, bool isShow)
+        {
+            var commaSeparatedProductIds = productIds == null ? "" : string.Join(",", productIds);
+            var pProductIds = _dataProvider.GetStringParameter("ProductIds", commaSeparatedProductIds);
+            var pIsShow = _dataProvider.GetBooleanParameter("IsShow", isShow);
+            _dbContext.ExecuteStoredProcedure("spShowOrHidePrice",pProductIds, pIsShow);
+        }
+        public void ResetShowPrice()
+        {
+            _dbContext.ExecuteSqlCommand("UPDATE Product SET CallForPrice = 0");
+        }
+        public void ResetShowStock()
+        {
+            _dbContext.ExecuteSqlCommand("UPDATE Product SET DisplayStockQuantity = 1");
+        }
         /// <summary>
         /// Delete a product
         /// </summary>

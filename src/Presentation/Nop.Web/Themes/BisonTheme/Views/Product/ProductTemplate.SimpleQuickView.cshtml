@@ -1,0 +1,114 @@
+﻿@model ProductDetailsModel
+@using Microsoft.AspNetCore.Http.Extensions
+@using Nop.Core.Domain.Seo;
+@inject SeoSettings seoSettings
+@{
+    Layout = "_QuickViewLayout";
+
+    //title
+    Html.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    //meta
+    Html.AddMetaDescriptionParts(Model.MetaDescription);
+    Html.AddMetaKeywordParts(Model.MetaKeywords);
+    //page class
+    Html.AppendPageCssClassParts("html-product-details-page");
+
+    //canonical URL
+    if (seoSettings.CanonicalUrlsEnabled)
+    {
+        var productUrl = Url.RouteUrl("Product", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        Html.AddCanonicalUrlParts(productUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+    }
+
+    //open graph META tags
+    if (seoSettings.OpenGraphMetaTags)
+    {
+        Html.AddHeadCustomParts("<meta property=\"og:type\" content=\"product\" />");
+        Html.AddHeadCustomParts("<meta property=\"og:title\" content=\"" + Html.Encode(Model.Name) + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"og:description\" content=\"" + Html.Encode(Nop.Core.Html.HtmlHelper.StripTags(Model.MetaDescription)) + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"og:image\" content=\"" + Model.DefaultPictureModel.ImageUrl + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"og:url\" content=\"" + this.Url.ActionContext.HttpContext.Request.GetEncodedUrl() + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"og:site_name\" content=\"" + Html.Encode(Model.CurrentStoreName) + "\" />");
+    }
+
+    //Twitter META tags
+    if (seoSettings.TwitterMetaTags)
+    {
+        Html.AddHeadCustomParts("<meta property=\"twitter:card\" content=\"summary\" />");
+        Html.AddHeadCustomParts("<meta property=\"twitter:site\" content=\"" + Html.Encode(Model.CurrentStoreName) + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"twitter:title\" content=\"" + Html.Encode(Model.Name) + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"twitter:description\" content=\"" + Html.Encode(Nop.Core.Html.HtmlHelper.StripTags(Model.MetaDescription)) + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"twitter:image\" content=\"" + Model.DefaultPictureModel.ImageUrl + "\" />");
+        Html.AddHeadCustomParts("<meta property=\"twitter:url\" content=\"" + this.Url.ActionContext.HttpContext.Request.GetEncodedUrl() + "\" />");
+    }
+}
+
+@await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_after_breadcrumb", additionalData = Model.Id })
+
+<section id="content">
+    <div class="container">
+        <div class="content-detail detail-lightbox detail-with-sidebar">
+            <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
+                <div class="product-detail">
+                    <div class="row">
+                        <div class="col-md-5 col-sm-6 col-xs-12">
+                            @await Html.PartialAsync("_ProductDetailsPictures", Model)
+                            <!-- End Gallery -->
+                        </div>
+                        <div class="col-md-7 col-sm-6 col-xs-12">
+                            <div class="detail-info">
+                                <h2 class="title-detail title30">@Model.Name</h2>
+                                <ul class="list-inline-block sku-stock">
+                                    <li>
+                                        <!--SKU, MAN, GTIN, vendor-->
+                                        @await Html.PartialAsync("_SKU_Man_GTIN_Ven", Model)
+                                    </li>
+                                    <li>
+                                        <!--availability-->
+                                        @await Html.PartialAsync("_Availability", Model)
+                                    </li>
+                                </ul>
+                                <div class="product-price">
+                                    @if (!string.IsNullOrEmpty(Model.ProductPrice.OldPrice))
+                                    {
+                            <del><span class="title14 silver">@Model.ProductPrice.Price</span></del>
+                                    }
+                                    <ins><span class="title14 color">@Model.ProductPrice.Price</span></ins>
+
+                                </div>
+                                <p class="desc">@Model.ShortDescription</p>
+                              
+                                @await Html.PartialAsync("_ProductTags", Model.ProductTags)
+
+                                <div class="detail-social">
+                                    @await Html.PartialAsync("_ShareButton", Model)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="detail-tabs">
+                    <div class="title-tab-detail">
+                        <ul class="list-inline-block">
+                            <li class="active"><a href="#tab1" class="title14" data-toggle="tab">@T("ProductDetail.Description")</a></li>
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        <div id="tab1" class="tab-pane active">
+                            <div class="detail-descript">
+                                @if (!string.IsNullOrEmpty(Model.FullDescription))
+                                {
+                        <div class="full-description" itemprop="description">
+                            @Html.Raw(Model.FullDescription)
+                        </div>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- End Detail Tabs -->
+            </form>
+        </div>
+    </div>
+</section>

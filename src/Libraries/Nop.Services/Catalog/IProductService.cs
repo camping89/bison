@@ -289,6 +289,10 @@ namespace Nop.Services.Catalog
         /// <returns>Number of products</returns>
         int GetNumberOfProductsByVendorId(int vendorId);
 
+        void ShowOrHideStock(int[] productIds,bool isShow);
+        void ShowOrHidePrice(int[] productIds,bool isShow);
+        void ResetShowPrice();
+        void ResetShowStock();
         #endregion
 
         #region Inventory management methods

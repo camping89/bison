@@ -6,7 +6,31 @@
 @inject IHttpContextAccessor httpContextAccessor
 @if (Model.AvailableCurrencies.Count > 1)
 {
-    <div class="currency-selector">
+    <li>
+        <div class="currency-box">
+            @{
+                var currencies = Model.AvailableCurrencies.Select(x => new {
+                    Text = x.Name,
+                    Value = webHelper.ModifyQueryString(Url.RouteUrl("ChangeCurrency", new { customercurrency = x.Id }), "returnurl=" + WebUtility.UrlEncode(webHelper.GetRawUrl(httpContextAccessor.HttpContext.Request)), null),
+                    Selected = x.Id.Equals(Model.CurrentCurrencyId),
+                    CurrencySymbol = x.CurrencySymbol
+                }).ToList();
+
+            }
+            @foreach (var item in currencies.Where(x => x.Selected))
+            {
+            <a href="@item.Value" class="currency-current title14 black"><span>@item.Text</span><i class="fa fa-angle-down" aria-hidden="true"></i></a>
+            }
+            
+            <ul class="currency-list list-none text-left">
+                @foreach (var item in currencies.Where(x => !x.Selected))
+                {
+                    <li><a href="@item.Value"><span class="currency-index">@item.CurrencySymbol</span>@item.Text</a></li>
+                }
+            </ul>
+        </div>
+    </li>
+    @*<div class="currency-selector">
         @{
             var currencies = Model.AvailableCurrencies.Select(x => new SelectListItem
             {
@@ -16,5 +40,5 @@
             });
             <select id="customerCurrency" name="customerCurrency" asp-items="@currencies" onchange="setLocation(this.value);"></select>
         }
-    </div>
+    </div>*@
 }

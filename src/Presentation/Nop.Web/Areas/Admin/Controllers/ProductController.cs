@@ -11,6 +11,7 @@ using Nop.Core.Domain.Media;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Tax;
 using Nop.Core.Domain.Vendors;
+using Nop.Core.Extensions;
 using Nop.Services;
 using Nop.Services.Catalog;
 using Nop.Services.Common;
@@ -1707,6 +1708,54 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        public virtual IActionResult ShowOrHidePriceSelected(ICollection<int> productIds,bool isShow)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            if (productIds != null)
+            {
+                _productService.ShowOrHidePrice(productIds.ToArray(), isShow);
+            }
+
+            return Json(new { Result = true });
+        }
+
+        [HttpPost]
+        public virtual IActionResult ResetShowPriceAll()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            _productService.ResetShowPrice();
+            return Json(new { Result = true });
+        }
+
+        [HttpPost]
+        public virtual IActionResult ShowOrHideStockSelected(ICollection<int> productIds,bool isShow)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            if (productIds != null)
+            {
+                _productService.ShowOrHideStock(productIds.ToArray(), isShow);
+            }
+
+            return Json(new { Result = true });
+        }
+
+        [HttpPost]
+        public virtual IActionResult ResetShowStockAll()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+
+            _productService.ResetShowStock();
+            return Json(new { Result = true });
+        }
+
+        [HttpPost]
         public virtual IActionResult AddProductToCategoriesSelected(ICollection<int> selectedIdsProducToAdd, ICollection<int> SelectedCategoryIds)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
@@ -2536,6 +2585,118 @@ namespace Nop.Web.Areas.Admin.Controllers
             return Json(new { Result = true });
         }
 
+        public virtual IActionResult ProductPicturesAddMulti(int[] pictureIds, string[] pictureUrls, int displayOrder,
+            string overrideAltAttribute, string overrideTitleAttribute,
+            int productId)
+        {
+
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+            var listPicids = InsertMultipleImageUrls(pictureUrls);
+            listPicids.AddRange(pictureIds);
+            if (pictureIds.Length == 0)
+                throw new ArgumentException();
+
+            var product = _productService.GetProductById(productId);
+            if (product == null)
+                throw new ArgumentException("No product found with the specified id");
+
+            //a vendor should have access only to his products
+            if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id)
+                return RedirectToAction("List");
+
+            foreach (var pictureId in listPicids)
+            {
+                var picture = _pictureService.GetPictureById(pictureId);
+                if (picture == null)
+                    continue;
+
+                _pictureService.UpdatePicture(picture.Id,
+                    _pictureService.LoadPictureBinary(picture),
+                    picture.MimeType,
+                    picture.SeoFilename,
+                    overrideAltAttribute,
+                    overrideTitleAttribute);
+
+                _pictureService.SetSeoFilename(pictureId, _pictureService.GetPictureSeName(product.Name));
+
+                _productService.InsertProductPicture(new ProductPicture
+                {
+                    PictureId = pictureId,
+                    ProductId = productId,
+                    DisplayOrder = displayOrder,
+                });
+
+            }
+            return Json(new { Result = true });
+        }
+
+        private List<int> InsertMultipleImageUrls(string[] urls)
+        {
+
+            List<int> pictureIds = new List<int>();
+            if (urls != null)
+            {
+                foreach (var url in urls.Where(u => u.IsNotNullOrEmpty()).Distinct())
+                {
+                    var contentType = string.Empty;
+                    var fileBinary = GetFileViaHttp(url);
+                    var fileExtension = Path.GetExtension(url);
+                    if (!string.IsNullOrEmpty(fileExtension))
+                        fileExtension = fileExtension.ToLowerInvariant();
+
+                    //contentType is not always available 
+                    //that's why we manually update it here
+                    //http://www.sfsu.edu/training/mimetype.htm
+                    if (string.IsNullOrEmpty(contentType))
+                    {
+                        switch (fileExtension)
+                        {
+                            case ".bmp":
+                                contentType = MimeTypes.ImageBmp;
+                                break;
+                            case ".gif":
+                                contentType = MimeTypes.ImageGif;
+                                break;
+                            case ".jpeg":
+                            case ".jpg":
+                            case ".jpe":
+                            case ".jfif":
+                            case ".pjpeg":
+                            case ".pjp":
+                                contentType = MimeTypes.ImageJpeg;
+                                break;
+                            case ".png":
+                                contentType = MimeTypes.ImagePng;
+                                break;
+                            case ".tiff":
+                            case ".tif":
+                                contentType = MimeTypes.ImageTiff;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    if (contentType.IsNullOrEmpty())
+                    {
+                        continue;
+                    }
+                    var picture = _pictureService.InsertPicture(fileBinary, contentType, null);
+                    pictureIds.Add(picture.Id);
+                }
+            }
+            return pictureIds;
+        }
+
+        private byte[] GetFileViaHttp(string url)
+        {
+            using (WebClient client = new WebClient())
+            {
+                byte[] body = client.DownloadData(url);
+                return body;
+            }
+        }
         [HttpPost]
         public virtual IActionResult ProductPictureList(DataSourceRequest command, int productId)
         {

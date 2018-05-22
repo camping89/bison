@@ -8,11 +8,11 @@
     @await Component.InvokeAsync("AdminWidget", new { widgetZone = "admin_category_details_products_top", additionalData = Model.Id })
     @if (Model.Id > 0)
     {
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <div id="products-grid"></div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div id="products-grid"></div>
 
-                <script type="text/javascript">
+            <script type="text/javascript">
                     $(document).ready(function() {
                         $("#products-grid").kendoGrid({
                             dataSource: {
@@ -30,12 +30,12 @@
                                         dataType: "json",
                                         data: addAntiForgeryToken
                                     },
-                                    destroy: {
+                                    @*destroy: {
                                         url: "@Html.Raw(Url.Action("ProductDelete", "Category"))",
                                         type: "POST",
                                         dataType: "json",
                                         data: addAntiForgeryToken
-                                    }
+                                    }*@
                                 },
                                 schema: {
                                     data: "Data",
@@ -110,8 +110,9 @@
                                                 cancel: "@T("Admin.Common.Cancel")"
                                             }
                                         }, {
-                                            name: "destroy",
-                                            text: "@T("Admin.Common.Delete")"
+                                            //name: "destroy",
+                                            text: "@T("Admin.Common.Delete")",
+                                            click: deleteProduct
                                         }
                                     ],
                                     width: 200
@@ -119,30 +120,60 @@
                             ]
                         });
                     });
-                </script>
-            </div>
-
-            <div class="panel-footer">
-                <button type="submit" id="btnAddNewProduct"
-                        onclick="javascript:OpenWindow('@(Url.Action("ProductAddPopup", "Category", new {categoryId = Model.Id, btnId = "btnRefreshProducts", formId = "category-form"}))', 800, 800, true); return false;"
-                        class="btn btn-primary">
-                    @T("Admin.Catalog.Categories.Products.AddNew")
-                </button>
-                <input type="submit" id="btnRefreshProducts" style="display: none" />
-                <script type="text/javascript">
-                    $(document).ready(function () {
-                        $('#btnRefreshProducts').click(function () {
-                            //refresh grid
-                            var grid = $("#products-grid").data('kendoGrid');
-                            grid.dataSource.read();
-
-                            //return false to don't reload a page
-                            return false;
-                        });
-                    });
-                </script>
-            </div>
+            </script>
         </div>
+        <script>
+                //Delete item grid
+                function deleteProduct(e) {
+                    e.preventDefault();
+
+                    var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+                    var $confirm = $("#modalConfirmYesNo");
+                    $confirm.modal('show');
+                    $("#btnYesConfirmYesNo").off('click').click(function () {
+                        var postData = {
+                            Id: dataItem.Id
+                        };
+                        addAntiForgeryToken(postData);
+
+                        $.ajax({
+                            cache: false,
+                            type: "POST",
+                            url: "@(Url.Action("ProductDelete", "Category"))",
+                            data: postData,
+                            success: function(data) {
+                                var grid = $("#products-grid");
+                                grid.data('kendoGrid').dataSource.read();
+                            },
+                            error: function(xhr, ajaxOptions, thrownError) {
+
+                            }
+                        });
+                        $confirm.modal("hide");
+                    });
+                }
+        </script>
+        <div class="panel-footer">
+            <button type="submit" id="btnAddNewProduct"
+                    onclick="javascript:OpenWindow('@(Url.Action("ProductAddPopup", "Category", new {categoryId = Model.Id, btnId = "btnRefreshProducts", formId = "category-form"}))', 800, 800, true); return false;"
+                    class="btn btn-primary">
+                @T("Admin.Catalog.Categories.Products.AddNew")
+            </button>
+            <input type="submit" id="btnRefreshProducts" style="display: none" />
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    $('#btnRefreshProducts').click(function () {
+                        //refresh grid
+                        var grid = $("#products-grid").data('kendoGrid');
+                        grid.dataSource.read();
+
+                        //return false to don't reload a page
+                        return false;
+                    });
+                });
+            </script>
+        </div>
+    </div>
     }
     else
     {

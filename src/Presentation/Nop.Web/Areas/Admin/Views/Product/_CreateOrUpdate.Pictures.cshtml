@@ -1,4 +1,5 @@
-﻿@model ProductModel
+﻿@using Nop.Web.Framework.Mvc.Models
+@model ProductModel
 
 <div class="panel-group">
     @await Component.InvokeAsync("AdminWidget", new { widgetZone = "admin_product_details_pictures_top", additionalData = Model.Id })
@@ -26,12 +27,12 @@
                                         dataType: "json",
                                         data: addAntiForgeryToken
                                     },
-                                    destroy: {
+                                    @*destroy: {
                                         url: "@Html.Raw(Url.Action("ProductPictureDelete", "Product"))",
                                         type: "POST",
                                         dataType: "json",
                                         data: addAntiForgeryToken
-                                    }
+                                    }*@
                                 },
                                 schema: {
                                     data: "Data",
@@ -74,95 +75,172 @@
                             },
                             scrollable: false,
                             columns: [
-                            {
-                                field: "PictureUrl",
-                                title: "@T("Admin.Catalog.Products.Pictures.Fields.Picture")",
-                                template: '<a href="#=PictureUrl#" target="_blank"><img alt="#=PictureId#" src="#=PictureUrl#" width="150" /></a>',
-                                width: 200
-                            }, {
-                                field: "DisplayOrder",
-                                title: "@T("Admin.Catalog.Products.Pictures.Fields.DisplayOrder")",
-                                //integer format
-                                format: "{0:0}",
-                                width: 150
-                            }, {
-                                field: "OverrideAltAttribute",
-                                title: "@T("Admin.Catalog.Products.Pictures.Fields.OverrideAltAttribute")",
-                                width: 200
-                            }, {
-                                field: "OverrideTitleAttribute",
-                                title: "@T("Admin.Catalog.Products.Pictures.Fields.OverrideTitleAttribute")",
-                                width: 200
-                            }, {
-                                command: [
                                 {
-                                    name: "edit",
-                                    text: {
-                                        edit: "@T("Admin.Common.Edit")",
-                                        update: "@T("Admin.Common.Update")",
-                                        cancel: "@T("Admin.Common.Cancel")"
-                                    }
+                                    field: "PictureUrl",
+                                    title: "@T("Admin.Catalog.Products.Pictures.Fields.Picture")",
+                                    template: '<a href="#=PictureUrl#" target="_blank"><img alt="#=PictureId#" src="#=PictureUrl#" width="150" /></a>',
+                                    width: 200
                                 }, {
-                                    name: "destroy",
-                                    text: "@T("Admin.Common.Delete")"
+                                    field: "DisplayOrder",
+                                    title: "@T("Admin.Catalog.Products.Pictures.Fields.DisplayOrder")",
+                                    //integer format
+                                    format: "{0:0}",
+                                    width: 150
+                                }, {
+                                    field: "OverrideAltAttribute",
+                                    title: "@T("Admin.Catalog.Products.Pictures.Fields.OverrideAltAttribute")",
+                                    width: 200
+                                }, {
+                                    field: "OverrideTitleAttribute",
+                                    title: "@T("Admin.Catalog.Products.Pictures.Fields.OverrideTitleAttribute")",
+                                    width: 200
+                                }, {
+                                    command: [
+                                        {
+                                            name: "edit",
+                                            text: {
+                                                edit: "@T("Admin.Common.Edit")",
+                                                update: "@T("Admin.Common.Update")",
+                                                cancel: "@T("Admin.Common.Cancel")"
+                                            }
+                                        }, {
+                                            //name: "destroy",
+                                            text: "@T("Admin.Common.Delete")",
+                                            click: deleteImage
+                                        }
+                                    ],
+                                    width: 200
                                 }
-                                ],
-                                width: 200
-                            }
                             ]
                         });
                     });
                 </script>
             </div>
         </div>
+        
+        <script>
+            //Delete item grid
+            function deleteImage(e) {
+                e.preventDefault();
 
+                var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+                var $confirm = $("#modalConfirmYesNo");
+                $confirm.modal('show');
+                $("#btnYesConfirmYesNo").off('click').click(function () {
+                    var postData = {
+                        Id: dataItem.Id
+                    };
+                    addAntiForgeryToken(postData);
+
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "@(Url.Action("ProductPictureDelete", "Product"))",
+                        data: postData,
+                        success: function(data) {
+                            var grid = $("#productpictures-grid");
+                            grid.data('kendoGrid').dataSource.read();
+                        },
+                        error: function(xhr, ajaxOptions, thrownError) {
+
+                        }
+                    });
+                    $confirm.modal("hide");
+                });
+            }
+
+
+        </script>
         <div class="panel panel-default">
             <div class="panel-heading">
                 @T("Admin.Catalog.Products.Pictures.AddNew")
             </div>
             <div class="panel-body">
                 <script type="text/javascript">
+
+
                     $(document).ready(function() {
+                        var pictureIds = [];
+                        var pictureUrls = [];
                         $('#addProductPicture').click(function() {
+                            pictureUrls.push($("#@Html.IdFor(model => model.AddPictureModel.PictureUrl)").val());
+                            pictureUrls.push($("#PictureUrl1").val());
+                            pictureUrls.push($("#PictureUrl2").val());
+                            pictureUrls.push($("#PictureUrl3").val());
+                            pictureUrls.push($("#PictureUrl4").val());
+
                             var pictureId = $("#@Html.IdFor(model => model.AddPictureModel.PictureId)").val();
                             var overrideAltAttribute = $("#@Html.IdFor(model => model.AddPictureModel.OverrideAltAttribute)").val();
                             var overrideTitleAttribute = $("#@Html.IdFor(model => model.AddPictureModel.OverrideTitleAttribute)").val();
                             var displayOrder = $("#@Html.IdFor(model => model.AddPictureModel.DisplayOrder)").val();
-
-                            if (pictureId == 0) {
-                                alert('Upload picture first');
-                                return;
+                            if (pictureId !== 0) {
+                                pictureIds.push(pictureId);
                             }
-
                             $('#addProductPicture').attr('disabled', true);
 
                             var postData = {
-                                pictureId: pictureId,
+                                pictureIds: pictureIds,
+                                pictureUrls: pictureUrls,
                                 displayOrder: displayOrder,
                                 overrideAltAttribute: overrideAltAttribute,
                                 overrideTitleAttribute: overrideTitleAttribute,
                                 productId: @Model.Id
-                                };
+                            };
                             addAntiForgeryToken(postData);
 
                             $.ajax({
                                 cache: false,
                                 type: "POST",
-                                url: "@(Url.Action("ProductPictureAdd", "Product"))",
+                                url: "@(Url.Action("ProductPicturesAddMulti", "Product"))",
                                 data: postData,
                                 success: function(data) {
-                                    var grid = $("#productpictures-grid");
-                                    grid.data('kendoGrid').dataSource.read();
-                                    $('#addProductPicture').attr('disabled', false);
+                                    reloadData();
                                 },
                                 error: function(xhr, ajaxOptions, thrownError) {
-                                    alert('Failed to add product picture.');
-                                    $('#addProductPicture').attr('disabled', false);
+
                                 }
                             });
                         });
+                        function reloadData() {
+                            var grid = $("#productpictures-grid");
+                            grid.data('kendoGrid').dataSource.read();
+                            $('#addProductPicture').attr('disabled', false);
+                            $("#imageFromUrl0").html("");
+                            $("#@Html.IdFor(model => model.AddPictureModel.PictureUrl)").val("");
+                            $("#imageFromUrl1").html("");
+                            $("#PictureUrl1").val("");
+                            $("#imageFromUrl2").html("");
+                            $("#PictureUrl2").val("");
+                            $("#imageFromUrl3").html("");
+                            $("#PictureUrl3").val("");
+                            $("#imageFromUrl4").html("");
+                            $("#PictureUrl4").val("");
+                        }
+                        @*function downloadImage(control,number) {
+                            if (control.val() != null && control.val() !== '') {
+                                var postData = {
+                                    url: control.val()
+                                };
+                                addAntiForgeryToken(postData);
+                                $.ajax({
+                                    cache: false,
+                                    type: "POST",
+                                    url: "@(Url.Action("AsyncImageFromUrl", "Picture"))",
+                                    data: postData,
+                                    success: function(data) {
+                                        if (data.success) {
+                                            pictureIds.push(data.pictureId);
+                                        }
+                                    },
+                                    error: function(xhr, ajaxOptions, thrownError) {
+                                        //alert('Failed to add product picture.');
+                                    }
+                                });
+                            }
+                        }*@
                     });
                 </script>
+
                 <div class="form-group">
                     <div class="col-md-3">
                         <nop-label asp-for="AddPictureModel.PictureId" />
@@ -170,6 +248,73 @@
                     <div class="col-md-9">
                         <nop-editor asp-for="AddPictureModel.PictureId" />
                         <span asp-validation-for="AddPictureModel.PictureId"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <div class="label-wrapper">
+                            <label class="control-label">Picture Url 1</label>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="AddPictureModel.PictureUrl" />
+                        @*<button type="button" class="btn btn-success" id="btnDownloadImage">@T("Admin.Common.ButtonDownloadImageProduct")</button>*@
+                        <div id="imageFromUrl0">
+
+                        </div>
+                        <span asp-validation-for="AddPictureModel.PictureUrl"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <div class="label-wrapper">
+                            <label class="control-label">Picture Url 2</label>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <input id="PictureUrl1" class="form-control" type="text" />
+                        <div id="imageFromUrl1">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <div class="label-wrapper">
+                            <label class="control-label">Picture Url 3</label>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <input id="PictureUrl2" class="form-control" type="text" />
+                        <div id="imageFromUrl2">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <div class="label-wrapper">
+                            <label class="control-label">Picture Url 4</label>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <input id="PictureUrl3" class="form-control" type="text" />
+                        <div id="imageFromUrl3">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <div class="label-wrapper">
+                            <label class="control-label">Picture Url 5</label>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <input id="PictureUrl4" class="form-control" type="text" />
+                        <div id="imageFromUrl4">
+
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">

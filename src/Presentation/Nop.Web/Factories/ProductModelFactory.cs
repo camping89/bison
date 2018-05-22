@@ -260,7 +260,7 @@ namespace Nop.Web.Factories
             {
                 if (product.CustomerEntersPrice)
                     return;
-
+                priceModel.CallForPrice = product.CallForPrice;
                 if (product.CallForPrice &&
                     //also check whether the current user is impersonated
                     (!_orderSettings.AllowAdminsToBuyCallForPriceProducts ||

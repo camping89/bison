@@ -57,7 +57,7 @@
         </div>
         <div class="add-info">
             @await Component.InvokeAsync("Widget", new { widgetZone = "productbox_addinfo_before", additionalData = Model.Id })
-            @if (Model.ShowPriceProduct)
+            @if (Model.ProductPrice.CallForPrice == false)
             {
                 <div class="prices">
                     @if (!string.IsNullOrEmpty(Model.ProductPrice.OldPrice))

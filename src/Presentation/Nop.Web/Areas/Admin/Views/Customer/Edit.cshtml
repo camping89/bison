@@ -1,4 +1,5 @@
-﻿@model CustomerModel
+﻿@using Nop.Web.Framework.Mvc.Models
+@model CustomerModel
 
 @{
     //page title
@@ -74,37 +75,37 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <div class="col-md-5">
-                                <nop-label asp-for="SendEmail.Subject"/>
+                                <nop-label asp-for="SendEmail.Subject" />
                             </div>
                             <div class="col-md-7">
-                                <nop-editor asp-for="SendEmail.Subject"/>
+                                <nop-editor asp-for="SendEmail.Subject" />
                                 <span asp-validation-for="SendEmail.Subject"></span>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="col-md-5">
-                                <nop-label asp-for="SendEmail.Body"/>
+                                <nop-label asp-for="SendEmail.Body" />
                             </div>
                             <div class="col-md-7">
-                                <nop-textarea asp-for="SendEmail.Body"/>
+                                <nop-textarea asp-for="SendEmail.Body" />
                                 <span asp-validation-for="SendEmail.Body"></span>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="col-md-5">
-                                <nop-label asp-for="SendEmail.SendImmediately"/>
+                                <nop-label asp-for="SendEmail.SendImmediately" />
                             </div>
                             <div class="col-md-7">
-                                <nop-editor asp-for="SendEmail.SendImmediately"/>
+                                <nop-editor asp-for="SendEmail.SendImmediately" />
                                 <span asp-validation-for="SendEmail.SendImmediately"></span>
                             </div>
                         </div>
                         <div class="form-group" id="pnl-send-date">
                             <div class="col-md-5">
-                                <nop-label asp-for="SendEmail.DontSendBeforeDate"/>
+                                <nop-label asp-for="SendEmail.DontSendBeforeDate" />
                             </div>
                             <div class="col-md-7">
-                                <nop-editor asp-for="SendEmail.DontSendBeforeDate"/>
+                                <nop-editor asp-for="SendEmail.DontSendBeforeDate" />
                                 <span asp-validation-for="SendEmail.DontSendBeforeDate"></span>
                             </div>
                         </div>
@@ -133,7 +134,7 @@
             $('#pnl-send-date').show();
     }
 </script>
-
+@await Html.PartialAsync("_ConfirmCustom", new ActionConfirmationModel())
 @*send PM form*@
 <div id="sendprivatemessage-window" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="sendprivatemessage-window-title">
     <div class="modal-dialog">
@@ -143,21 +144,21 @@
                 <h4 class="modal-title" id="sendprivatemessage-window-title">@T("Admin.Customers.Customers.SendPM")</h4>
             </div>
             <form asp-controller="Customer" asp-action="SendPm" method="post">
-                <input type="hidden" asp-for="Id"/>
+                <input type="hidden" asp-for="Id" />
                 <div class="form-horizontal">
                     <div class="modal-body">
                         <div class="form-group">
                             <div class="col-md-3">
-                                <nop-label asp-for="SendPm.Subject"/>
+                                <nop-label asp-for="SendPm.Subject" />
                             </div>
                             <div class="col-md-9">
-                                <nop-editor asp-for="SendPm.Subject"/>
+                                <nop-editor asp-for="SendPm.Subject" />
                                 <span asp-validation-for="SendPm.Subject"></span>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="col-md-3">
-                                <nop-label asp-for="SendPm.Message"/>
+                                <nop-label asp-for="SendPm.Message" />
                             </div>
                             <div class="col-md-9">
                                 <nop-textarea asp-for="SendPm.Message"></nop-textarea>

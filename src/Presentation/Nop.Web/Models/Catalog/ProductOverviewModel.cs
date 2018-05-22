@@ -64,6 +64,8 @@ namespace Nop.Web.Models.Catalog
             /// A value indicating whether we should display tax/shipping info (used in Germany)
             /// </summary>
             public bool DisplayTaxShippingInfo { get; set; }
+
+            public bool CallForPrice { get; set; }
         }
 
 		#endregion

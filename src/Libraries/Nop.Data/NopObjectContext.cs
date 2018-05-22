@@ -150,6 +150,30 @@ namespace Nop.Data
             return result;
         }
 
+        public void ExecuteStoredProcedure(string commandText, params object[] parameters)
+        {
+            //add parameters to command
+            if (parameters != null && parameters.Length > 0)
+            {
+                for (var i = 0; i <= parameters.Length - 1; i++)
+                {
+                    var p = parameters[i] as DbParameter;
+                    if (p == null)
+                        throw new Exception("Not support parameter type");
+
+                    commandText += i == 0 ? " " : ", ";
+
+                    commandText += "@" + p.ParameterName;
+                    if (p.Direction == ParameterDirection.InputOutput || p.Direction == ParameterDirection.Output)
+                    {
+                        //output parameter
+                        commandText += " output";
+                    }
+                }
+            }
+          var result = Database.SqlQuery<int>(commandText, parameters).FirstOrDefault();
+
+        }
         /// <summary>
         /// Creates a raw SQL query that will return elements of the given generic type.  The type can be any type that has properties that match the names of the columns returned from the query, or can be a simple primitive type. The type does not have to be an entity type. The results of this query are never tracked by the context even if the type of object returned is an entity type.
         /// </summary>
