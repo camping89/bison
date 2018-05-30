@@ -48,7 +48,7 @@
 }
 .newsletter-email input[type="email"] {
     float: left;
-    width: 180px;
+    width: 160px;
     height: 36px;
     margin: 0 -1px 0 0;
 }
@@ -56,15 +56,15 @@
     float: left;
     height: 36px;
     border: none;
-    background-color: #4ab2f1;
+    background-color: #FF9000;
     padding: 0 5px;
     text-align: center;
     color: #fff;
     text-transform: uppercase;
 }
-.newsletter-subscribe-button:hover {
-    background-color: #248ece;
-}
+    .newsletter-subscribe-button:hover {
+        background-color: #ed8200;
+    }
 .newsletter-email .options {
     clear: both;
     padding: 10px 0 0;

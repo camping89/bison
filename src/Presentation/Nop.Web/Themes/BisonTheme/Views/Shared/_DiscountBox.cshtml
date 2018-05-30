@@ -3,7 +3,7 @@
 {
     <div class="coupon-box">
         <div class="title">
-            <strong>@T("ShoppingCart.DiscountCouponCode")</strong>
+            <h4 class="title18 title-box2">@T("ShoppingCart.DiscountCouponCode")</h4>
         </div>
         <div class="hint">
             @T("ShoppingCart.DiscountCouponCode.Tooltip")
@@ -11,7 +11,7 @@
         <div class="coupon-code">
             <input name="discountcouponcode" id="discountcouponcode" type="text" class="discount-coupon-code" />
             <input type="submit" name="applydiscountcouponcode" id="applydiscountcouponcode" 
-                   value="@T("ShoppingCart.DiscountCouponCode.Button")" class="button-2 apply-discount-coupon-code-button" />
+                   value="@T("ShoppingCart.DiscountCouponCode.Button")" class="button bg-color apply-discount-coupon-code-button" />
         </div>
         @foreach (var message in Model.Messages)
         {

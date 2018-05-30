@@ -33,7 +33,7 @@
         <div class="product-extra-link">
             @if (!Model.ProductPrice.DisableWishlistButton)
             {
-                <a href="#" class="wishlist-link" title="@T("ShoppingCart.AddToWishlist")" onclick="AjaxCart.addproducttocart_catalog('@addtowishlistlink');return false;"></a>
+                <a href="javascript:;" class="wishlist-link" title="@T("ShoppingCart.AddToWishlist")" onclick="AjaxCart.addproducttocart_catalog('@addtowishlistlink');return false;"></a>
             }
             @if (!Model.ProductPrice.DisableBuyButton)
             {

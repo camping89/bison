@@ -71,13 +71,13 @@
                                 <div class="product-price">
                                     @if (!string.IsNullOrEmpty(Model.ProductPrice.OldPrice))
                                     {
-                            <del><span class="title14 silver">@Model.ProductPrice.Price</span></del>
+                                        <del><span class="title14 silver">@Model.ProductPrice.Price</span></del>
                                     }
                                     <ins><span class="title14 color">@Model.ProductPrice.Price</span></ins>
 
                                 </div>
-                                <p class="desc">@Model.ShortDescription</p>
-                              
+                                <p class="desc">@Html.Raw(Model.ShortDescription)</p>
+                                
                                 @await Html.PartialAsync("_ProductTags", Model.ProductTags)
 
                                 <div class="detail-social">
@@ -98,9 +98,9 @@
                             <div class="detail-descript">
                                 @if (!string.IsNullOrEmpty(Model.FullDescription))
                                 {
-                        <div class="full-description" itemprop="description">
-                            @Html.Raw(Model.FullDescription)
-                        </div>
+                                    <div class="full-description" itemprop="description">
+                                        @Html.Raw(Model.FullDescription)
+                                    </div>
                                 }
                             </div>
                         </div>

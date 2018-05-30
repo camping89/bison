@@ -8,13 +8,20 @@
     Html.AppendPageCssClassParts("html-account-page");
     Html.AppendPageCssClassParts("html-back-in-stock-subscription-list-page");
 }
+@section Breadcrumb
+{
+    <div class="bread-crumb">
+        <a href="@Url.RouteUrl("HomePage")" class="silver" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
+        <strong class="color">@T("Account.BackInStockSubscriptions")</strong>
+    </div>
+}
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = CustomerNavigationEnum.BackInStockSubscriptions })
 }
-<div class="page account-page back-in-stock-subscription-list-page">
-    <div class="page-title">
-        <h1>@T("Account.MyAccount") - @T("Account.BackInStockSubscriptions")</h1>
+<div class="content-shop">
+    <div class="shop-title-box">
+        <h2 class="title18 title-box5">@T("Account.MyAccount") - @T("Account.BackInStockSubscriptions")</h2>
     </div>
     <div class="page-body">
         @if (Model.Subscriptions.Count > 0)
@@ -44,28 +51,28 @@
                                 <col />
                             </colgroup>
                             <thead>
-                            <tr>
-                                <th class="select-boxes">
-                                    <input type="checkbox" id="selectall" />
-                                </th>
-                                <th class="product">
-                                    @T("Account.BackInStockSubscriptions.ProductColumn")
-                                </th>
-                            </tr>
+                                <tr>
+                                    <th class="select-boxes">
+                                        <input type="checkbox" id="selectall" />
+                                    </th>
+                                    <th class="product">
+                                        @T("Account.BackInStockSubscriptions.ProductColumn")
+                                    </th>
+                                </tr>
                             </thead>
                             <tbody>
-                            @for (var i = 0; i < Model.Subscriptions.Count; i++)
-                            {
-                                var item = Model.Subscriptions[i];
-                                <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
-                                    <td class="select-boxes">
-                                        <input type="checkbox" name="biss@(item.Id)" class="rowcheckbox" />
-                                    </td>
-                                    <td class="product">
-                                        @Html.RouteLink(item.ProductName, "Product", new { SeName = item.SeName })
-                                    </td>
-                                </tr>
-                            }
+                                @for (var i = 0; i < Model.Subscriptions.Count; i++)
+                                {
+                                    var item = Model.Subscriptions[i];
+                                    <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
+                                        <td class="select-boxes">
+                                            <input type="checkbox" name="biss@(item.Id)" class="rowcheckbox" />
+                                        </td>
+                                        <td class="product">
+                                            @Html.RouteLink(item.ProductName, "Product", new { SeName = item.SeName })
+                                        </td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>

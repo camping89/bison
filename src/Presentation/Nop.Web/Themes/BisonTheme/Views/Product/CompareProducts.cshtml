@@ -27,23 +27,30 @@
         }
     }
 }
-<div class="page compare-products-page">
+@section Breadcrumb
+{
+    <div class="bread-crumb">
+        <a href="@Url.RouteUrl("HomePage")" class="silver" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
+        <strong class="color">@T("Products.Compare.Title")</strong>
+    </div>
+}
+<div class="content-about cart-content-page">
     <div class="page-title">
-        <h1>@T("Products.Compare.Title")</h1>
+        <h2 class="title18 title-box5">@T("Products.Compare.Title")</h2>
     </div>
     <div class="page-body">
         @if (Model.Products.Count > 0)
         {
             <a href="#" onclick="setLocation('@Url.RouteUrl("ClearCompareList")')" class="clear-list">@T("Products.Compare.Clear")</a>
-            <div class="table-wrapper">
-                <table class="compare-products-table">
+            <div class="table-wrapper table-responsive">
+                <table class="compare-products-table table">
                     <tbody>
                         <tr class="remove-product">
                             <td class="empty">&nbsp;</td>
                             @foreach (var product in Model.Products)
                             {
                                 <td style="width: @columnWidth;">
-                                    <input type="button" value="@T("Common.Remove")" title="@T("Common.Remove")" class="button-2 remove-button" onclick="setLocation('@Url.RouteUrl("RemoveProductFromCompareList", new { productId = product.Id })')" />
+                                    <input type="button" value="@T("Common.Remove")" title="@T("Common.Remove")" class="button bg-color remove-button" onclick="setLocation('@Url.RouteUrl("RemoveProductFromCompareList", new { productId = product.Id })')" />
                                 </td>
                             }
                         </tr>
@@ -101,7 +108,7 @@
                                 @foreach (var product in Model.Products)
                                 {
                                     var foundProductSpec = product.SpecificationAttributeModels.FirstOrDefault(psa => psa.SpecificationAttributeId == specificationAttribute.SpecificationAttributeId);
-                                                                
+
                                     <td style="width: @columnWidth;">
                                         @if (foundProductSpec != null)
                                         {
@@ -124,7 +131,7 @@
                                         }
                                     </td>
                                 }
-                            </tr>                    
+                            </tr>
                         }
                         @if (Model.IncludeFullDescriptionInCompareProducts)
                         {

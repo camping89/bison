@@ -64,9 +64,10 @@
 }
 /*End Screen 1024*/
 @media (max-width: 990px) {
-  .detail-with-sidebar .detail-info {
-    margin-top: 30px;
-  }
+    
+    .detail-with-sidebar .detail-info {
+        margin-top: 30px;
+    }
   .detail-info {
     margin-left: 0;
   }
@@ -99,7 +100,8 @@
     display: none;
   }
   .smart-search {
-    max-width: 230px;
+      margin-top: 10px;
+    /*max-width: 230px;*/
   }
   .smart-search-form {
     width: 100%;
@@ -227,6 +229,48 @@
 }
 /*End Screen 860*/
 @media (max-width: 767px) {
+    .logo {
+        display: block;
+        text-align: center;
+    }
+
+    .wrap-account5 {
+        display: block;
+        border: none;
+        padding: 0;
+        margin-bottom: 0;
+    }
+
+    .ui-autocomplete {
+        width: 300px;
+    }
+
+    .mini-cart-box {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .smart-search {
+        /*max-width: 210px;*/
+        margin-top: 10px;
+    }
+
+        .smart-search.smart-search1 {
+            margin-top: 10px;
+        }
+
+    .mini-cart-box {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .mini-cart-link {
+        margin: 0 auto;
+    }
   .btn-toggle-mobile-menu {
     cursor: pointer;
   }
@@ -340,9 +384,9 @@
   .nav-search5 .main-nav {
     padding-left: 0;
   }
-  .wrap-account5 {
-    display: none;
-  }
+    .wrap-account5 {
+        display: block;
+    }
   .nav-search5 {
     border: none;
   }
@@ -588,6 +632,7 @@
   .upsell-product > .title30 {
     font-size: 18px;
   }
+  
 }
 /*End Screen 480*/
 @media (max-width: 375px) {
@@ -606,12 +651,10 @@
   .item-adv4 .banner-info .title60 {
     margin-bottom: 10px;
   }
-  .smart-search {
-    max-width: 210px;
-  }
-  .account-cart3 .mini-cart-box {
-    margin-top: 5px;
-  }
+  
+    .account-cart3 .mini-cart-box {
+        margin-top: 5px;
+    }
   .item-adv-intro .banner-info {
     display: none;
   }
@@ -621,12 +664,10 @@
   .mini-cart-number {
     display: none;
   }
-  .mini-cart-box {
-    margin-top: 15px;
-  }
-  .cart-account .mini-cart-box {
-    margin-top: 0px;
-  }
+ 
+    .cart-account .mini-cart-box {
+        margin-top: 0px;
+    }
   .logo.logo2 {
     margin-top: 5px;
   }

@@ -6,7 +6,7 @@
 @inject IHttpContextAccessor httpContextAccessor
 @if (Model.AvailableLanguages.Count > 1)
 {
-    <div class="language-selector">
+    @*<div class="language-selector">
     @{
         var rawUrl = webHelper.GetRawUrl(httpContextAccessor.HttpContext.Request);
 
@@ -36,5 +36,29 @@
             <select id="customerlanguage" name="customerlanguage" asp-items="@languages" onchange="setLocation(this.value);"></select>
         }
     }
+    </div>*@
+
+    <div class="language-box">
+        @{
+            var rawUrl = webHelper.GetRawUrl(httpContextAccessor.HttpContext.Request);
+            var currencies = Model.AvailableLanguages.Select(lang => new {
+                Text = lang.Name,
+                Value = webHelper.ModifyQueryString(Url.RouteUrl("ChangeLanguage", new { langid = lang.Id }), "returnurl=" + WebUtility.UrlEncode(rawUrl), null),
+                Selected = lang.Id.Equals(Model.CurrentLanguageId),
+                FlagImageFileName = lang.FlagImageFileName
+            }).ToList();
+
+        }
+        @foreach (var item in currencies.Where(x => x.Selected))
+        {
+            <a href="@item.Value" class="language-current title14 black"><img src="@Url.Content("~/images/flags/" + item.FlagImageFileName)" alt=""><span>@item.Text</span><i class="fa fa-angle-down" aria-hidden="true"></i></a>
+        }
+        <ul class="language-list list-none text-left">
+            @foreach (var item in currencies.Where(x => !x.Selected))
+            {
+                <li><a href="@item.Value"><img src="@Url.Content("~/images/flags/" + item.FlagImageFileName)" alt=""><span>@item.Text</span></a></li>
+            }
+        </ul>
     </div>
 }
+        

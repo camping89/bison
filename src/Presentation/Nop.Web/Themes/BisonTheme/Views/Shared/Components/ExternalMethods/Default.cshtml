@@ -1,9 +1,18 @@
 ﻿@model List<ExternalAuthenticationMethodModel>
 @if (Model.Any())
 {
-    <div class="title">@T("Account.AssociatedExternalAuth.Or")</div>
+    <h2 class="title18 social-login-title">@T("Account.AssociatedExternalAuth.Or")</h2>
 }
-@foreach (var authenticationMethod in Model)
-{
-    @await Component.InvokeAsync(authenticationMethod.ViewComponentName)
-}
+
+<div class="social-login-block table text-center">
+    @foreach (var authenticationMethod in Model)
+    {
+        @await Component.InvokeAsync(authenticationMethod.ViewComponentName)
+    }
+    @*<div class="social-login-btn">
+        <a href="#" class="login-fb-link">Facebook</a>
+    </div>
+    <div class="social-login-btn">
+        <a href="#" class="login-goo-link">Google</a>
+    </div>*@
+</div>

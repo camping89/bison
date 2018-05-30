@@ -21,7 +21,8 @@
 @section Breadcrumb
     {
     <div class="bread-crumb">
-
+        <a href="@Url.RouteUrl("HomePage")" class="silver" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
+        <strong class="color">@Model.Name</strong>
     </div>
 }
 <div class="content-shop shop-grid">
@@ -55,7 +56,7 @@
                     @foreach (var item in Model.FeaturedProducts)
                     {
                         <div class="item-box">
-                            @await Html.PartialAsync("_ProductBox", item)
+                            @await Html.PartialAsync("_ProductBoxFullHeight", item)
                         </div>
                     }
                 </div>
@@ -99,7 +100,7 @@
                         @foreach (var product in Model.Products)
                         {
                             <div class="col-md-4 col-sm-6 col-xs-6">
-                                @await Html.PartialAsync("_ProductBox", product)
+                                @await Html.PartialAsync("_ProductBoxFullHeight", product)
                             </div>
                         }
                     </div>

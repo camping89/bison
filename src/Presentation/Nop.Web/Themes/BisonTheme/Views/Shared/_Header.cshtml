@@ -2,17 +2,17 @@
     <div class="header-main5">
         <div class="container">
             <div class="row">
-                <div class="col-md-3 col-sm-3 col-xs-7">
+                <div class="col-md-3 col-sm-12 col-xs-12">
                     <div class="logo logo5">
                         @await Component.InvokeAsync("Logo")
                     </div>
                 </div>
-                <div class="col-md-9 col-sm-9 col-xs-5">
+                <div class="col-md-9 col-sm-12 col-xs-12">
                     @await Component.InvokeAsync("FlyoutShoppingCart")
                     
                     <div class="pull-right text-right wrap-account5">
                         @await Component.InvokeAsync("HeaderLinks")
-                        <ul class="list-inline-block top-currency-language">
+                        <ul class="ul-inline-block list-inline-block top-currency-language">
                             <li>
                                 <div class="taxtype-box">
                                     @await Component.InvokeAsync("TaxTypeSelector")
@@ -33,7 +33,16 @@
                             </li>
                         </ul>
                     </div>
+                    <div class="block">
+                        <div class="smart-search smart-search1">
+                            <form class="smart-search-form">
+                                @await Component.InvokeAsync("SearchBox")
+                            </form>
+                            @await Component.InvokeAsync("Widget", new {widgetZone = "header_after"})
+                        </div>
+                    </div>
                 </div>
+                
             </div>
         </div>
     </div>
@@ -48,25 +57,12 @@
                         <a href="#" class="toggle-mobile-menu"><span></span></a>
                     </nav>
                         <!-- End Main nav -->
-                        <div class="smart-search smart-search1">
-                            <!--TODO Load categories for search-->
-                            @*<div class="select-search-category">
-                                <button class="btn-search-cat"><span>All</span></button>
-                                <ul class="list-cat-search list-none">
-                                    <li><a href="#">Bikes Ovicsport store</a></li>
-                                    <li><a href="#">Weightlifting Ovicsport </a></li>
-                                    <li><a href="#">Volleyball Store </a></li>
-                                    <li><a href="#">Football Ovicsport </a></li>
-                                    <li><a href="#">Golf Ovicsport store</a></li>
-                                    <li><a href="#">Rowing store</a></li>
-                                    <li><a href="#">Runner moving </a></li>
-                                </ul>
-                            </div>*@
+                        @*<div class="smart-search smart-search1">
                             <form class="smart-search-form">
                                 @await Component.InvokeAsync("SearchBox")
                             </form>
                             @await Component.InvokeAsync("Widget", new {widgetZone = "header_after"})
-                        </div>
+                        </div>*@
                     </div>
                 </div>
             </div>

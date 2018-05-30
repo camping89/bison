@@ -1,6 +1,6 @@
 ﻿@model HeaderLinksModel
 @using System.Text.Encodings.Web
-<ul class="list-inline-block top-menu text-left">
+<ul class="ul-inline-block list-inline-block top-menu text-left">
     @await Component.InvokeAsync("Widget", new { widgetZone = "header_links_before" })
     @if (Model.IsAuthenticated)
     {

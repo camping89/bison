@@ -26,7 +26,7 @@
                 });
             });
         });
-    
+
         $(document).ready(function () {
             $('#estimate-shipping-button').click(function() {
                 displayAjaxLoading(true);
@@ -56,27 +56,33 @@
     </script>
     <div class="estimate-shipping">
         <div class="title">
-            <strong>@T("ShoppingCart.EstimateShipping")</strong>
+            <h4 class="title18 title-box2">@T("ShoppingCart.EstimateShipping")</h4>
         </div>
         <div class="hint">@T("ShoppingCart.EstimateShipping.Tooltip")</div>
         <div class="shipping-options">
             <div class="inputs">
-                <label asp-for="CountryId" asp-postfix=":"></label>
+                <div class="block">
+                    <label asp-for="CountryId" asp-postfix=":"></label>
+                    <nop-required />
+                </div>
                 <select asp-for="CountryId" asp-items="Model.AvailableCountries" class="country-input"></select>
-                <nop-required />
             </div>
             <div class="inputs">
-                <label asp-for="StateProvinceId" asp-postfix=":"></label>
+                <div class="block">
+                    <label asp-for="StateProvinceId" asp-postfix=":"></label>
+                </div>
                 <select asp-for="StateProvinceId" asp-items="Model.AvailableStates" class="state-input"></select>
                 <span id="estimate-shipping-loading-progress" style="display: none;" class="please-wait">@T("Common.Wait...")</span>
             </div>
             <div class="inputs">
-                <label asp-for="ZipPostalCode" asp-postfix=":"></label>
-                <input asp-for="ZipPostalCode" class="zip-input"/>
-                <nop-required />
+                <div class="block">
+                    <label asp-for="ZipPostalCode" asp-postfix=":"></label>
+                    <nop-required />
+                </div>
+                <input asp-for="ZipPostalCode" class="zip-input" />
             </div>
             <div class="buttons">
-                <input id="estimate-shipping-button" type="button" value="@T("ShoppingCart.EstimateShipping.Button")" class="button-2 estimate-shipping-button" />
+                <input id="estimate-shipping-button" type="button" value="@T("ShoppingCart.EstimateShipping.Button")" class="button bg-color estimate-shipping-button" />
             </div>
         </div>
         <div class="estimate-shipping-result"></div>

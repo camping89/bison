@@ -69,25 +69,27 @@
 
     </ul>
 
-    <div class="add-to-cart">
-        @if (Model.CustomerEntersPrice)
+     if (Model.CustomerEntersPrice)
         {
-            <div class="customer-entered-price">
-                <div class="price-input">
-                    <label asp-for="CustomerEnteredPrice" asp-postfix=":" class="enter-price-label"></label>
-                    @*round price*@
-                    <input asp-for="CustomerEnteredPrice" value="@Convert.ToInt32(Math.Ceiling(Model.CustomerEnteredPrice))" class="enter-price-input" />
-                </div>
-                <div class="price-range">
-                    @Model.CustomerEnteredPriceRange
+            <div class="add-to-cart">
+                <div class="customer-entered-price">
+                    <div class="price-input">
+                        <label asp-for="CustomerEnteredPrice" asp-postfix=":" class="enter-price-label"></label>
+                        @*round price*@
+                        <input asp-for="CustomerEnteredPrice" value="@Convert.ToInt32(Math.Ceiling(Model.CustomerEnteredPrice))" class="enter-price-input" />
+                    </div>
+                    <div class="price-range">
+                        @Model.CustomerEnteredPriceRange
+                    </div>
                 </div>
             </div>
+            
         }
-        @if (!string.IsNullOrEmpty(Model.MinimumQuantityNotification))
+        if (!string.IsNullOrEmpty(Model.MinimumQuantityNotification))
         {
             <div class="min-qty-notification">@Model.MinimumQuantityNotification</div>
         }
 
         @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_add_info", additionalData = Model.ProductId })
-    </div>
+    
 }

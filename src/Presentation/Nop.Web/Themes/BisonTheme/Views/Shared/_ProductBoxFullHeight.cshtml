@@ -1,0 +1,80 @@
+﻿@model ProductOverviewModel
+@using Nop.Core
+@using Nop.Core.Domain.Catalog
+@using Nop.Core.Domain.Orders
+@using Nop.Core.Domain.Tax
+@inject CatalogSettings catalogSettings
+@inject IWorkContext workContext
+@{
+    //prepare "Add to cart" AJAX link
+    var addtocartlink = "";
+    var shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart;
+    var quantity = 1;
+    if (Model.ProductPrice.ForceRedirectionAfterAddingToCart)
+    {
+        addtocartlink = Url.RouteUrl("AddProductToCart-Catalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId, quantity = quantity, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart });
+    }
+    else
+    {
+        addtocartlink = Url.RouteUrl("AddProductToCart-Catalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId, quantity = quantity });
+    }
+
+    var addtowishlistlink = Url.RouteUrl("AddProductToCart-Catalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist, quantity = quantity });
+    var addtocomparelink = Url.RouteUrl("AddProductToCompare", new { productId = Model.Id });
+}
+
+
+<div class="item-product text-center">
+    @*<span class="product-label sale-label">50% off</span>*@
+    <div class="product-thumb">
+        <a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })" title="@Model.DefaultPictureModel.Title" class="product-thumb-link product-fullheight zoom-thumb">
+            <img alt="@Model.DefaultPictureModel.AlternateText" src="@Model.DefaultPictureModel.ImageUrl" title="@Model.DefaultPictureModel.Title" />
+        </a>
+        <div class="product-extra-link">
+            @if (!Model.ProductPrice.DisableWishlistButton)
+            {
+                <a href="javascript:;" class="wishlist-link" title="@T("ShoppingCart.AddToWishlist")" onclick="AjaxCart.addproducttocart_catalog('@addtowishlistlink');return false;"></a>
+            }
+            @if (!Model.ProductPrice.DisableBuyButton)
+            {
+                var addToCartText = T("ShoppingCart.AddToCart").Text;
+                if (Model.ProductPrice.IsRental)
+                {
+                    addToCartText = T("ShoppingCart.Rent").Text;
+                }
+                if (Model.ProductPrice.AvailableForPreOrder)
+                {
+                    addToCartText = T("ShoppingCart.PreOrder").Text;
+                }
+                <a href="javascript:;" class="addcart-link" onclick="AjaxCart.addproducttocart_catalog('@addtocartlink');return false;">@(addToCartText)</a>
+            }
+            @if (!Model.ProductPrice.DisableAddToCompareListButton)
+            {
+                <a href="javascript:;" class="compare-link" onclick="AjaxCart.addproducttocomparelist('@addtocomparelink');return false;" ></a>
+            }
+        </div>
+        <a href="@Url.Action("ProductQuickViewDetails","Product",new {  mode = "quickview" , productId = Model.Id})" class="quickview-link title14 fancybox fancybox.iframe">@T("ProductBoxItem.PreOrder.Quickview")</a>
+    </div>
+    <div class="product-info">
+        <h3 class="product-title title14"><a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">@Model.Name</a></h3>
+        <div class="product-price">
+            @if (!string.IsNullOrEmpty(Model.ProductPrice.OldPrice))
+            {
+                <del><span class="title14 silver">@Model.ProductPrice.Price</span></del>
+            }
+            <ins><span class="title14 color">@Model.ProductPrice.Price</span></ins>
+
+        </div>
+        @{
+            var ratingPercent = 0;
+            if (Model.ReviewOverviewModel.TotalReviews != 0)
+            {
+                ratingPercent = ((Model.ReviewOverviewModel.RatingSum * 100) / Model.ReviewOverviewModel.TotalReviews) / 5;
+            }
+         }
+        <div class="product-rate">
+            <div class="product-rating" style="width:@(ratingPercent)%"></div>
+        </div>
+    </div>
+</div>
+

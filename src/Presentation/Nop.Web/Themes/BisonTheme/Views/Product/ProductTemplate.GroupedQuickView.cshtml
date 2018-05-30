@@ -58,7 +58,7 @@
                             <div class="detail-info">
                                 <h2 class="title-detail title30">@Model.Name</h2>
 
-                                <p class="desc">@Model.ShortDescription</p>
+                                <p class="desc">@Html.Raw(Model.ShortDescription)</p>
 
                                 @await Html.PartialAsync("_ProductTags", Model.ProductTags)
 
@@ -159,6 +159,7 @@
                                     </div>
                                         }
                                 }
+
                                 <!--price breaks-->
                                 @await Html.PartialAsync("_ProductTierPrices", variant.TierPrices)
                             </div>

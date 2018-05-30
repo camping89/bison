@@ -5,7 +5,7 @@
     //page class
     Html.AppendPageCssClassParts("html-user-agreement-page");
 }
- <script type="text/javascript" asp-location="Footer">
+<script type="text/javascript" asp-location="Footer">
     $(document).ready(function () {
         $("#agreement-agree").click(toggleContinueButton);
         toggleContinueButton();
@@ -18,17 +18,26 @@
         }
     }
 </script>
-<div class="page user-agreement-page">
-    <div class="page-title">
-        <h1>@T("DownloadableProducts.UserAgreement")</h1>
+@section Breadcrumb
+    {
+    <div class="bread-crumb">
+        <a href="@Url.RouteUrl("HomePage")" class="silver" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
+        <strong class="color">@T("DownloadableProducts.UserAgreement")</strong>
     </div>
-    <div class="page-body">
-        <div class="terms-of-agreement">
-            <input id="agreement-agree" type="checkbox" value="@T("DownloadableProducts.IAgree")" />
-            @Html.Raw(Model.UserAgreementText)
-        </div>
-        <div class="buttons">
-            <input type="submit" id="continue-downloading" class="button-1 user-agreement-button" value="@T("Common.Continue")" onclick="setLocation('@Url.RouteUrl("GetDownload", new { orderItemId = Model.OrderItemGuid, agree = true })')" />
+}
+<div class="container">
+    <div class="content-about ">
+        <h2 class="title30 dosis-font font-bold text-uppercase text-center dark">@T("DownloadableProducts.UserAgreement")</h2>
+        <div class="page user-agreement-page">
+            <div class="page-body">
+                <div class="terms-of-agreement">
+                    <input id="agreement-agree" type="checkbox" value="@T("DownloadableProducts.IAgree")" />
+                    @Html.Raw(Model.UserAgreementText)
+                </div>
+                <div class="buttons">
+                    <input type="submit" id="continue-downloading" class="button-1 user-agreement-button" value="@T("Common.Continue")" onclick="setLocation('@Url.RouteUrl("GetDownload", new { orderItemId = Model.OrderItemGuid, agree = true })')" />
+                </div>
+            </div>
         </div>
     </div>
 </div>

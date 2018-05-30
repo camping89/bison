@@ -3,13 +3,13 @@
 {
     <div class="giftcard-box">
         <div class="title">
-            <strong>@T("ShoppingCart.GiftCardCouponCode")</strong>
+            <h4 class="title18 title-box2">@T("ShoppingCart.GiftCardCouponCode")</h4>
         </div>
         <div class="hint">@T("ShoppingCart.GiftCardCouponCode.Tooltip")</div>
         <div class="coupon-code">
             <input name="giftcardcouponcode" id="giftcardcouponcode" type="text" class="gift-card-coupon-code" />
             <input type="submit" name="applygiftcardcouponcode" id="applygiftcardcouponcode" 
-                   value="@T("ShoppingCart.GiftCardCouponCode.Button")" class="button-2 apply-gift-card-coupon-code-button" />
+                   value="@T("ShoppingCart.GiftCardCouponCode.Button")" class="button bg-color apply-gift-card-coupon-code-button" />
         </div>
         @if (!string.IsNullOrEmpty(Model.Message))
         {

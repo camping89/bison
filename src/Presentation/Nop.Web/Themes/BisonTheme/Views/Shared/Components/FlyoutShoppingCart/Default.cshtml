@@ -11,10 +11,10 @@
 <div class="mini-cart-box pull-right">
     <a class="mini-cart-link title12" href="@(Url.RouteUrl("ShoppingCart"))">
         <span class="mini-cart-icon inline-block"><img src="@Url.Content($"~/Themes/{themeName}/Content/images/icons/icon-cart.png")" alt="" /><sup class="bg-color white round">@Model.TotalProducts</sup></span>
-        <span class="mini-cart-number  black inline-block text-right">@T("ShoppingCart.Totals.SubTotal"): <br>@Model.TotalProducts @T("ShoppingCart.ProductUnit.Label")</span>
+        <span class="mini-cart-number  black inline-block text-right">@Model.TotalProducts @T("ShoppingCart.ProductItem.Label")</span>
     </a>
     <div class="mini-cart-content text-left">
-        <h2 class="title18">@Model.TotalProducts @T("ShoppingCart.ProductItem.Label")</h2>
+        @*<h2 class="title18">@Model.TotalProducts @T("ShoppingCart.ProductItem.Label")</h2>*@
         <div class="list-mini-cart-item">
             @if (Model.TotalProducts > 0)
             {

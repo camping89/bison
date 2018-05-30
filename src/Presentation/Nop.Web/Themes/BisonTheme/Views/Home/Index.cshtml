@@ -4,31 +4,36 @@
     //page class
     Html.AppendPageCssClassParts("html-home-page");
 }
+@section HomeSlide {
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_top" })
+}
 <section id="content">
     @*@await Component.InvokeAsync("SliderHomePage")*@
-    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_top" })
-    <div class="container">
-        <div class="page home-page">
-            <div class="page-body">
-                @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_categories" })
-                @await Component.InvokeAsync("HomepageCategories")
-                @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_best_sellers" })
-                @await Component.InvokeAsync("HomepageBestSellers")
-                @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_products" })
-                @await Component.InvokeAsync("HomepageProducts")
-                @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_new_products" })
-                <div class="col-arrival5">
-                    <div class="row">
-                        @await Component.InvokeAsync("CollectionProductOfYear")
-                        @await Component.InvokeAsync("HomepageNewProducts")
+    <div class="row">
+        
+        <div class="container">
+            <div class="page home-page">
+                <div class="page-body">
+                    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_categories" })
+                    @await Component.InvokeAsync("HomepageCategories")
+                    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_best_sellers" })
+                    @await Component.InvokeAsync("HomepageBestSellers")
+                    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_products" })
+                    @await Component.InvokeAsync("HomepageProducts")
+                    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_new_products" })
+                    <div class="col-arrival5">
+                        <div class="row">
+                            @await Component.InvokeAsync("CollectionProductOfYear")
+                            @await Component.InvokeAsync("HomepageNewProducts")
+                        </div>
                     </div>
-                </div>
-                
-                @*@await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_news" })
-                    @await Component.InvokeAsync("HomepageNews")*@
-                @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_bottom" })
-            </div>
-        </div>
 
+                    @*@await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_news" })
+                    @await Component.InvokeAsync("HomepageNews")*@
+                    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_bottom" })
+                </div>
+            </div>
+
+        </div>
     </div>
 </section>

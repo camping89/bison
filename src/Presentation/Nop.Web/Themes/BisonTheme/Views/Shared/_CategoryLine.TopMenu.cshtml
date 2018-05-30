@@ -7,7 +7,7 @@
         //standard design (only categories with "IncludeInTopMenu")
         Model.Category.SubCategories.Where(x => x.IncludeInTopMenu).ToList();
 }
-<li class="@(subCategories.Count > 0 ? "menu-item-has-children" : string.Empty)">
+<li  id="cate-top-menu-@Model.Category.Id" class="@(subCategories.Count > 0 ? "menu-item-has-children" : string.Empty)">
     <a href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">@Model.Category.Name
     @if (Model.Category.NumberOfProducts.HasValue)
     {

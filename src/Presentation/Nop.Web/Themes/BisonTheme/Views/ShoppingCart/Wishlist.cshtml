@@ -11,9 +11,9 @@
     //page class
     Html.AppendPageCssClassParts("html-wishlist-page");
 }
-<div class="page wishlist-page">
+<div class="content-about cart-content-page" id="shopping-cart-form">
     <div class="page-title">
-        <h1>
+        <h2 class="title30 text-uppercase font-bold dark title-box5">
             @if (Model.IsEditable)
             {
                 @T("Wishlist")
@@ -22,9 +22,10 @@
             {
                 @string.Format(T("Wishlist.WishlistOf").Text, Model.CustomerFullname)
             }
-        </h1>
+        </h2>
     </div>
-    <div class="page-body">
+
+<div class="table-responsive">
         @if (Model.Items.Count > 0)
         {
             <div class="wishlist-content">
@@ -41,7 +42,7 @@
                 }
                 <form asp-route="Wishlist" method="post">
                     <div class="table-wrapper">
-                        <table class="cart">
+                        <table class="shop_table cart table">
                             <colgroup>
                                 @if (Model.IsEditable)
                                 {
@@ -235,15 +236,15 @@
                     <div class="buttons">
                         @if (Model.IsEditable)
                         {
-                            <input type="submit" name="updatecart" value="@T("Wishlist.UpdateCart")" class="button-2 update-wishlist-button" />
+                            <input type="submit" name="updatecart" value="@T("Wishlist.UpdateCart")" class="button bg-color update-wishlist-button" />
                         }
                         @if (Model.DisplayAddToCart)
                         {
-                            <input type="submit" name="addtocartbutton" value="@T("ShoppingCart.AddToCart")" class="button-2 wishlist-add-to-cart-button" />
+                            <input type="submit" name="addtocartbutton" value="@T("ShoppingCart.AddToCart")" class="button bg-color wishlist-add-to-cart-button" />
                         }
                         @if (Model.IsEditable && Model.EmailWishlistEnabled)
                         {
-                            <input type="button" value="@T("Wishlist.EmailAFriend")" class="button-2 email-a-friend-wishlist-button" onclick="setLocation('@Url.RouteUrl("EmailWishlist")')" />
+                            <input type="button" value="@T("Wishlist.EmailAFriend")" class="button bg-color email-a-friend-wishlist-button" onclick="setLocation('@Url.RouteUrl("EmailWishlist")')" />
                         }
                     </div>
                 </form>

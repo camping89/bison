@@ -136,12 +136,12 @@ function detail_gallery(){
 				visible:4
 			});
 			//Elevate Zoom
-			$('.detail-gallery').find('.mid img').elevateZoom({
-				zoomType: "inner",
-				cursor: "crosshair",
-				zoomWindowFadeIn: 500,
-				zoomWindowFadeOut: 750
-			});
+			//$('.detail-gallery').find('.mid img').elevateZoom({
+			//	zoomType: "inner",
+			//	cursor: "crosshair",
+			//	zoomWindowFadeIn: 500,
+			//	zoomWindowFadeOut: 750
+			//});
 			$(this).find(".carousel a").on('click',function(event) {
 				event.preventDefault();
 				$(this).parents('.detail-gallery').find(".carousel a").removeClass('active');
@@ -172,6 +172,20 @@ function menu_responsive(){
 }
 //Document Ready
 jQuery(document).ready(function(){
+	//Switch Register
+	$('.login-to-register').on('click',function(event){
+		event.preventDefault();
+		$(this).toggleClass('login-status');
+		if($(this).hasClass('login-status')){
+			$(this).text($(this).attr('data-login'));
+			$(this).parents('.register-content-box').find('.block-login').hide();
+			$(this).parents('.register-content-box').find('.block-register').show();
+		}else{
+			$(this).text($(this).attr('data-register'));
+			$(this).parents('.register-content-box').find('.block-login').show();
+			$(this).parents('.register-content-box').find('.block-register').hide();
+		}
+	});
 	//Menu Responsive
 	$('.toggle-mobile-menu').on('click',function(event){
 		event.preventDefault();
@@ -191,49 +205,45 @@ jQuery(document).ready(function(){
 		});
 	}
 	//Filter Price
-	if($('.range-filter').length>0){
-		$('.range-filter').each(function(){
-			$(this).find( ".slider-range" ).slider({
-				range: true,
-				min: 10000,
-				max: 80000000,
-				values: [ 10000, 80000000 ],
-				slide: function( event, ui ) {
-					$(this).parents('.range-filter').find( ".amount" ).html( '<span class="startprice">'+ui.values[ 0 ].format()+'</span>' + '<span class="endprice">' + ui.values[ 1 ].format()+'</span>');
-				}
-			});
-			$(this).find( ".amount" ).html('<span class="startprice">'+$(this).find( ".slider-range" ).slider( "values", 0 )+'</span>' + '<span class="endprice">'+$(this).find( ".slider-range" ).slider( "values", 1 )+'</span>');
-		    $(".startprice").html($(".startprice").text().toInt().format());
-		    $(".endprice").html($(".endprice").text().toInt().format());
-		});
-	}
+    if($('.range-filter').length>0){
+        $('.range-filter').each(function(){
+            $(this).find( ".slider-range" ).slider({
+                range: true,
+                min: 10000,
+                max: 80000000,
+                values: [ 10000, 80000000 ],
+                slide: function( event, ui ) {
+                    $(this).parents('.range-filter').find( ".amount" ).html( '<span class="startprice">'+ui.values[ 0 ].format()+'</span>' + '<span class="endprice">' + ui.values[ 1 ].format()+'</span>');
+                }
+            });
+            $(this).find( ".amount" ).html('<span class="startprice">'+$(this).find( ".slider-range" ).slider( "values", 0 )+'</span>' + '<span class="endprice">'+$(this).find( ".slider-range" ).slider( "values", 1 )+'</span>');
+            $(".startprice").html($(".startprice").text().toInt().format());
+            $(".endprice").html($(".endprice").text().toInt().format());
+        });
+    }
 	//Qty Up-Down
 	$('.detail-qty').each(function(){
 		var qtyval = parseInt($(this).find('.qty-val').text(),10);
 		$(this).find('.qty-up').on('click',function(event){
 			event.preventDefault();
 			qtyval=qtyval+1;
-            $('.qty-val').text(qtyval);
-            $('.qty-input').val(qtyval);
+			$('.qty-val').text(qtyval);
 		});
 		$(this).find('.qty-down').on('click',function(event){
 			event.preventDefault();
 			qtyval=qtyval-1;
 			if(qtyval>1){
-                $('.qty-val').text(qtyval);
-                $('.qty-input').val(qtyval);
+				$('.qty-val').text(qtyval);
 			}else{
 				qtyval=1;
-                $('.qty-val').text(qtyval);
-                $('.qty-input').val(qtyval);
+				$('.qty-val').text(qtyval);
 			}
-        });
-        
+		});
 	});
 	//Detail Gallery
 	detail_gallery();
 	//Wishlist Popup
-	//popup_wishlist();
+	popup_wishlist();
 	//Menu Responsive 
 	menu_responsive();
 	//Offset Menu
@@ -367,6 +377,7 @@ jQuery(window).on('scroll',function(){
 	fixed_header();
 });
 })(jQuery); // End of use strict
+
 
 Number.prototype.format = function(n, x) {
     var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\.' : '$') + ')';

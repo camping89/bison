@@ -28,7 +28,6 @@
                                             {
                                                 <del><span class="title14 silver">@item.ProductPrice.OldPrice</span></del>
                                             }
-                                            <span class="price actual-price">@item.ProductPrice.Price</span>
                                             <ins><span class="title14 color">@item.ProductPrice.Price</span></ins>
                                         </div>
                                         @{
@@ -56,7 +55,7 @@
                                                 {
                                                     addToCartText = T("ShoppingCart.PreOrder").Text;
                                                 }
-                                                <a href="@addtocartlink" class="addcart-link">@(addToCartText)</a>
+                                            <a href="javascript:;" class="addcart-link" onclick="AjaxCart.addproducttocart_catalog('@addtocartlink');return false;">@(addToCartText)</a>
 
                                             }
 

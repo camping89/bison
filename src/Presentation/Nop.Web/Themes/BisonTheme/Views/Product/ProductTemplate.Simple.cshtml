@@ -51,7 +51,6 @@
 @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_after_breadcrumb", additionalData = Model.Id })
 
 <section id="content">
-    <div class="container">
         <div class="content-detail">
             <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
                 <div class="product-detail">
@@ -84,36 +83,27 @@
                                     <ins><span class="title14 color">@Model.ProductPrice.Price</span></ins>
 
                                 </div>
-                                <p class="desc">@Model.ShortDescription</p>
-                                @*<div class="filter-color">
-                                        <h3 class="title14">Color</h3>
-                                        <ul class="list-inline-block">
-                                            <li><a href="#" style="background:#ffffff;border:1px solid #e5e5e5"></a></li>
-                                            <li><a href="#" style="background:#e66054"></a></li>
-                                            <li><a class="active" href="#" style="background:#d0b7cc"></a></li>
-                                            <li><a href="#" style="background:#107a8e"></a></li>
-                                            <li><a href="#" style="background:#b9cad2"></a></li>
-                                            <li><a href="#" style="background:#a7bc93"></a></li>
-                                            <li><a href="#" style="background:#d3b627"></a></li>
-                                            <li><a href="#" style="background:#b4b3ae"></a></li>
-                                            <li><a href="#" style="background:#502006"></a></li>
-                                            <li><a href="#" style="background:#311e21"></a></li>
-                                            <li><a href="#" style="background:#e6b3af"></a></li>
-                                            <li><a href="#" style="background:#f3d213"></a></li>
-                                            <li><a href="#" style="background:#bd0316"></a></li>
-                                            <li><a href="#" style="background:#ff607c"></a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="filter-size">
-                                        <h3 class="title14">Size</h3>
-                                        <ul class="list-inline-block">
-                                            <li><a href="#">s</a></li>
-                                            <li class="active"><a href="#">m</a></li>
-                                            <li><a href="#">l</a></li>
-                                            <li><a href="#">2xl</a></li>
-                                            <li><a href="#">3xl</a></li>
-                                        </ul>
-                                    </div>*@
+                                <p class="desc">@Html.Raw(Model.ShortDescription)</p>
+                                <div class="attributes">
+                                    <!--attributes-->
+                                    @{
+                                        var dataDictAttributes = new ViewDataDictionary(ViewData);
+                                        dataDictAttributes.TemplateInfo.HtmlFieldPrefix = $"attributes_{Model.Id}";
+                                        @await Html.PartialAsync("_ProductAttributes", Model.ProductAttributes, dataDictAttributes)
+                                    }
+                                </div>
+                                <!--gift card-->
+                                @{
+                                    var dataDictGiftCard = new ViewDataDictionary(ViewData);
+                                    dataDictGiftCard.TemplateInfo.HtmlFieldPrefix = $"giftcard_{Model.Id}";
+                                    @await Html.PartialAsync("_GiftCardInfo", Model.GiftCard, dataDictGiftCard)
+                                }
+                                <!--rental info-->
+                                @{
+                                    var dataDictRental = new ViewDataDictionary(ViewData);
+                                    dataDictRental.TemplateInfo.HtmlFieldPrefix = $"rental_{Model.Id}";
+                                    @await Html.PartialAsync("_RentalInfo", Model, dataDictRental)
+                                }
                                 @{
                                     var dataDictAddToCart = new ViewDataDictionary(ViewData);
                                     dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = $"addtocart_{Model.Id}";
@@ -123,22 +113,16 @@
 
                                 <div class="product-extra-link">
                                     <!--wishlist, compare, email a friend-->
-                                    <div class="overview-buttons">
-                                        @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_inside_overview_buttons_before", additionalData = Model.Id })
-                                        @{
-                                            var dataDictAddToWishlist = new ViewDataDictionary(ViewData);
-                                            dataDictAddToWishlist.TemplateInfo.HtmlFieldPrefix = $"addtocart_{Model.Id}";
-                                            @await Html.PartialAsync("_AddToWishlist", Model.AddToCart, dataDictAddToWishlist)
-                                        }
-                                        @await Html.PartialAsync("_CompareProductsButton", Model)
-                                        @*@await Html.PartialAsync("_ProductEmailAFriendButton", Model)*@
-                                        <hr />
-                                        @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_inside_overview_buttons_after", additionalData = Model.Id })
-                                    </div>
-
+                                    @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_inside_overview_buttons_before", additionalData = Model.Id })
+                                    @{
+                                        var dataDictAddToWishlist = new ViewDataDictionary(ViewData);
+                                        dataDictAddToWishlist.TemplateInfo.HtmlFieldPrefix = $"addtocart_{Model.Id}";
+                                        @await Html.PartialAsync("_AddToWishlist", Model.AddToCart, dataDictAddToWishlist)
+                                    }
+                                    @await Html.PartialAsync("_CompareProductsButton", Model)
+                                    @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_inside_overview_buttons_after", additionalData = Model.Id })
                                     @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_overview_bottom", additionalData = Model.Id })
-                                    <a href="#" class="wishlist-link"></a>
-                                    <a href="#" class="compare-link"></a>
+
                                 </div>
                                 @await Html.PartialAsync("_ProductTags", Model.ProductTags)
 
@@ -177,5 +161,4 @@
             <!-- End Upsell Product -->
             @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_bottom", additionalData = Model.Id })
         </div>
-    </div>
 </section>

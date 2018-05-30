@@ -38,9 +38,9 @@
         confirmOrderStepNumber--;
     }
 }
-<div class="page checkout-page">
+<div class="content-about cart-content-page form-my-checkout">
     <div class="page-title">
-        <h1>@T("Checkout")</h1>
+        <h2 class="title30 text-uppercase font-bold dark title-box5">@T("Checkout")</h2>
     </div>
     <div class="page-body checkout-data">
         @await Component.InvokeAsync("Widget", new { widgetZone = "opc_content_before" })
@@ -64,7 +64,7 @@
                         }
                     </script>
                     <div class="buttons" id="billing-buttons-container">
-                        <input type="button" title="@T("Common.Continue")" class="button-1 new-address-next-step-button" onclick="Billing.save()" value="@T("Common.Continue")" />
+                        <input type="button" title="@T("Common.Continue")" class="button bg-color new-address-next-step-button" onclick="Billing.save()" value="@T("Common.Continue")" />
                         <span class="please-wait" id="billing-please-wait" style="display: none;">@T("Common.LoadingNextStep")</span>
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                                     <a href="#" onclick="Checkout.back(); return false; "><small>&laquo; </small>@T("Common.Back")</a>
                                 </p>
                             }
-                            <input type="button" class="button-1 new-address-next-step-button" title="@T("Common.Continue")" onclick="Shipping.save()" value="@T("Common.Continue")" />
+                            <input type="button" class="button bg-color  new-address-next-step-button" title="@T("Common.Continue")" onclick="Shipping.save()" value="@T("Common.Continue")" />
                             <span id="shipping-please-wait" class="please-wait" style="display: none;"> @T("Common.LoadingNextStep")</span>
                         </div>
                     </div>
@@ -115,8 +115,9 @@
                             </script>
                             <div class="buttons" id="shipping-method-buttons-container">
                                 <p class="back-link">
-                                    <a href="#" onclick="Checkout.back(); return false;"><small>&laquo; </small>@T("Common.Back")</a></p>
-                                <input type="button" class="button-1 shipping-method-next-step-button" onclick="ShippingMethod.save()" value="@T("Common.Continue")" />
+                                    <a href="#" onclick="Checkout.back(); return false;"><small>&laquo; </small>@T("Common.Back")</a>
+                                </p>
+                                <input type="button" class="button bg-color  shipping-method-next-step-button" onclick="ShippingMethod.save()" value="@T("Common.Continue")" />
                                 <span id="shipping-method-please-wait" class="please-wait" style="display: none;">@T("Common.LoadingNextStep")</span>
                             </div>
                         </form>
@@ -139,8 +140,9 @@
                     </script>
                     <div class="buttons" id="payment-method-buttons-container">
                         <p class="back-link">
-                            <a href="#" onclick="Checkout.back(); return false;"><small>&laquo; </small>@T("Common.Back")</a></p>
-                        <input type="button" class="button-1 payment-method-next-step-button" onclick="PaymentMethod.save()" value="@T("Common.Continue")" />
+                            <a href="#" onclick="Checkout.back(); return false;"><small>&laquo; </small>@T("Common.Back")</a>
+                        </p>
+                        <input type="button" class="button bg-color  payment-method-next-step-button" onclick="PaymentMethod.save()" value="@T("Common.Continue")" />
                         <span class="please-wait" id="payment-method-please-wait" style="display: none;">@T("Common.LoadingNextStep")</span>
                     </div>
                 </div>
@@ -161,8 +163,9 @@
                     </script>
                     <div class="buttons" id="payment-info-buttons-container">
                         <p class="back-link">
-                            <a href="#" onclick="Checkout.back(); return false;"><small>&laquo; </small>@T("Common.Back")</a></p>
-                        <input type="button" class="button-1 payment-info-next-step-button" onclick="PaymentInfo.save()" value="@T("Common.Continue")" />
+                            <a href="#" onclick="Checkout.back(); return false;"><small>&laquo; </small>@T("Common.Back")</a>
+                        </p>
+                        <input type="button" class="button bg-color  payment-info-next-step-button" onclick="PaymentInfo.save()" value="@T("Common.Continue")" />
                         <span class="please-wait" id="payment-info-please-wait" style="display: none;">@T("Common.LoadingNextStep")</span>
                     </div>
                 </div>
@@ -181,8 +184,9 @@
                     </script>
                     <div class="buttons" id="confirm-order-buttons-container">
                         <p class="back-link">
-                            <a href="#" onclick="Checkout.back(); return false;"><small>&laquo; </small>@T("Common.Back")</a></p>
-                        <input type="button" class="button-1 confirm-order-next-step-button" onclick="ConfirmOrder.save()" value="@T("Common.Confirm")" />
+                            <a href="#" onclick="Checkout.back(); return false;"><small>&laquo; </small>@T("Common.Back")</a>
+                        </p>
+                        <input type="button" class="button bg-color confirm-order-next-step-button" onclick="ConfirmOrder.save()" value="@T("Common.Confirm")" />
                         <span class="please-wait" id="confirm-order-please-wait" style="display: none;">@T("Checkout.SubmittingOrder")</span>
                     </div>
                 </div>

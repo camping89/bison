@@ -23,6 +23,14 @@
 @{
     var active = Model.Category.Id == Model.CurrentCategoryId || Model.Category.SubCategories.Count(BreadCrumbContainsCurrentCategoryId) > 0;
     var last = Model.Category.Id == Model.CurrentCategoryId;
+    if (active)
+    {
+        <script>
+            $(document).ready(function() {
+                $("#cate-top-menu-@Model.Category.Id").addClass("active");
+            });
+        </script>
+    }
     var liClass = active ? "active" : "inactive";
     if (last)
     {

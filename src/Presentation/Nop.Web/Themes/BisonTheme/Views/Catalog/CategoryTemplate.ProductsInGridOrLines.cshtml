@@ -27,7 +27,7 @@
 
 <div class="widget widget-filter">
     <h2 class="title-widget title18">@T("Filtering.ShoppingBy")</h2>
-    <h3 class="title14 shop-option">@T("Filtering.FilterOptions")</h3>
+    @*<h3 class="title14">@T("Filtering.FilterOptions")</h3>*@
     @if (Model.PagingFilteringContext.PriceRangeFilter.Enabled)
     {
         @await Html.PartialAsync("_FilterPriceBox", Model.PagingFilteringContext.PriceRangeFilter)
@@ -95,9 +95,9 @@
                         <div class="col-md-4 col-sm-4 col-xs-12">
                             <div class="item-adv1 banner-adv zoom-image line-scale">
                                 <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title" class="adv-thumb-link"><img alt="@item.PictureModel.AlternateText" src="@item.PictureModel.ImageUrl" title="@item.PictureModel.Title" /></a>
-                                <div class="banner-info black  pos-center">
+                                <div class="banner-info white  pos-center">
                                     <h2 class="title30 font-bold"> @item.Name</h2>
-                                    <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" class="title14 btn-caret black">@T("Category.HomePage.Shopnow")<i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                    <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" class="title14 btn-caret white">@T("Category.HomePage.Shopnow")<i class="fa fa-caret-right" aria-hidden="true"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -120,7 +120,7 @@
                     @foreach (var item in Model.FeaturedProducts)
                     {
                         <div class="item-box">
-                            @await Html.PartialAsync("_ProductBox", item)
+                            @await Html.PartialAsync("_ProductBoxFullHeight", item)
                         </div>
                     }
                 </div>
@@ -164,7 +164,7 @@
                         @foreach (var product in Model.Products)
                         {
                             <div class="col-md-4 col-sm-6 col-xs-6">
-                                @await Html.PartialAsync("_ProductBox", product)
+                                @await Html.PartialAsync("_ProductBoxFullHeight", product)
                             </div>
                         }
                     </div>

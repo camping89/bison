@@ -7,9 +7,21 @@
         @RenderSection("Breadcrumb")
     }
 }
-
+@if (IsSectionDefined("HomeSlide"))
+{
+    @RenderSection("HomeSlide")
+}
 <div id="content">
     @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_before" })
-    @RenderBody()
+    <div class="content-page woocommerce">
+        <div class="container">
+            @RenderBody()
+        </div>
+    </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_after" })
 </div>
+@*<div id="content">
+        @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_before" })
+        @RenderBody()
+        @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_after" })
+    </div>*@
