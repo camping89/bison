@@ -1000,72 +1000,72 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             // insert mapping for all children category
 
-            if (model.IsUpdateProduct)
-            {
-                //predefined values
-                var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
+            //if (model.IsUpdateProduct)
+            //{
+            //    //predefined values
+            //    var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
 
-                foreach (var cateId in listCateIds)
-                {
-                    //Get list product
-                    var productCategories = _categoryService.GetProductCategoriesByCategoryId(cateId, showHidden: true);
+            //    foreach (var cateId in listCateIds)
+            //    {
+            //        //Get list product
+            //        var productCategories = _categoryService.GetProductCategoriesByCategoryId(cateId, showHidden: true);
 
-                    foreach (var product in productCategories)
-                    {
-                        if (_productAttributeService.GetProductAttributeMappingsByProductId(product.Id)
-                            .Any(x => x.ProductAttributeId == model.ProductAttributeId))
-                        {
-                            continue;
-                        }
+            //        foreach (var product in productCategories)
+            //        {
+            //            if (_productAttributeService.GetProductAttributeMappingsByProductId(product.Id)
+            //                .Any(x => x.ProductAttributeId == model.ProductAttributeId))
+            //            {
+            //                continue;
+            //            }
 
-                        //insert mapping
-                        var productAttributeMapping = new ProductAttributeMapping
-                        {
-                            ProductId = product.ProductId,
-                            ProductAttributeId = model.ProductAttributeId,
-                            TextPrompt = model.TextPrompt,
-                            IsRequired = model.IsRequired,
-                            AttributeControlTypeId = model.AttributeControlTypeId,
-                            DisplayOrder = model.DisplayOrder,
-                            ValidationMinLength = model.ValidationMinLength,
-                            ValidationMaxLength = model.ValidationMaxLength,
-                            ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions,
-                            ValidationFileMaximumSize = model.ValidationFileMaximumSize,
-                            DefaultValue = model.DefaultValue
-                        };
-                        _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
-                        UpdateLocales(productAttributeMapping, model);
+            //            //insert mapping
+            //            var productAttributeMapping = new ProductAttributeMapping
+            //            {
+            //                ProductId = product.ProductId,
+            //                ProductAttributeId = model.ProductAttributeId,
+            //                TextPrompt = model.TextPrompt,
+            //                IsRequired = model.IsRequired,
+            //                AttributeControlTypeId = model.AttributeControlTypeId,
+            //                DisplayOrder = model.DisplayOrder,
+            //                ValidationMinLength = model.ValidationMinLength,
+            //                ValidationMaxLength = model.ValidationMaxLength,
+            //                ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions,
+            //                ValidationFileMaximumSize = model.ValidationFileMaximumSize,
+            //                DefaultValue = model.DefaultValue
+            //            };
+            //            _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
+            //            UpdateLocales(productAttributeMapping, model);
 
-                        if (productAttributeMapping.Id > 0 && !_productAttributeService.GetProductAttributeValues(productAttributeMapping.Id).Any())
-                        {
-                            foreach (var predefinedValue in predefinedValues)
-                            {
-                                var pav = new ProductAttributeValue
-                                {
-                                    ProductAttributeMappingId = productAttributeMapping.Id,
-                                    AttributeValueType = AttributeValueType.Simple,
-                                    Name = predefinedValue.Name,
-                                    PriceAdjustment = predefinedValue.PriceAdjustment,
-                                    WeightAdjustment = predefinedValue.WeightAdjustment,
-                                    Cost = predefinedValue.Cost,
-                                    IsPreSelected = predefinedValue.IsPreSelected,
-                                    DisplayOrder = predefinedValue.DisplayOrder
-                                };
-                                _productAttributeService.InsertProductAttributeValue(pav);
-                                //locales
-                                var languages = _languageService.GetAllLanguages(true);
-                                //localization
-                                foreach (var lang in languages)
-                                {
-                                    var name = predefinedValue.GetLocalized(x => x.Name, lang.Id, false, false);
-                                    if (!string.IsNullOrEmpty(name))
-                                        _localizedEntityService.SaveLocalizedValue(pav, x => x.Name, name, lang.Id);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            //            if (productAttributeMapping.Id > 0 && !_productAttributeService.GetProductAttributeValues(productAttributeMapping.Id).Any())
+            //            {
+            //                foreach (var predefinedValue in predefinedValues)
+            //                {
+            //                    var pav = new ProductAttributeValue
+            //                    {
+            //                        ProductAttributeMappingId = productAttributeMapping.Id,
+            //                        AttributeValueType = AttributeValueType.Simple,
+            //                        Name = predefinedValue.Name,
+            //                        PriceAdjustment = predefinedValue.PriceAdjustment,
+            //                        WeightAdjustment = predefinedValue.WeightAdjustment,
+            //                        Cost = predefinedValue.Cost,
+            //                        IsPreSelected = predefinedValue.IsPreSelected,
+            //                        DisplayOrder = predefinedValue.DisplayOrder
+            //                    };
+            //                    _productAttributeService.InsertProductAttributeValue(pav);
+            //                    //locales
+            //                    var languages = _languageService.GetAllLanguages(true);
+            //                    //localization
+            //                    foreach (var lang in languages)
+            //                    {
+            //                        var name = predefinedValue.GetLocalized(x => x.Name, lang.Id, false, false);
+            //                        if (!string.IsNullOrEmpty(name))
+            //                            _localizedEntityService.SaveLocalizedValue(pav, x => x.Name, name, lang.Id);
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
             SuccessNotification(_localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.Added"));
 
             if (continueEditing)
@@ -1143,82 +1143,82 @@ namespace Nop.Web.Areas.Admin.Controllers
             _categoryAttributeService.Update(categoryProductAttributeMapping);
 
             UpdateLocales(categoryProductAttributeMapping, model);
-            if (model.IsUpdateProduct)
-            {
-                //Get list product
-                var productCategories = _categoryService.GetProductCategoriesByCategoryId(model.CategoryId, showHidden: true);
-                //predefined values
-                var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
-                foreach (var product in productCategories)
-                {
-                    var productAttributeMapping = _productAttributeService.GetProductAttributeMappingsByProductId(product.ProductId)
-                        .FirstOrDefault(x => x.ProductAttributeId == model.ProductAttributeId);
-                    if (productAttributeMapping == null)
-                    {
-                        //insert mapping
-                        productAttributeMapping = new ProductAttributeMapping
-                        {
-                            ProductId = product.ProductId,
-                            ProductAttributeId = model.ProductAttributeId,
-                            TextPrompt = model.TextPrompt,
-                            IsRequired = model.IsRequired,
-                            AttributeControlTypeId = model.AttributeControlTypeId,
-                            DisplayOrder = model.DisplayOrder,
-                            ValidationMinLength = model.ValidationMinLength,
-                            ValidationMaxLength = model.ValidationMaxLength,
-                            ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions,
-                            ValidationFileMaximumSize = model.ValidationFileMaximumSize,
-                            DefaultValue = model.DefaultValue
-                        };
-                        _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
-                    }
-                    else
-                    {
-                        productAttributeMapping.ProductAttributeId = model.ProductAttributeId;
-                        productAttributeMapping.TextPrompt = model.TextPrompt;
-                        productAttributeMapping.IsRequired = model.IsRequired;
-                        productAttributeMapping.AttributeControlTypeId = model.AttributeControlTypeId;
-                        productAttributeMapping.DisplayOrder = model.DisplayOrder;
-                        productAttributeMapping.ValidationMinLength = model.ValidationMinLength;
-                        productAttributeMapping.ValidationMaxLength = model.ValidationMaxLength;
-                        productAttributeMapping.ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions;
-                        productAttributeMapping.ValidationFileMaximumSize = model.ValidationFileMaximumSize;
-                        productAttributeMapping.DefaultValue = model.DefaultValue;
-                        _productAttributeService.UpdateProductAttributeMapping(productAttributeMapping);
+            //if (model.IsUpdateProduct)
+            //{
+            //    //Get list product
+            //    var productCategories = _categoryService.GetProductCategoriesByCategoryId(model.CategoryId, showHidden: true);
+            //    //predefined values
+            //    var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
+            //    foreach (var product in productCategories)
+            //    {
+            //        var productAttributeMapping = _productAttributeService.GetProductAttributeMappingsByProductId(product.ProductId)
+            //            .FirstOrDefault(x => x.ProductAttributeId == model.ProductAttributeId);
+            //        if (productAttributeMapping == null)
+            //        {
+            //            //insert mapping
+            //            productAttributeMapping = new ProductAttributeMapping
+            //            {
+            //                ProductId = product.ProductId,
+            //                ProductAttributeId = model.ProductAttributeId,
+            //                TextPrompt = model.TextPrompt,
+            //                IsRequired = model.IsRequired,
+            //                AttributeControlTypeId = model.AttributeControlTypeId,
+            //                DisplayOrder = model.DisplayOrder,
+            //                ValidationMinLength = model.ValidationMinLength,
+            //                ValidationMaxLength = model.ValidationMaxLength,
+            //                ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions,
+            //                ValidationFileMaximumSize = model.ValidationFileMaximumSize,
+            //                DefaultValue = model.DefaultValue
+            //            };
+            //            _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
+            //        }
+            //        else
+            //        {
+            //            productAttributeMapping.ProductAttributeId = model.ProductAttributeId;
+            //            productAttributeMapping.TextPrompt = model.TextPrompt;
+            //            productAttributeMapping.IsRequired = model.IsRequired;
+            //            productAttributeMapping.AttributeControlTypeId = model.AttributeControlTypeId;
+            //            productAttributeMapping.DisplayOrder = model.DisplayOrder;
+            //            productAttributeMapping.ValidationMinLength = model.ValidationMinLength;
+            //            productAttributeMapping.ValidationMaxLength = model.ValidationMaxLength;
+            //            productAttributeMapping.ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions;
+            //            productAttributeMapping.ValidationFileMaximumSize = model.ValidationFileMaximumSize;
+            //            productAttributeMapping.DefaultValue = model.DefaultValue;
+            //            _productAttributeService.UpdateProductAttributeMapping(productAttributeMapping);
 
-                    }
-                    if (productAttributeMapping.Id > 0 && !_productAttributeService.GetProductAttributeValues(productAttributeMapping.Id).Any())
-                    {
-                        foreach (var predefinedValue in predefinedValues)
-                        {
-                            var pav = new ProductAttributeValue
-                            {
-                                ProductAttributeMappingId = productAttributeMapping.Id,
-                                AttributeValueType = AttributeValueType.Simple,
-                                Name = predefinedValue.Name,
-                                PriceAdjustment = predefinedValue.PriceAdjustment,
-                                WeightAdjustment = predefinedValue.WeightAdjustment,
-                                Cost = predefinedValue.Cost,
-                                IsPreSelected = predefinedValue.IsPreSelected,
-                                DisplayOrder = predefinedValue.DisplayOrder
-                            };
-                            _productAttributeService.InsertProductAttributeValue(pav);
-                            //locales
-                            var languages = _languageService.GetAllLanguages(true);
-                            //localization
-                            foreach (var lang in languages)
-                            {
-                                var name = predefinedValue.GetLocalized(x => x.Name, lang.Id, false, false);
-                                if (!string.IsNullOrEmpty(name))
-                                    _localizedEntityService.SaveLocalizedValue(pav, x => x.Name, name, lang.Id);
-                            }
-                        }
-                    }
-                    UpdateLocales(productAttributeMapping, model);
-                }
+            //        }
+            //        if (productAttributeMapping.Id > 0 && !_productAttributeService.GetProductAttributeValues(productAttributeMapping.Id).Any())
+            //        {
+            //            foreach (var predefinedValue in predefinedValues)
+            //            {
+            //                var pav = new ProductAttributeValue
+            //                {
+            //                    ProductAttributeMappingId = productAttributeMapping.Id,
+            //                    AttributeValueType = AttributeValueType.Simple,
+            //                    Name = predefinedValue.Name,
+            //                    PriceAdjustment = predefinedValue.PriceAdjustment,
+            //                    WeightAdjustment = predefinedValue.WeightAdjustment,
+            //                    Cost = predefinedValue.Cost,
+            //                    IsPreSelected = predefinedValue.IsPreSelected,
+            //                    DisplayOrder = predefinedValue.DisplayOrder
+            //                };
+            //                _productAttributeService.InsertProductAttributeValue(pav);
+            //                //locales
+            //                var languages = _languageService.GetAllLanguages(true);
+            //                //localization
+            //                foreach (var lang in languages)
+            //                {
+            //                    var name = predefinedValue.GetLocalized(x => x.Name, lang.Id, false, false);
+            //                    if (!string.IsNullOrEmpty(name))
+            //                        _localizedEntityService.SaveLocalizedValue(pav, x => x.Name, name, lang.Id);
+            //                }
+            //            }
+            //        }
+            //        UpdateLocales(productAttributeMapping, model);
+            //    }
 
 
-            }
+            //}
             SuccessNotification(_localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.Updated"));
             if (continueEditing)
             {
@@ -1295,35 +1295,35 @@ namespace Nop.Web.Areas.Admin.Controllers
             };
             var listCateIds = _specificationAttributeService.Insert(psa,true);
 
-            if (psa.Id > 0)
-            {
-                foreach (var cateId in listCateIds)
-                {
-                    //Get list product
-                    var productCategories = _categoryService.GetProductCategoriesByCategoryId(cateId, showHidden: true);
-                    foreach (var product in productCategories)
-                    {
-                        if (_specificationAttributeService.GetProductSpecificationAttributes(product.Id)
-                            .Any(x => x.ProductId == product.ProductId && x.SpecificationAttributeOptionId == specificationAttributeOptionId))
-                        {
-                            continue;
-                        }
-                        //insert mapping
-                        var psaProduct = new ProductSpecificationAttribute
-                        {
-                            AttributeTypeId = attributeTypeId,
-                            SpecificationAttributeOptionId = specificationAttributeOptionId,
-                            ProductId = product.ProductId,
-                            CustomValue = customValue,
-                            AllowFiltering = allowFiltering,
-                            ShowOnProductPage = showOnProductPage,
-                            DisplayOrder = displayOrder,
-                        };
-                        _specificationAttributeService.InsertProductSpecificationAttribute(psaProduct);
-                    }
-                }
+            //if (psa.Id > 0)
+            //{
+            //    foreach (var cateId in listCateIds)
+            //    {
+            //        //Get list product
+            //        var productCategories = _categoryService.GetProductCategoriesByCategoryId(cateId, showHidden: true);
+            //        foreach (var product in productCategories)
+            //        {
+            //            if (_specificationAttributeService.GetProductSpecificationAttributes(product.Id)
+            //                .Any(x => x.ProductId == product.ProductId && x.SpecificationAttributeOptionId == specificationAttributeOptionId))
+            //            {
+            //                continue;
+            //            }
+            //            //insert mapping
+            //            var psaProduct = new ProductSpecificationAttribute
+            //            {
+            //                AttributeTypeId = attributeTypeId,
+            //                SpecificationAttributeOptionId = specificationAttributeOptionId,
+            //                ProductId = product.ProductId,
+            //                CustomValue = customValue,
+            //                AllowFiltering = allowFiltering,
+            //                ShowOnProductPage = showOnProductPage,
+            //                DisplayOrder = displayOrder,
+            //            };
+            //            _specificationAttributeService.InsertProductSpecificationAttribute(psaProduct);
+            //        }
+            //    }
                 
-            }
+            //}
             return Json(new { Result = true });
         }
 
@@ -1406,22 +1406,22 @@ namespace Nop.Web.Areas.Admin.Controllers
             psa.DisplayOrder = model.DisplayOrder;
             _specificationAttributeService.UpdateCategorySpecificationAttribute(psa);
             //Get list product
-            var productCategories = _categoryService.GetProductCategoriesByCategoryId(psa.CategoryId, showHidden: true);
-            foreach (var product in productCategories)
-            {
-                var psaProduct = _specificationAttributeService.GetProductSpecificationAttributeById(product.ProductId);
+            //var productCategories = _categoryService.GetProductCategoriesByCategoryId(psa.CategoryId, showHidden: true);
+            //foreach (var product in productCategories)
+            //{
+            //    var psaProduct = _specificationAttributeService.GetProductSpecificationAttributeById(product.ProductId);
 
-                //we allow filtering and change option only for "Option" attribute type
-                if (model.AttributeTypeId == (int)SpecificationAttributeType.Option)
-                {
-                    psa.AllowFiltering = model.AllowFiltering;
-                    psa.SpecificationAttributeOptionId = model.SpecificationAttributeOptionId;
-                }
+            //    //we allow filtering and change option only for "Option" attribute type
+            //    if (model.AttributeTypeId == (int)SpecificationAttributeType.Option)
+            //    {
+            //        psa.AllowFiltering = model.AllowFiltering;
+            //        psa.SpecificationAttributeOptionId = model.SpecificationAttributeOptionId;
+            //    }
 
-                psa.ShowOnProductPage = model.ShowOnProductPage;
-                psa.DisplayOrder = model.DisplayOrder;
-                _specificationAttributeService.UpdateProductSpecificationAttribute(psaProduct);
-            }
+            //    psa.ShowOnProductPage = model.ShowOnProductPage;
+            //    psa.DisplayOrder = model.DisplayOrder;
+            //    _specificationAttributeService.UpdateProductSpecificationAttribute(psaProduct);
+            //}
             return new NullJsonResult();
         }
 

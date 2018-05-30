@@ -37,189 +37,127 @@
                 @T("Admin.Catalog.Products.List.DownloadPDF")
             </button>
             @*<div class="btn-group">
-                    <div class="onoffswitch">
-                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="show-price-mode">
-                        <label class="onoffswitch-label" for="show-price-mode">
-                            <span class="onoffswitch-inner"
-                                  data-locale-basic="@T("Admin.Common.ShowHidePrice.Hide")"
-                                  data-locale-advanced="@T("Admin.Common.ShowHidePrice.Show")"></span>
-                            <span class="onoffswitch-switch"></span>
-                        </label>
-                    </div>
-                    <script type="text/javascript">
-                        function checkAdvancedSettingsMode(advanced) {
-                            if (advanced) {
-                                $("body").addClass("advanced-settings-mode");
-                                $("body").removeClass("basic-settings-mode");
-                            } else {
-                                $("body").removeClass("advanced-settings-mode");
-                                $("body").addClass("basic-settings-mode");
-                            }
-                        }
-                        checkAdvancedSettingsMode($("#show-price-mode").is(':checked'));
-                        $(document).ready(function() {
-                            $("#show-price-mode").click(function() {
-                                checkAdvancedSettingsMode($(this).is(':checked'));
-                                var postData = {};
-                                if ($(this).is(':checked')) {
-                                    postData = {
-                                        productIds: selectedIds,
-                                        isShow: 'false'
-                                    };
+                        <div class="onoffswitch">
+                            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="show-price-mode">
+                            <label class="onoffswitch-label" for="show-price-mode">
+                                <span class="onoffswitch-inner"
+                                      data-locale-basic="@T("Admin.Common.ShowHidePrice.Hide")"
+                                      data-locale-advanced="@T("Admin.Common.ShowHidePrice.Show")"></span>
+                                <span class="onoffswitch-switch"></span>
+                            </label>
+                        </div>
+                        <script type="text/javascript">
+                            function checkAdvancedSettingsMode(advanced) {
+                                if (advanced) {
+                                    $("body").addClass("advanced-settings-mode");
+                                    $("body").removeClass("basic-settings-mode");
                                 } else {
-                                    postData = {
-                                        productIds: selectedIds,
-                                        isShow: 'true'
-                                    };
+                                    $("body").removeClass("advanced-settings-mode");
+                                    $("body").addClass("basic-settings-mode");
                                 }
+                            }
+                            checkAdvancedSettingsMode($("#show-price-mode").is(':checked'));
+                            $(document).ready(function() {
+                                $("#show-price-mode").click(function() {
+                                    checkAdvancedSettingsMode($(this).is(':checked'));
+                                    var postData = {};
+                                    if ($(this).is(':checked')) {
+                                        postData = {
+                                            productIds: selectedIds,
+                                            isShow: 'false'
+                                        };
+                                    } else {
+                                        postData = {
+                                            productIds: selectedIds,
+                                            isShow: 'true'
+                                        };
+                                    }
 
-                                addAntiForgeryToken(postData);
+                                    addAntiForgeryToken(postData);
 
-                                $.ajax({
-                                    cache: false,
-                                    type: "POST",
-                                    url: "@(Url.Action("ShowOrHidePriceSelected", "Product"))",
-                                    data: postData,
-                                    complete: function(data) {
-                                        //reload grid
-                                        var grid = $('#products-grid').data('kendoGrid');
-                                        grid.dataSource.read();
-                                    },
-                                    error: function(xhr, ajaxOptions, thrownError) {
-                                        alert(thrownError);
-                                    },
-                                    traditional: true
+                                    $.ajax({
+                                        cache: false,
+                                        type: "POST",
+                                        url: "@(Url.Action("ShowOrHidePriceSelected", "Product"))",
+                                        data: postData,
+                                        complete: function(data) {
+                                            //reload grid
+                                            var grid = $('#products-grid').data('kendoGrid');
+                                            grid.dataSource.read();
+                                        },
+                                        error: function(xhr, ajaxOptions, thrownError) {
+                                            alert(thrownError);
+                                        },
+                                        traditional: true
+                                    });
                                 });
                             });
-                        });
-                    </script>
-            </div>
+                        </script>
+                </div>
 
-            <div class="btn-group">
-                
-                    <div class="onoffswitch">
-                        <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="show-stock-mode">
-                        <label class="onoffswitch-label" for="show-stock-mode">
-                            <span class="onoffswitch-inner"
-                                  data-locale-basic="@T("Admin.Common.ShowHideStock.Hide")"
-                                  data-locale-advanced="@T("Admin.Common.ShowHideStock.Show")"></span>
-                            <span class="onoffswitch-switch"></span>
-                        </label>
-                    </div>
-                    <script type="text/javascript">
-                        function checkAdvancedSettingsMode(advanced) {
-                            if (advanced) {
-                                $("body").addClass("advanced-settings-mode");
-                                $("body").removeClass("basic-settings-mode");
-                            } else {
-                                $("body").removeClass("advanced-settings-mode");
-                                $("body").addClass("basic-settings-mode");
-                            }
-                        }
-                        checkAdvancedSettingsMode($("#show-stock-mode").is(':checked'));
-                        $(document).ready(function() {
-                            $("#show-stock-mode").click(function() {
-                                checkAdvancedSettingsMode($(this).is(':checked'));
-                                var postData = {};
-                                if ($(this).is(':checked')) {
-                                    postData = {
-                                        productIds: selectedIds,
-                                        isShow: 'true'
-                                    };
+                <div class="btn-group">
+
+                        <div class="onoffswitch">
+                            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="show-stock-mode">
+                            <label class="onoffswitch-label" for="show-stock-mode">
+                                <span class="onoffswitch-inner"
+                                      data-locale-basic="@T("Admin.Common.ShowHideStock.Hide")"
+                                      data-locale-advanced="@T("Admin.Common.ShowHideStock.Show")"></span>
+                                <span class="onoffswitch-switch"></span>
+                            </label>
+                        </div>
+                        <script type="text/javascript">
+                            function checkAdvancedSettingsMode(advanced) {
+                                if (advanced) {
+                                    $("body").addClass("advanced-settings-mode");
+                                    $("body").removeClass("basic-settings-mode");
                                 } else {
-                                    postData = {
-                                        productIds: selectedIds,
-                                        isShow: 'false'
-                                    };
+                                    $("body").removeClass("advanced-settings-mode");
+                                    $("body").addClass("basic-settings-mode");
                                 }
+                            }
+                            checkAdvancedSettingsMode($("#show-stock-mode").is(':checked'));
+                            $(document).ready(function() {
+                                $("#show-stock-mode").click(function() {
+                                    checkAdvancedSettingsMode($(this).is(':checked'));
+                                    var postData = {};
+                                    if ($(this).is(':checked')) {
+                                        postData = {
+                                            productIds: selectedIds,
+                                            isShow: 'true'
+                                        };
+                                    } else {
+                                        postData = {
+                                            productIds: selectedIds,
+                                            isShow: 'false'
+                                        };
+                                    }
 
-                                addAntiForgeryToken(postData);
+                                    addAntiForgeryToken(postData);
 
-                                $.ajax({
-                                    cache: false,
-                                    type: "POST",
-                                    url: "@(Url.Action("ShowOrHideStockSelected", "Product"))",
-                                    data: postData,
-                                    complete: function(data) {
-                                        //reload grid
-                                        var grid = $('#products-grid').data('kendoGrid');
-                                        grid.dataSource.read();
-                                    },
-                                    error: function(xhr, ajaxOptions, thrownError) {
-                                        alert(thrownError);
-                                    },
-                                    traditional: true
+                                    $.ajax({
+                                        cache: false,
+                                        type: "POST",
+                                        url: "@(Url.Action("ShowOrHideStockSelected", "Product"))",
+                                        data: postData,
+                                        complete: function(data) {
+                                            //reload grid
+                                            var grid = $('#products-grid').data('kendoGrid');
+                                            grid.dataSource.read();
+                                        },
+                                        error: function(xhr, ajaxOptions, thrownError) {
+                                            alert(thrownError);
+                                        },
+                                        traditional: true
+                                    });
                                 });
                             });
-                        });
-                    </script>
-                
-            </div>*@
+                        </script>
+
+                </div>*@
             <div class="btn-group">
-            <button type="button" class="btn btn-success">
-                @T("Admin.Common.ShowHideCallForPrice")
-            </button>
-            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                <span class="caret"></span>
-                <span class="sr-only">&nbsp;</span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-                <li>
-                    <button type="button" id="show-price-selected">
-                        <i class="fa fa-file-code-o"></i>
-                        @T("Admin.Common.CallForPrice.Show")
-                    </button>
-                </li>
-                <li>
-                    <button type="button" id="hide-price-selected">
-                        <i class="fa fa-file-code-o"></i>
-                        @T("Admin.Common.CallForPrice.Hide")
-                    </button>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <button type="button" id="show-price-all">
-                        <i class="fa fa-file-code-o"></i>
-                        @T("Admin.Common.ResetShowCallForPrice")
-                    </button>
-                </li>
-            </ul>
-        </div>
-
-        <div class="btn-group">
-            <button type="button" class="btn btn-success">
-                @T("Admin.Common.ShowHideDisplayStockQuantity")
-            </button>
-            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                <span class="caret"></span>
-                <span class="sr-only">&nbsp;</span>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-                <li>
-                    <button type="button" id="show-stock-selected">
-                        <i class="fa fa-file-code-o"></i>
-                        @T("Admin.Common.DisplayStockQuantity.Show")
-                    </button>
-                </li>
-                <li>
-                    <button type="button" id="hide-stock-selected">
-                        <i class="fa fa-file-code-o"></i>
-                        @T("Admin.Common.DisplayStockQuantity.Hide")
-                    </button>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <button type="button" id="show-stock-all">
-                        <i class="fa fa-file-code-o"></i>
-                        @T("Admin.Common.ResetShowDisplayStockQuantity")
-                    </button>
-                </li>
-            </ul>
-        </div>
-
-            @*<div class="btn-group">
                 <button type="button" class="btn btn-success">
-                    @T("Admin.Common.ResetShowHide")
+                    @T("Admin.Common.ShowHideCallForPrice")
                 </button>
                 <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                     <span class="caret"></span>
@@ -227,19 +165,81 @@
                 </button>
                 <ul class="dropdown-menu" role="menu">
                     <li>
-                        <button type="button" id="show-stock-all">
+                        <button type="button" id="show-price-selected">
                             <i class="fa fa-file-code-o"></i>
-                            @T("Admin.Common.ResetShowStock")
+                            @T("Admin.Common.CallForPrice.Show")
                         </button>
                     </li>
                     <li>
+                        <button type="button" id="hide-price-selected">
+                            <i class="fa fa-file-code-o"></i>
+                            @T("Admin.Common.CallForPrice.Hide")
+                        </button>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
                         <button type="button" id="show-price-all">
                             <i class="fa fa-file-code-o"></i>
-                            @T("Admin.Common.ResetShowPrice")
+                            @T("Admin.Common.ResetShowCallForPrice")
                         </button>
                     </li>
                 </ul>
-            </div>*@
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-success">
+                    @T("Admin.Common.ShowHideDisplayStockQuantity")
+                </button>
+                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">&nbsp;</span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li>
+                        <button type="button" id="show-stock-selected">
+                            <i class="fa fa-file-code-o"></i>
+                            @T("Admin.Common.DisplayStockQuantity.Show")
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" id="hide-stock-selected">
+                            <i class="fa fa-file-code-o"></i>
+                            @T("Admin.Common.DisplayStockQuantity.Hide")
+                        </button>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <button type="button" id="show-stock-all">
+                            <i class="fa fa-file-code-o"></i>
+                            @T("Admin.Common.ResetShowDisplayStockQuantity")
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            @*<div class="btn-group">
+                    <button type="button" class="btn btn-success">
+                        @T("Admin.Common.ResetShowHide")
+                    </button>
+                    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <span class="caret"></span>
+                        <span class="sr-only">&nbsp;</span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li>
+                            <button type="button" id="show-stock-all">
+                                <i class="fa fa-file-code-o"></i>
+                                @T("Admin.Common.ResetShowStock")
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" id="show-price-all">
+                                <i class="fa fa-file-code-o"></i>
+                                @T("Admin.Common.ResetShowPrice")
+                            </button>
+                        </li>
+                    </ul>
+                </div>*@
 
             <div class="btn-group">
                 <button type="button" class="btn btn-success">
@@ -279,18 +279,23 @@
                 </ul>
             </div>
             @if (!Model.IsLoggedInAsVendor || Model.AllowVendorsToImportProducts)
-    {
-        //a vendor cannot import products
-        <button type="button" name="importexcel" class="btn bg-olive" data-toggle="modal" data-target="#importexcel-window">
-            <i class="fa fa-upload"></i>
-            @T("Admin.Common.Import")
+            {
+                //a vendor cannot import products
+                <button type="button" name="importexcel" class="btn bg-olive" data-toggle="modal" data-target="#importexcel-window">
+                    <i class="fa fa-upload"></i>
+                    @T("Admin.Common.Import")
+                </button>
+            }
+        <button type="button" id="delete-selected" class="btn bg-red">
+            <i class="fa fa-trash-o"></i>
+            @T("Admin.Common.Delete.Selected")
         </button>
-}
-            <button type="button" id="delete-selected" class="btn bg-red">
-                <i class="fa fa-trash-o"></i>
-                @T("Admin.Common.Delete.Selected")
-            </button>
-            @await Component.InvokeAsync("AdminWidget", new { widgetZone = "admin_product_list_buttons" })
+        
+        <button type="button" id="btn-over-write-attribute" class="btn bg-red">
+            <i class="fa fa-recycle"></i>
+            @T("Admin.Common.OverwriteAttribute")
+        </button>
+        @await Component.InvokeAsync("AdminWidget", new { widgetZone = "admin_product_list_buttons" })
         </div>
     </div>
 
@@ -587,7 +592,7 @@
                 return false;
             });
 
-            
+
             //show or hide stock
             $('#show-stock-selected').click(function(e) {
                 e.preventDefault();
@@ -616,7 +621,7 @@
                 return false;
             });
 
-            
+
             //hide or hide stock
             $('#hide-stock-selected').click(function(e) {
                 e.preventDefault();
@@ -644,7 +649,7 @@
                 });
                 return false;
             });
-            
+
             //show or hide price
             $('#show-price-selected').click(function(e) {
                 e.preventDefault();
@@ -673,7 +678,7 @@
                 return false;
             });
 
-            
+
             //show or hide price
             $('#hide-price-selected').click(function(e) {
                 e.preventDefault();
@@ -727,7 +732,7 @@
                 return false;
             });
 
-            
+
             //hide or hide stock
             $('#show-stock-all').click(function(e) {
                 e.preventDefault();
@@ -893,6 +898,17 @@
         });
     });
 </script>
+
+<form asp-controller="Product" asp-action="OverWriteAllProductAttributes" method="post" id="over-write-all-attribute"></form>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#btn-over-write-attribute').click(function (e) {
+            e.preventDefault();
+            $('#over-write-all-attribute').submit();
+        });
+    });
+</script>
+
 @await Html.PartialAsync("_AlertDialog")
 @await Html.PartialAsync("_CreateOrUpdate.AddProductsToCategories", Model)
 @await Html.PartialAsync("_CreateOrUpdate.AddProductsToManufacture", Model)

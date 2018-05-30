@@ -14,6 +14,7 @@ namespace Nop.Services.Catalog
     {
         #region Products
 
+        IList<int> GetAllProductIds(); 
         /// <summary>
         /// Delete a product
         /// </summary>

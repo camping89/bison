@@ -98,6 +98,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IProductAttributeParser _productAttributeParser;
         private readonly IDownloadService _downloadService;
         private readonly ISettingService _settingService;
+        private readonly ICategoryAttributeService _categoryAttributeService;
         private readonly TaxSettings _taxSettings;
         private readonly VendorSettings _vendorSettings;
         #endregion
@@ -147,7 +148,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             IDownloadService downloadService,
             ISettingService settingService,
             TaxSettings taxSettings,
-            VendorSettings vendorSettings)
+            VendorSettings vendorSettings, ICategoryAttributeService categoryAttributeService)
         {
             this._productService = productService;
             this._productTemplateService = productTemplateService;
@@ -193,6 +194,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             this._settingService = settingService;
             this._taxSettings = taxSettings;
             this._vendorSettings = vendorSettings;
+            _categoryAttributeService = categoryAttributeService;
         }
 
         #endregion
@@ -3847,6 +3849,91 @@ namespace Nop.Web.Areas.Admin.Controllers
         #endregion
 
         #region Product attributes
+
+        [HttpPost]
+        public virtual IActionResult OverWriteAllProductAttributes()
+        {
+            var productIds = _productService.GetAllProductIds();
+            foreach (var productId in productIds)
+            {
+
+                DeleteAllAttributeMappingWithProduct(productId);
+
+                //Mapping overwrite product attribute
+                var categories = _categoryService.GetProductCategoriesByProductId(productId, true);
+                var categoryProductAttributeMappings = new List<CategoryProductAttributeMapping>();
+                foreach (var category in categories)
+                {
+                    var categoryAttributes = _categoryAttributeService.GetByCatId(category.CategoryId);
+                    foreach (var categoryAttribute in categoryAttributes)
+                    {
+                        if (!categoryProductAttributeMappings.Any(t=>t.ProductAttributeId.Equals(categoryAttribute.ProductAttributeId)))
+                        {
+                            categoryProductAttributeMappings.Add(categoryAttribute);
+                        }
+                    }
+                }
+
+                foreach (var model in categoryProductAttributeMappings)
+                {
+                    //insert mapping
+                    var productAttributeMapping = new ProductAttributeMapping
+                    {
+                        ProductId = productId,
+                        ProductAttributeId = model.ProductAttributeId,
+                        TextPrompt = model.TextPrompt,
+                        IsRequired = model.IsRequired,
+                        AttributeControlTypeId = model.AttributeControlTypeId,
+                        DisplayOrder = model.DisplayOrder,
+                        ValidationMinLength = model.ValidationMinLength,
+                        ValidationMaxLength = model.ValidationMaxLength,
+                        ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions,
+                        ValidationFileMaximumSize = model.ValidationFileMaximumSize,
+                        DefaultValue = model.DefaultValue
+                    };
+                    _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
+
+                    //predefined values
+                    var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
+                    foreach (var predefinedValue in predefinedValues)
+                    {
+                        var pav = new ProductAttributeValue
+                        {
+                            ProductAttributeMappingId = productAttributeMapping.Id,
+                            AttributeValueType = AttributeValueType.Simple,
+                            Name = predefinedValue.Name,
+                            PriceAdjustment = predefinedValue.PriceAdjustment,
+                            WeightAdjustment = predefinedValue.WeightAdjustment,
+                            Cost = predefinedValue.Cost,
+                            IsPreSelected = predefinedValue.IsPreSelected,
+                            DisplayOrder = predefinedValue.DisplayOrder
+                        };
+                        _productAttributeService.InsertProductAttributeValue(pav);
+                        //locales
+                        var languages = _languageService.GetAllLanguages(true);
+                        //localization
+                        foreach (var lang in languages)
+                        {
+                            var name = predefinedValue.GetLocalized(x => x.Name, lang.Id, false, false);
+                            if (!string.IsNullOrEmpty(name))
+                                _localizedEntityService.SaveLocalizedValue(pav, x => x.Name, name, lang.Id);
+                        }
+                    }
+
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
+        private void DeleteAllAttributeMappingWithProduct(int productId)
+        {
+            //Delete all mapping with product
+            var attributes = _productAttributeService.GetProductAttributeMappingsByProductId(productId);
+            foreach (var attributeMapping in attributes)
+            {
+                _productAttributeService.DeleteProductAttributeMapping(attributeMapping);
+            }
+        }
 
         [HttpPost]
         public virtual IActionResult ProductAttributeMappingList(DataSourceRequest command, int productId)

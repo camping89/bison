@@ -41,7 +41,8 @@ namespace Nop.Services.Catalog
 
         public IList<CategoryProductAttributeMapping> GetByCatId(int categoryId)
         {
-            return _cacheManager.Get(CATEGORY_PRODUCTATTRIBUTE_ALL_KEY, () =>
+            var key = string.Format(CATEGORY_PRODUCTATTRIBUTE_ALL_KEY, categoryId);
+            return _cacheManager.Get(key, () =>
             {
                 var query = from pa in _repo.Table
                             where pa.CategoryId == categoryId

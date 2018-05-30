@@ -105,3 +105,22 @@
 }
 
 /* RESPONSIVE */
+
+@media all and (max-width: 1000px) {
+    .theme-custom {
+        max-width: 600px;
+        margin: 0px auto 40px;
+    }
+    .theme-custom .nivo-directionNav {
+        display: none;
+    }
+}
+
+@media all and (min-width: 1001px) {
+    .theme-custom {
+        margin: 0px 0 60px;
+    }
+    .theme-custom .nivo-directionNav {
+        display: none; /* remove to use directional navigation */
+    }
+}

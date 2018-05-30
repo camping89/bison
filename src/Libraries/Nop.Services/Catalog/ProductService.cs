@@ -675,6 +675,11 @@ namespace Nop.Services.Catalog
         {
             _dbContext.ExecuteSqlCommand("UPDATE Product SET DisplayStockQuantity = 1");
         }
+
+        public IList<int> GetAllProductIds()
+        {
+            return _dbContext.SqlQuery<int>("SELECT Id FROM dbo.Product WITH(NOLOCK)").ToList();
+        }
         /// <summary>
         /// Delete a product
         /// </summary>
