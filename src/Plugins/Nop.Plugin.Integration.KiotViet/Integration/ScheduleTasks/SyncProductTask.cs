@@ -56,6 +56,32 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                     if (procBySku == null)
                     {
                         var nopProduct = ConvertKVProcToNopProduct(kvProduct);
+
+                        if (kvProduct.code.Contains("|"))
+                        {
+                            var parentSku = kvProduct.code.Split('|')[0];
+                            var parentProduct = _productService.GetProductBySku(parentSku);
+                            if (parentProduct == null)
+                            {
+                                parentProduct = _productService.GetProductBySkuSingle(nopProduct.Sku);
+                                parentProduct.Sku = parentSku;
+                                parentProduct.KiotVietId = string.Empty;
+                                parentProduct.ProductTypeId = ProductType.GroupedProduct.ToInt();
+                                _productService.InsertProduct(parentProduct);
+
+                                if (nopProduct.Id != parentProduct.Id)
+                                {
+                                    nopProduct.ParentGroupedProductId = parentProduct.Id;
+                                }
+                            }
+                            else
+                            {
+                                if (nopProduct.Id != parentProduct.Id)
+                                {
+                                    nopProduct.ParentGroupedProductId = parentProduct.Id;
+                                }
+                            }
+                        }
                         _productService.InsertProduct(nopProduct);
                         if (nopProduct.Id <= 0) continue;
                         var seName = nopProduct.ValidateSeName(string.Empty, nopProduct.Name, true);
@@ -66,22 +92,66 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                         {
                             InsertProductPictureFromUrl(img, seName, nopProduct.Id);
                         }
-
                     }
                     else
                     {
+                        //group product
+                        if (procBySku.Sku.Contains("|"))
+                        {
+                            var parentSku = procBySku.Sku.Split('|')[0];
+                            var parentProduct = _productService.GetProductBySku(parentSku);
+                            if (parentProduct == null)
+                            {
+                                parentProduct = _productService.GetProductBySkuSingle(procBySku.Sku);
+                                parentProduct.Sku = parentSku;
+                                parentProduct.KiotVietId = string.Empty;
+                                parentProduct.ProductTypeId = ProductType.GroupedProduct.ToInt();
+                                _productService.InsertProduct(parentProduct);
+
+                                if (procBySku.Id != parentProduct.Id)
+                                {
+                                    procBySku.ParentGroupedProductId = parentProduct.Id;
+                                    foreach (var productPicture in procBySku.ProductPictures)
+                                    {
+                                        var picture = productPicture.Picture;
+                                        var pictureCopy = _pictureService.InsertPicture(
+                                            _pictureService.LoadPictureBinary(picture),
+                                            picture.MimeType,
+                                            _pictureService.GetPictureSeName("group_" + productPicture.Picture.SeoFilename),
+                                            picture.AltAttribute,
+                                            picture.TitleAttribute);
+                                        _productService.InsertProductPicture(new ProductPicture
+                                        {
+                                            ProductId = parentProduct.Id,
+                                            PictureId = pictureCopy.Id,
+                                            DisplayOrder = productPicture.DisplayOrder
+                                        });
+                                    }
+                                }
+
+                            }
+                            else
+                            {
+                                if (procBySku.Id != parentProduct.Id)
+                                {
+                                    procBySku.ParentGroupedProductId = parentProduct.Id;
+                                }
+                            }
+                        }
+
                         var inventory = kvProduct.inventories.FirstOrDefault();
                         var stock = 0;
                         if (inventory != null)
                         {
                             stock = Convert.ToInt32(inventory.onHand);
                         }
-                        procBySku.Name = kvProduct.fullName;
-                        procBySku.ShortDescription = kvProduct.description;
-                        procBySku.FullDescription = kvProduct.description;
+                        //procBySku.Name = kvProduct.fullName;
+                        //procBySku.ShortDescription = kvProduct.description;
+                        //procBySku.FullDescription = kvProduct.description;
                         procBySku.Price = kvProduct.basePrice;
                         procBySku.StockQuantity = stock;
                         procBySku.ManageInventoryMethodId = 1; //1 track inventory product
+                        procBySku.KiotVietId = kvProduct.id.ToString();
                         _productService.UpdateProduct(procBySku);
                     }
                 }
@@ -170,7 +240,8 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                 UpdatedOnUtc = DateTime.UtcNow,
                 Published = true,
                 StockQuantity = stock,
-                ManageInventoryMethodId = 1 //1 track inventory product
+                ManageInventoryMethodId = 1, //1 track inventory product
+                KiotVietId = kvProduct.id.ToString()
             };
         }
     }

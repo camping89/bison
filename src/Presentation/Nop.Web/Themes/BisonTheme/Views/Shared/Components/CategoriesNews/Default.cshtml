@@ -1,0 +1,15 @@
+﻿@model CategoriesNewsModel
+@if (Model.CategoriesNewsItems.Count > 0)
+{
+    <div class="widget widget-category">
+        <h2 class="title-widget title18">@T("CategoryNews")</h2>
+        <ul class="list-none list-default">
+            @foreach (var item in Model.CategoriesNewsItems)
+            {
+                <li><a href="@Url.RouteUrl("CategoryNews", new {categoryNewsId = item.Id, SeName = item.SeName })">@item.Name</a></li>
+            }
+        </ul>
+    </div>
+    <!-- End Widget -->
+
+}

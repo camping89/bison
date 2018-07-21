@@ -10,16 +10,16 @@
 <section id="content">
     @*@await Component.InvokeAsync("SliderHomePage")*@
     <div class="row">
-        
+
         <div class="container">
             <div class="page home-page">
                 <div class="page-body">
                     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_categories" })
                     @await Component.InvokeAsync("HomepageCategories")
-                    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_best_sellers" })
-                    @await Component.InvokeAsync("HomepageBestSellers")
                     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_products" })
                     @await Component.InvokeAsync("HomepageProducts")
+                    @*@await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_best_sellers" })
+                        @await Component.InvokeAsync("HomepageBestSellers")*@
                     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_new_products" })
                     <div class="col-arrival5">
                         <div class="row">
@@ -28,8 +28,8 @@
                         </div>
                     </div>
 
-                    @*@await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_news" })
-                    @await Component.InvokeAsync("HomepageNews")*@
+                    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_news" })
+                    @await Component.InvokeAsync("HomepageNews")
                     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_bottom" })
                 </div>
             </div>

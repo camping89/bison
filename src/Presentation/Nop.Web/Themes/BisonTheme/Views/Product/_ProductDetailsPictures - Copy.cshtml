@@ -1,0 +1,94 @@
+﻿@model ProductDetailsModel
+@{
+    Html.AddScriptParts(ResourceLocation.Footer, "~/lib/magnific-popup/jquery.magnific-popup.min.js");
+    Html.AddCssFileParts("~/lib/magnific-popup/magnific-popup.css");
+}
+
+<div class="detail-gallery">
+    <div class="mid item-product">
+        <img alt="@Model.DefaultPictureModel.AlternateText" src="@Model.DefaultPictureModel.ImageUrl" title="@Model.DefaultPictureModel.Title" itemprop="image" id="main-product-img-@Model.Id" />
+    </div>
+    <div class="gallery-control">
+
+        @if (Model.PictureModels.Count > 1)
+        {
+            var count = 1;
+            <div class="carousel">
+                <ul class="list-none">
+
+                    @foreach (var picture in Model.PictureModels)
+                    {
+                        <li><a href="#" class="@(count==1 ? "active" : string.Empty)"><img src="@picture.FullSizeImageUrl" alt="@picture.AlternateText" title="@picture.Title" /></a></li>
+                        count++;
+                    }
+
+                </ul>
+            </div>
+            <a href="#" class="prev"></a>
+            <a href="#" class="next"></a>
+        }
+    </div>
+    @*@if (Model.DefaultPictureZoomEnabled)
+        {
+            <div class="mid item-product">
+                <img alt="@Model.DefaultPictureModel.AlternateText" src="@Model.DefaultPictureModel.ImageUrl" title="@Model.DefaultPictureModel.Title" itemprop="image" id="main-product-img-@Model.Id" />
+            </div>
+            <div class="gallery-control">
+
+                @if (Model.PictureModels.Count > 1)
+                {
+                    var count = 1;
+                    <div class="carousel">
+                        <ul class="list-none">
+
+                            @foreach (var picture in Model.PictureModels)
+                            {
+                                <li><a href="#" class="@(count==1 ? "active" : string.Empty)"><img src="@picture.ThumbImageUrl" alt="@picture.AlternateText" title="@picture.Title" data-defaultsize="@picture.ImageUrl" data-fullsize="@picture.FullSizeImageUrl" /></a></li>
+                                count++;
+                            }
+
+                        </ul>
+                    </div>
+                    <a href="#" class="prev"></a>
+                    <a href="#" class="next"></a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="mid item-product">
+                <img alt="@Model.DefaultPictureModel.AlternateText" src="@Model.DefaultPictureModel.ImageUrl" title="@Model.DefaultPictureModel.Title" itemprop="image" id="main-product-img-@Model.Id" />
+            </div>
+        }*@
+
+</div>
+<script>
+    $(document).ready(function() {
+        if($('.detail-gallery').length>0) {
+            $('.detail-gallery').each(function(){
+                $(this).find(".carousel").jCarouselLite({
+                    btnNext: $(this).find(".gallery-control .next"),
+                    btnPrev: $(this).find(".gallery-control .prev"),
+                    speed: 800,
+                    visible:@(Model.PictureModels.Count - 0.5),
+                    mouseWheel: true
+                });
+                ////Elevate Zoom
+                //$('.detail-gallery').find('.mid img').elevateZoom({
+                //	zoomType: "inner",
+                //	cursor: "crosshair",
+                //	zoomWindowFadeIn: 500,
+                //	zoomWindowFadeOut: 850
+                //});
+                $(this).find(".carousel a").on('click',function(event) {
+                    event.preventDefault();
+                    $(this).parents('.detail-gallery').find(".carousel a").removeClass('active');
+                    $(this).addClass('active');
+                    var z_url =  $(this).find('img').attr("src");
+                    $(this).parents('.detail-gallery').find(".mid img").attr("src", z_url);
+                    $('.zoomWindow').css('background-image','url("'+z_url+'")');
+                });
+            });
+        }
+    });
+</script>

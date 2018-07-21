@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using FluentValidation.Attributes;
+﻿using FluentValidation.Attributes;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Web.Areas.Admin.Validators.News;
 using Nop.Web.Framework.Mvc.ModelBinding;
 using Nop.Web.Framework.Mvc.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Nop.Web.Areas.Admin.Models.News
 {
@@ -18,8 +18,12 @@ namespace Nop.Web.Areas.Admin.Models.News
 
             SelectedStoreIds = new List<int>();
             AvailableStores = new List<SelectListItem>();
+            AvailableCategories = new List<SelectListItem>();
         }
 
+        [NopResourceDisplayName("Admin.ContentManagement.News.NewsItems.Fields.Category")]
+        public int CategoryNewsId { get; set; }
+        public IList<SelectListItem> AvailableCategories { get; set; }
         [NopResourceDisplayName("Admin.ContentManagement.News.NewsItems.Fields.Language")]
         public int LanguageId { get; set; }
         public IList<SelectListItem> AvailableLanguages { get; set; }
@@ -34,6 +38,10 @@ namespace Nop.Web.Areas.Admin.Models.News
 
         [NopResourceDisplayName("Admin.ContentManagement.News.NewsItems.Fields.Title")]
         public string Title { get; set; }
+
+        [UIHint("Picture")]
+        [NopResourceDisplayName("Admin.ContentManagement.News.NewsItems.Fields.Picture")]
+        public int PictureId { get; set; }
 
         [NopResourceDisplayName("Admin.ContentManagement.News.NewsItems.Fields.Short")]
         public string Short { get; set; }

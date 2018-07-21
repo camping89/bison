@@ -49,6 +49,14 @@
             <i class="fa fa-upload"></i>
             @T("Admin.Common.Import")
         </button>
+        <button type="button" id="btn-over-write-attribute" class="btn bg-red">
+            <i class="fa fa-recycle"></i>
+            @T("Admin.Common.OverwriteAttribute")
+        </button>
+        <button type="button" id="btn-over-write-spec-attribute" class="btn" style="background: #d2691e !important; color:white">
+            <i class="fa fa-recycle"></i>
+            @T("Admin.Common.OverwriteSpecAttribute")
+        </button>
         @await Component.InvokeAsync("AdminWidget", new { widgetZone = "admin_category_list_buttons" })
     </div>
 </div>
@@ -127,8 +135,18 @@
                                     confirmation: "@T("Admin.Common.DeleteConfirmation")",
                                     mode: "inline"
                                 },
+                                dataBound: onDataBound,
                                 scrollable: false,
                                 columns: [
+                                    {
+                                        field: "Id",
+                                        headerTemplate: "<input id='mastercheckbox' type='checkbox'/>",
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                        template: "<input type='checkbox' value='#=Id#' class='checkboxGroups'/>",
+                                        width: 50,
+                                        sortable: false
+                                    },
                                     {
                                         field: "Breadcrumb",
                                         title: "@T("Admin.Catalog.Categories.Fields.Name")"
@@ -157,6 +175,7 @@
                     </script>
 
                     <script type="text/javascript">
+                        var selectedIds = [];
                         $(document).ready(function() {
                             //search button
                             $('#search-categories').click(function() {
@@ -164,6 +183,8 @@
                                 var grid = $('#categories-grid').data('kendoGrid');
                                 grid.dataSource.page(1); //new search. Set page size to 1
                                 //grid.dataSource.read(); we already loaded the grid above using "page" function
+                                $('.checkboxGroups').attr('checked', false).change();
+                                selectedIds = [];
                                 return false;
                             });
 
@@ -172,6 +193,32 @@
                                     $("#search-categories").click();
                                     return false;
                                 }
+                            });
+
+                            $('#mastercheckbox').click(function () {
+                                $('.checkboxGroups').attr('checked', $(this).is(':checked')).change();
+                            });
+
+                            //wire up checkboxes.
+                            $('#categories-grid').on('change', 'input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]', function (e) {
+                                var $check = $(this);
+                                if ($check.is(":checked") == true) {
+                                    var checked = jQuery.inArray($check.val(), selectedIds);
+                                    if (checked == -1) {
+                                        //add id to selectedIds.
+                                        selectedIds.push($check.val());
+                                    }
+                                }
+                                else {
+                                    var checked = jQuery.inArray($check.val(), selectedIds);
+                                    if (checked > -1) {
+                                        //remove id from selectedIds.
+                                        selectedIds = $.grep(selectedIds, function (item, index) {
+                                            return item != $check.val();
+                                        });
+                                    }
+                                }
+                                updateMasterCheckbox();
                             });
                         });
 
@@ -182,6 +229,24 @@
                             };
                             addAntiForgeryToken(data);
                             return data;
+                        }
+
+
+                        function onDataBound(e) {
+                            $('#categories-grid input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]').each(function () {
+                                var currentId = $(this).val();
+                                var checked = jQuery.inArray(currentId, selectedIds);
+                                //set checked based on if current checkbox's value is in selectedIds.
+                                $(this).attr('checked', checked > -1);
+                            });
+
+                            updateMasterCheckbox();
+                        }
+
+                        function updateMasterCheckbox() {
+                            var numChkBoxes = $('#categories-grid input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]').length;
+                            var numChkBoxesChecked = $('#categories-grid input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]:checked').length;
+                            $('#mastercheckbox').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
                         }
                     </script>
                 </div>
@@ -232,3 +297,46 @@
         </div>
     </div>
 </div>
+
+
+<form asp-controller="Category" asp-action="OverWriteAllProductAttributes" method="post" id="over-write-all-attribute">
+    <input type="hidden" id="selectedIds" name="selectedIds" value="" />
+</form>
+@await Html.PartialAsync("_AlertDialog")
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#btn-over-write-attribute').click(function (e) {
+            e.preventDefault();
+            if (selectedIds.length > 0) {
+                var ids = selectedIds.join(",");
+                $('#over-write-all-attribute #selectedIds').val(ids);
+                $('#over-write-all-attribute').submit();
+            } else {
+                $("#alert-dialog-error").html("@T("Admin.CategoriesEmpty.Alert")");
+                $('#alertModal').modal('show');
+                return false;
+            }
+        });
+    });
+</script>
+
+<form asp-controller="Category" asp-action="OverWriteAllProductSpecAttributes" method="post" id="over-write-all-spec-attribute">
+    <input type="hidden" id="selectedIds" name="selectedIds" value="" />
+</form>
+@await Html.PartialAsync("_AlertDialog")
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#btn-over-write-spec-attribute').click(function (e) {
+            e.preventDefault();
+            if (selectedIds.length > 0) {
+                var ids = selectedIds.join(",");
+                $('#over-write-all-spec-attribute #selectedIds').val(ids);
+                $('#over-write-all-spec-attribute').submit();
+            } else {
+                $("#alert-dialog-error").html("@T("Admin.CategoriesEmpty.Alert")");
+                $('#alertModal').modal('show');
+                return false;
+            }
+        });
+    });
+</script>

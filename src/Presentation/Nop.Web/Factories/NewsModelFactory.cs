@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Nop.Core;
+﻿using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Media;
@@ -14,6 +12,8 @@ using Nop.Services.Seo;
 using Nop.Web.Framework.Security.Captcha;
 using Nop.Web.Infrastructure.Cache;
 using Nop.Web.Models.News;
+using System;
+using System.Linq;
 
 namespace Nop.Web.Factories
 {
@@ -24,6 +24,7 @@ namespace Nop.Web.Factories
     {
         #region Fields
 
+        private readonly ICategoryNewsService _categoryNewsService;
         private readonly INewsService _newsService;
         private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
@@ -41,15 +42,15 @@ namespace Nop.Web.Factories
         #region Ctor
 
         public NewsModelFactory(INewsService newsService,
-            IWorkContext workContext, 
+            IWorkContext workContext,
             IStoreContext storeContext,
-            IPictureService pictureService, 
+            IPictureService pictureService,
             IDateTimeHelper dateTimeHelper,
             IStaticCacheManager cacheManager,
-            MediaSettings mediaSettings, 
+            MediaSettings mediaSettings,
             NewsSettings newsSettings,
             CustomerSettings customerSettings,
-            CaptchaSettings captchaSettings)
+            CaptchaSettings captchaSettings, ICategoryNewsService categoryNewsService)
         {
             this._newsService = newsService;
             this._workContext = workContext;
@@ -62,11 +63,31 @@ namespace Nop.Web.Factories
             this._newsSettings = newsSettings;
             this._customerSettings = customerSettings;
             this._captchaSettings = captchaSettings;
+            _categoryNewsService = categoryNewsService;
         }
 
         #endregion
 
         #region Methods
+
+        public CategoriesNewsModel PrepareCategoriesNewsModel()
+        {
+            var categoriesNews = _categoryNewsService.GetAllCategoryNews(_workContext.WorkingLanguage.Id);
+            return new CategoriesNewsModel
+            {
+                CategoriesNewsItems = categoriesNews.Select(c =>
+                {
+                    var cateNewsItem = new CategoryItemNewsModel
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        PictureId = c.PictureId,
+                        SeName = c.GetSeName(_workContext.WorkingLanguage.Id)
+                    };
+                    return cateNewsItem;
+                }).ToList()
+            };
+        }
 
         /// <summary>
         /// Prepare the news comment model
@@ -114,7 +135,7 @@ namespace Nop.Web.Factories
 
             if (newsItem == null)
                 throw new ArgumentNullException(nameof(newsItem));
-
+            var picture = _pictureService.GetPictureById(newsItem.PictureId);
             model.Id = newsItem.Id;
             model.MetaTitle = newsItem.MetaTitle;
             model.MetaDescription = newsItem.MetaDescription;
@@ -123,6 +144,7 @@ namespace Nop.Web.Factories
             model.Title = newsItem.Title;
             model.Short = newsItem.Short;
             model.Full = newsItem.Full;
+            model.ImageUrl = _pictureService.GetPictureUrl(picture);
             model.AllowComments = newsItem.AllowComments;
             model.CreatedOn = _dateTimeHelper.ConvertToUserTime(newsItem.StartDateUtc ?? newsItem.CreatedOnUtc, DateTimeKind.Utc);
             model.AddNewComment.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnNewsCommentPage;
@@ -184,9 +206,10 @@ namespace Nop.Web.Factories
         /// <summary>
         /// Prepare the news item list model
         /// </summary>
+        /// <param name="categoryNewsId"></param>
         /// <param name="command">News paging filtering model</param>
         /// <returns>News item list model</returns>
-        public virtual NewsItemListModel PrepareNewsItemListModel(NewsPagingFilteringModel command)
+        public virtual NewsItemListModel PrepareNewsItemListModel(int categoryNewsId, NewsPagingFilteringModel command)
         {
             var model = new NewsItemListModel
             {
@@ -197,7 +220,7 @@ namespace Nop.Web.Factories
             if (command.PageNumber <= 0) command.PageNumber = 1;
 
             var newsItems = _newsService.GetAllNews(_workContext.WorkingLanguage.Id, _storeContext.CurrentStore.Id,
-                command.PageNumber - 1, command.PageSize);
+                command.PageNumber - 1, command.PageSize, categoryNewsId: categoryNewsId);
             model.PagingFilteringContext.LoadPagedList(newsItems);
 
             model.NewsItems = newsItems
@@ -210,6 +233,25 @@ namespace Nop.Web.Factories
                 .ToList();
 
             return model;
+        }
+
+        public RecentNewsItemModel PrepareRecentNewsItemsModel()
+        {
+            var newsItems = _newsService.GetRecentNews(_workContext.WorkingLanguage.Id, _storeContext.CurrentStore.Id, 10);
+            return new RecentNewsItemModel
+            {
+                NewsItems = newsItems
+                    .Select(x =>
+                    {
+                        var newsModel = new NewsItemBasicModel();
+                        newsModel.Id = x.Id;
+                        newsModel.Title = x.Title;
+                        newsModel.SeName = x.GetSeName();
+                        newsModel.CreatedOn = x.CreatedOnUtc;
+                        return newsModel;
+                    })
+                    .ToList()
+            };
         }
 
         #endregion

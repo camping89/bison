@@ -899,11 +899,15 @@
     });
 </script>
 
-<form asp-controller="Product" asp-action="OverWriteAllProductAttributes" method="post" id="over-write-all-attribute"></form>
+<form asp-controller="Product" asp-action="OverWriteAllProductAttributes" method="post" id="over-write-all-attribute">
+    <input type="hidden" id="selectedIds" name="selectedIds" value="" />
+</form>
 <script type="text/javascript">
     $(document).ready(function () {
         $('#btn-over-write-attribute').click(function (e) {
             e.preventDefault();
+            var ids = selectedIds.join(",");
+            $('#over-write-all-attribute #selectedIds').val(ids);
             $('#over-write-all-attribute').submit();
         });
     });

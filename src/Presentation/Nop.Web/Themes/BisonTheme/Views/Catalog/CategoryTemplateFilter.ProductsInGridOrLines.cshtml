@@ -1,0 +1,161 @@
+﻿@model CategoryModel
+@using Nop.Core.Domain.Common
+@using Nop.Core.Domain.Seo
+@inject SeoSettings seoSettings
+@inject CommonSettings commonSettings
+@{
+    Layout = "_ColumnsTwo";
+
+    //title
+    Html.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    //meta
+    Html.AddMetaDescriptionParts(Model.MetaDescription);
+    Html.AddMetaKeywordParts(Model.MetaKeywords);
+    //page class
+    Html.AppendPageCssClassParts("html-category-page");
+
+    if (seoSettings.CanonicalUrlsEnabled)
+    {
+        var categoryUrl = Url.RouteUrl("Category", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        Html.AddCanonicalUrlParts(categoryUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+    }
+
+    var breadcrumbDelimiter = commonSettings.BreadcrumbDelimiter;
+}
+
+@section LeftFilter
+    {
+
+    <div class="widget widget-filter">
+        <h2 class="title-widget title18">@T("Filtering.ShoppingBy")</h2>
+        @*<h3 class="title14">@T("Filtering.FilterOptions")</h3>*@
+        @await Html.PartialAsync("_FilterPriceBox", Model.PagingFilteringContext.PriceRangeFilter)
+        @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
+        {
+            @await Html.PartialAsync("_FilterSpecsBox", Model.PagingFilteringContext.SpecificationFilter)
+        }
+    </div>
+}
+
+@*category breadcrumb*@
+@section Breadcrumb
+    {
+    <div class="bread-crumb">
+        <a href="@Url.RouteUrl("HomePage")" class="silver" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
+        <strong class="color">@T("ProductFilterAttribute")</strong>
+    </div>
+}
+<div class="content-shop shop-grid">
+    <div class="shop-title-box">
+        <h2 class="title18 title-box5">@T("ProductFilterAttribute")</h2>
+    </div>
+    <div class="page-body">
+        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_top", additionalData = Model.Id })
+        @*description*@
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <div class="category-description">
+                @Html.Raw(Model.Description)
+            </div>
+        }
+        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_subcategories", additionalData = Model.Id })
+        @*subcategories*@
+        @if (Model.SubCategories.Count > 0)
+        {
+
+            <div class="list-adv5">
+                <div class="row">
+                    @foreach (var item in Model.SubCategories)
+                    {
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            <div class="item-adv1 banner-adv zoom-image line-scale">
+                                <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title" class="adv-thumb-link"><img alt="@item.PictureModel.AlternateText" src="@item.PictureModel.ImageUrl" title="@item.PictureModel.Title" /></a>
+                                <div class="banner-info white  pos-center">
+                                    <h2 class="title30 font-bold"> @item.Name</h2>
+                                    <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" class="title14 btn-caret white">@T("Category.HomePage.Shopnow")<i class="fa fa-caret-right" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+            <!-- End adv -->
+
+        }
+        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_featured_products", additionalData = Model.Id })
+        @*featured products*@
+        @if (Model.FeaturedProducts.Count > 0)
+        {
+            <div class="product-grid featured-product-grid">
+                <div class="title">
+                    <strong>@T("Products.FeaturedProducts")</strong>
+                </div>
+                <div class="item-grid">
+                    @foreach (var item in Model.FeaturedProducts)
+                    {
+                        <div class="item-box">
+                            @await Html.PartialAsync("_ProductBoxFullHeight", item)
+                        </div>
+                    }
+                </div>
+            </div>
+
+        }
+
+        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
+        @*<div class="product-filters">
+
+                @if (Model.PagingFilteringContext.PriceRangeFilter.Enabled)
+                {
+                    @await Html.PartialAsync("_FilterPriceBox", Model.PagingFilteringContext.PriceRangeFilter)
+                }
+
+                @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
+                {
+                    @await Html.PartialAsync("_FilterSpecsBox", Model.PagingFilteringContext.SpecificationFilter)
+                }
+            </div>*@
+        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_product_list", additionalData = Model.Id })
+
+        @if (Model.Products.Count > 0)
+        {
+            if (Model.PagingFilteringContext.ViewMode == "list")
+            {
+                <div class="list-shop-product">
+
+                    @foreach (var product in Model.Products)
+                    {
+                        @await Html.PartialAsync("_ProductBoxListView", product)
+
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="grid-shop-product">
+                    <div class="row">
+                        @foreach (var product in Model.Products)
+                        {
+                            <div class="col-md-4 col-sm-6 col-xs-6">
+                                @await Html.PartialAsync("_ProductBoxFullHeight", product)
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+        }
+        @{
+            var pager = Html.Pager(Model.PagingFilteringContext).QueryParam("pagenumber");
+        }
+        @if (!pager.IsEmpty())
+        {
+            <div class="pager">
+                @pager
+            </div>
+        }
+        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_bottom", additionalData = Model.Id })
+    </div>
+</div>

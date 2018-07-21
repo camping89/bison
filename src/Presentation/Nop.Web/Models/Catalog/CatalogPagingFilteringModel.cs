@@ -86,7 +86,18 @@ namespace Nop.Web.Models.Catalog
         /// Product sorting
         /// </summary>
         public string ViewMode { get; set; }
-        
+
+
+        /// <summary>
+        /// Price - From 
+        /// </summary>
+        public string pf { get; set; }
+
+        /// <summary>
+        /// Price - To
+        /// </summary>
+        public string pt { get; set; }
+
         #endregion
 
         #region Nested classes
@@ -126,10 +137,10 @@ namespace Nop.Web.Models.Catalog
                 var priceRanges = new List<PriceRange>();
                 if (string.IsNullOrWhiteSpace(priceRangesStr))
                     return priceRanges;
-                var rangeArray = priceRangesStr.Split(new [] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                var rangeArray = priceRangesStr.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var str1 in rangeArray)
                 {
-                    var fromTo = str1.Trim().Split(new [] { '-' });
+                    var fromTo = str1.Trim().Split(new[] { '-' });
 
                     decimal? from = null;
                     if (!string.IsNullOrEmpty(fromTo[0]) && !string.IsNullOrEmpty(fromTo[0].Trim()))
@@ -154,7 +165,7 @@ namespace Nop.Web.Models.Catalog
             {
                 //comma separated list of parameters to exclude
                 const string excludedQueryStringParams = "pagenumber";
-                var excludedQueryStringParamsSplitted = excludedQueryStringParams.Split(new [] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                var excludedQueryStringParamsSplitted = excludedQueryStringParams.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var exclude in excludedQueryStringParamsSplitted)
                     url = webHelper.RemoveQueryString(url, exclude);
                 return url;
@@ -175,7 +186,7 @@ namespace Nop.Web.Models.Catalog
                 var range = webHelper.QueryString<string>(QUERYSTRINGPARAM);
                 if (string.IsNullOrEmpty(range))
                     return null;
-                var fromTo = range.Trim().Split(new [] { '-' });
+                var fromTo = range.Trim().Split(new[] { '-' });
                 if (fromTo.Length == 2)
                 {
                     decimal? from = null;
@@ -252,7 +263,7 @@ namespace Nop.Web.Models.Catalog
                     this.Enabled = false;
                 }
             }
-            
+
             #endregion
 
             #region Properties
@@ -332,7 +343,7 @@ namespace Nop.Web.Models.Catalog
             {
                 //comma separated list of parameters to exclude
                 const string excludedQueryStringParams = "pagenumber";
-                var excludedQueryStringParamsSplitted = excludedQueryStringParams.Split(new [] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                var excludedQueryStringParamsSplitted = excludedQueryStringParams.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var exclude in excludedQueryStringParamsSplitted)
                     url = webHelper.RemoveQueryString(url, exclude);
                 return url;
@@ -369,7 +380,7 @@ namespace Nop.Web.Models.Catalog
                 if (string.IsNullOrWhiteSpace(alreadyFilteredSpecsStr))
                     return result;
 
-                foreach (var spec in alreadyFilteredSpecsStr.Split(new [] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                foreach (var spec in alreadyFilteredSpecsStr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     int.TryParse(spec.Trim(), out int specId);
                     if (!result.Contains(specId))
@@ -389,7 +400,7 @@ namespace Nop.Web.Models.Catalog
             /// <param name="cacheManager">Cache manager</param>
             public virtual void PrepareSpecsFilters(IList<int> alreadyFilteredSpecOptionIds,
                 int[] filterableSpecificationAttributeOptionIds,
-                ISpecificationAttributeService specificationAttributeService, 
+                ISpecificationAttributeService specificationAttributeService,
                 IWebHelper webHelper, IWorkContext workContext, ICacheManager cacheManager)
             {
                 Enabled = false;

@@ -1,0 +1,15 @@
+﻿@model RecentNewsItemModel
+@if (Model.NewsItems.Count > 0)
+{
+    <div class="widget widget-recent-post">
+        <h2 class="title-widget title18">@T("RecentNews")</h2>
+        <ul class="list-none list-default">
+
+            @foreach (var item in Model.NewsItems)
+            {
+                <li><a href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">@item.Title</a></li>
+            }
+        </ul>
+    </div>
+    <!-- End Widget -->
+}

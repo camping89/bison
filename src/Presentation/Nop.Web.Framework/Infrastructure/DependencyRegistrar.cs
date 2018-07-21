@@ -205,6 +205,7 @@ namespace Nop.Web.Framework.Infrastructure
             builder.RegisterType<BlogService>().As<IBlogService>().InstancePerLifetimeScope();
             builder.RegisterType<WidgetService>().As<IWidgetService>().InstancePerLifetimeScope();
             builder.RegisterType<TopicService>().As<ITopicService>().InstancePerLifetimeScope();
+            builder.RegisterType<CategoryNewsService>().As<ICategoryNewsService>().InstancePerLifetimeScope();
             builder.RegisterType<NewsService>().As<INewsService>().InstancePerLifetimeScope();
             builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
             builder.RegisterType<SitemapGenerator>().As<ISitemapGenerator>().InstancePerLifetimeScope();
@@ -221,6 +222,7 @@ namespace Nop.Web.Framework.Infrastructure
             builder.RegisterType<EventPublisher>().As<IEventPublisher>().SingleInstance();
             builder.RegisterType<SubscriptionService>().As<ISubscriptionService>().SingleInstance();
             builder.RegisterType<SettingService>().As<ISettingService>().InstancePerLifetimeScope();
+
 
 
             builder.RegisterType<ActionContextAccessor>().As<IActionContextAccessor>().InstancePerLifetimeScope();

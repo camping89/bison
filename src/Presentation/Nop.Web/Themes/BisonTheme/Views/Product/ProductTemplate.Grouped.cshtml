@@ -94,6 +94,7 @@
                     <div class="title-tab-detail">
                         <ul class="list-inline-block">
                             <li class="active"><a href="#tab1" class="title14" data-toggle="tab">@T("ProductDetail.Description")</a></li>
+                            <li><a href="#tab2" class="title14" data-toggle="tab">@T("Products.Specs")</a></li>
                         </ul>
                     </div>
                     <div class="tab-content">
@@ -107,7 +108,9 @@
                                 }
                             </div>
                         </div>
-
+                        <div id="tab2" class="tab-pane">
+                            @await Html.PartialAsync("_ProductSpecifications", Model.ProductSpecifications)
+                        </div>
                     </div>
                 </div>
                 <!-- End Detail Tabs -->
@@ -203,7 +206,6 @@
                             </div>
                         }
                     </div>
-                    @await Html.PartialAsync("_ProductSpecifications", Model.ProductSpecifications)
                     @await Html.PartialAsync("_ProductTags", Model.ProductTags)
                 </div>
             </form>

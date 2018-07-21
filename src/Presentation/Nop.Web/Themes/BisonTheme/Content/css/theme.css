@@ -171,6 +171,7 @@ ol, ul {
     font-size: 14px;
     text-transform: uppercase;
     font-family: 'Oswald', sans-serif;
+    letter-spacing: 1px;
 }
 
 .title12 {
@@ -853,7 +854,7 @@ div.table {
                 padding: 0 20px;
                 position: relative;
                 text-transform: uppercase;
-                letter-spacing: 1px;
+                letter-spacing: 2px;
             }
 
     .main-nav li.menu-item-has-children {
@@ -1008,6 +1009,24 @@ li.menu-item-has-children:hover > .sub-menu {
 /*End Toggle Mobile Menu*/
 /*Begin Menu Responsive*/
 @media (max-width: 767px) {
+    .shop-title-box .product-selectors {
+        position: relative;
+        right: 0;
+        top: 0;
+        margin-right: 50px;
+    }
+    .product-selectors select {
+        border: 1px solid #e5e5e5;
+        color: #999;
+        padding: 0 20px;
+        height: 30px;
+        width: auto;
+    }
+
+    .product-sorting, .product-page-size {
+        display: block;
+        margin: 10px 0;
+    }
     .main-nav .menu-item-has-children .sub-menu li > a {
         border-bottom: none;
     }
@@ -1141,6 +1160,29 @@ li.menu-item-has-children:hover > .sub-menu {
     }
 }
 /*End Menu Responsive*/
+
+@media (min-width: 768px) {
+    
+    .shop-title-box .product-selectors {
+        position: absolute;
+        right: 0;
+        top: 0;
+        margin-right: 100px;
+        width: 500px;
+    }
+    .product-selectors select {
+        border: 1px solid #e5e5e5;
+        color: #999;
+        padding: 0 20px;
+        height: 30px;
+        width: auto;
+    }
+
+    .product-sorting, .product-page-size {
+        display: inline-block;
+    }
+
+}
 /*Begin Rating*/
 .product-rate {
     background-image: url("../images/icons/rate-star.png");
@@ -1712,10 +1754,13 @@ body .scroll-top {
     z-index: 2;
 }
 .currency-list {
-    width: 200px;
+    width: 120px;
     z-index: 2;
 }
-
+.language-list {
+    width: 80px;
+    z-index: 2;
+}
     .list-cat-search li a,
     .language-list li a,
     .list-profile li a,
@@ -1744,6 +1789,8 @@ body .scroll-top {
 .currency-current > span,
 .language-current > span {
     margin-right: 5px;
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 1px;
 }
 
 .top-currency-language,
@@ -1754,6 +1801,7 @@ body .scroll-top {
     .top-currency-language > li,
     .top-menu > li {
         margin: 0 10px;
+        float: right;
     }
 
 .logo.logo1 {
@@ -1778,7 +1826,7 @@ body .scroll-top {
 
 .smart-search {
     position: relative;
-    width: 100%;
+    width: 107%;
 }
 
 .select-search-category {
@@ -3763,7 +3811,7 @@ body .scroll-top span {
 }
 
 .logo.logo5 {
-    margin-top: 5px;
+    margin-top: 25px;
 }
 
 .banner-info5 h2 {
@@ -4882,11 +4930,15 @@ body .scroll-top span {
         margin: 0 18px;
     }
 
+#advanced-search-block .price-from, #advanced-search-block .price-to {
+    width: 100px !important;
+}
+
 .shop-title-box {
     position: relative;
 }
 
-    .shop-title-box .view-type {
+.shop-title-box .view-type {
         bottom: 10px;
         position: absolute;
         right: 0;
@@ -5080,9 +5132,9 @@ body .scroll-top span {
     color: #999;
     height: 40px;
     padding: 0 20px;
-    text-transform: uppercase;
     width: auto;
     margin-bottom: 10px;
+    min-width: 150px;
 }
 
     .attributes select option {
@@ -5577,6 +5629,7 @@ body .scroll-top span {
     display: table;
     margin-bottom: 10px;
     padding: 20px;
+    width: 100%;
 }
 
     .item-comment .author-avatar {

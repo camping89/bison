@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using FluentValidation.Attributes;
+﻿using FluentValidation.Attributes;
 using Nop.Web.Framework.Mvc.Models;
 using Nop.Web.Validators.News;
+using System;
+using System.Collections.Generic;
 
 namespace Nop.Web.Models.News
 {
@@ -19,7 +19,7 @@ namespace Nop.Web.Models.News
         public string MetaDescription { get; set; }
         public string MetaTitle { get; set; }
         public string SeName { get; set; }
-
+        public string ImageUrl { get; set; }
         public string Title { get; set; }
         public string Short { get; set; }
         public string Full { get; set; }
@@ -29,5 +29,12 @@ namespace Nop.Web.Models.News
 
         public IList<NewsCommentModel> Comments { get; set; }
         public AddNewsCommentModel AddNewComment { get; set; }
+    }
+
+    public partial class NewsItemBasicModel : BaseNopEntityModel
+    {
+        public string Title { get; set; }
+        public string SeName { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }

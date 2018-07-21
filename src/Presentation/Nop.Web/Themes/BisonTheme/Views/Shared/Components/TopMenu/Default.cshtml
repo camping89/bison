@@ -8,6 +8,16 @@
     @{
         var rootCategories = Model.Categories.Where(x => x.IncludeInTopMenu).ToList();
     }
+    
+    @foreach (var cateSpec in Model.CateSpecificationAttributes)
+    {
+        var specAttr = new TopMenuModel.SpecAttrLineModel
+        {
+            CateSpecAttr = cateSpec,
+            ResponsiveMobileMenu = true
+        };
+        @await Html.PartialAsync("_SpecAttributeLine.TopMenu", specAttr)
+    }
     @foreach (var category in rootCategories)
     {
         var categoryLineModel = new TopMenuModel.CategoryLineModel

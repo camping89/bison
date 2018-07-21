@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Nop.Web.Framework.Mvc.Models;
+﻿using Nop.Web.Framework.Mvc.Models;
+using System.Collections.Generic;
 
 namespace Nop.Web.Models.News
 {
@@ -10,7 +10,7 @@ namespace Nop.Web.Models.News
             PagingFilteringContext = new NewsPagingFilteringModel();
             NewsItems = new List<NewsItemModel>();
         }
-
+        public string CategoryName { get; set; }
         public int WorkingLanguageId { get; set; }
         public NewsPagingFilteringModel PagingFilteringContext { get; set; }
         public IList<NewsItemModel> NewsItems { get; set; }

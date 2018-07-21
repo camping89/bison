@@ -14,10 +14,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.2" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Composite" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="2.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,10 +50,48 @@
     <!-- We copy the \Logs directory -->
     <Content Include="Logs\**" CopyToPublishDirectory="PreserveNewest" />
     <None Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Remove="Themes\BisonTheme\Content\css\libs\jcarousel.connected-carousels.css" />
     <None Remove="Themes\BisonTheme\Content\css\theme.css" />
     <None Remove="Themes\BisonTheme\Content\images\ajax-loader-small.gif" />
+    <None Remove="Themes\BisonTheme\Content\js\libs\jcarousel.connected-carousels.js" />
+    <None Remove="Themes\BisonTheme\Content\js\libs\jquery.jcarousel-swipe.js" />
+    <None Remove="Themes\BisonTheme\Content\js\libs\jquery.jcarousel-swipe.min.js" />
+    <None Remove="Themes\BisonTheme\Content\js\libs\jquery.jcarousel.min.js" />
     <None Include="Themes\HouseDecor\Views\Shared\Head.cshtml" />
     <None Include="Themes\HouseDecor\Views\_ViewImports.cshtml" />
+    <Content Update="Areas\Admin\Views\CategoryNews\Create.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\CategoryNews\Edit.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\CategoryNews\List.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\CategoryNews\_CreateOrUpdate.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\CategoryNews\_CreateOrUpdate.Info.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\CategoryNews\_CreateOrUpdate.SEO.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Areas\Admin\Views\Shared\EditorTemplates\PictureMulti.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Themes\BisonTheme\Views\Shared\Components\HomepageNews\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Themes\BisonTheme\Views\Shared\Components\CategoriesNews\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Themes\BisonTheme\Views\Shared\_ColumnsTwoNews.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Shared\_ColumnsTwoNews.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
 
     <None Update="Areas\Admin\sitemap.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

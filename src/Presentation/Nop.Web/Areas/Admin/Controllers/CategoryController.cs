@@ -5,6 +5,7 @@ using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Discounts;
+using Nop.Core.Extensions;
 using Nop.Services;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
@@ -27,6 +28,7 @@ using Nop.Web.Framework.Mvc;
 using Nop.Web.Framework.Mvc.Filters;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -847,6 +849,28 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         #region Category Attribute Mapping
         [HttpPost]
+        public virtual IActionResult OverWriteAllProductAttributes(string selectedIds)
+        {
+            if (selectedIds != null)
+            {
+                var ids = selectedIds
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => Convert.ToInt32(x))
+                    .ToArray();
+                var productIds = new List<int>();
+                foreach (var cateId in ids)
+                {
+                    productIds.AddRange(_productService.GetAllProductIdsByCategoryId(cateId));
+                }
+
+                var watch = Stopwatch.StartNew();
+                OverwriteProductsAttr(productIds.Distinct().ToList());
+                watch.Stop();
+            }
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
         public virtual IActionResult CategoryProductAttributeMappingList(DataSourceRequest command, int categoryId)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
@@ -998,74 +1022,8 @@ namespace Nop.Web.Areas.Admin.Controllers
             UpdateLocales(categoryProductAttributeMapping, model);
 
 
-            // insert mapping for all children category
-
-            //if (model.IsUpdateProduct)
-            //{
-            //    //predefined values
-            //    var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
-
-            //    foreach (var cateId in listCateIds)
-            //    {
-            //        //Get list product
-            //        var productCategories = _categoryService.GetProductCategoriesByCategoryId(cateId, showHidden: true);
-
-            //        foreach (var product in productCategories)
-            //        {
-            //            if (_productAttributeService.GetProductAttributeMappingsByProductId(product.Id)
-            //                .Any(x => x.ProductAttributeId == model.ProductAttributeId))
-            //            {
-            //                continue;
-            //            }
-
-            //            //insert mapping
-            //            var productAttributeMapping = new ProductAttributeMapping
-            //            {
-            //                ProductId = product.ProductId,
-            //                ProductAttributeId = model.ProductAttributeId,
-            //                TextPrompt = model.TextPrompt,
-            //                IsRequired = model.IsRequired,
-            //                AttributeControlTypeId = model.AttributeControlTypeId,
-            //                DisplayOrder = model.DisplayOrder,
-            //                ValidationMinLength = model.ValidationMinLength,
-            //                ValidationMaxLength = model.ValidationMaxLength,
-            //                ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions,
-            //                ValidationFileMaximumSize = model.ValidationFileMaximumSize,
-            //                DefaultValue = model.DefaultValue
-            //            };
-            //            _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
-            //            UpdateLocales(productAttributeMapping, model);
-
-            //            if (productAttributeMapping.Id > 0 && !_productAttributeService.GetProductAttributeValues(productAttributeMapping.Id).Any())
-            //            {
-            //                foreach (var predefinedValue in predefinedValues)
-            //                {
-            //                    var pav = new ProductAttributeValue
-            //                    {
-            //                        ProductAttributeMappingId = productAttributeMapping.Id,
-            //                        AttributeValueType = AttributeValueType.Simple,
-            //                        Name = predefinedValue.Name,
-            //                        PriceAdjustment = predefinedValue.PriceAdjustment,
-            //                        WeightAdjustment = predefinedValue.WeightAdjustment,
-            //                        Cost = predefinedValue.Cost,
-            //                        IsPreSelected = predefinedValue.IsPreSelected,
-            //                        DisplayOrder = predefinedValue.DisplayOrder
-            //                    };
-            //                    _productAttributeService.InsertProductAttributeValue(pav);
-            //                    //locales
-            //                    var languages = _languageService.GetAllLanguages(true);
-            //                    //localization
-            //                    foreach (var lang in languages)
-            //                    {
-            //                        var name = predefinedValue.GetLocalized(x => x.Name, lang.Id, false, false);
-            //                        if (!string.IsNullOrEmpty(name))
-            //                            _localizedEntityService.SaveLocalizedValue(pav, x => x.Name, name, lang.Id);
-            //                    }
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
+            var productIds = _productService.GetAllProductIdsByCategoryId(model.CategoryId);
+            OverwriteProductsAttr(productIds);
             SuccessNotification(_localizationService.GetResource("Admin.Catalog.Categories.CategoryProductAttributes.Attributes.Added"));
 
             if (continueEditing)
@@ -1078,6 +1036,161 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             SaveSelectedTabName("tab-product-attributes");
             return RedirectToAction("Edit", new { id = category.Id });
+        }
+
+        private void OverwriteProductsAttr(List<int> productIds)
+        {
+            foreach (var productId in productIds)
+            {
+                // do
+                // Collect all product category attribute mappings
+                var categories = _categoryService.GetProductCategoriesByProductId(productId, true);
+                var categoryAttributeMappings = categories.SelectMany(category => _categoryAttributeService.GetByCatId(category.CategoryId))
+                    .DistinctBy(_ => _.ProductAttributeId).ToList();
+
+                var oldMappings = _productAttributeService.GetProductAttributeMappingsByProductId(productId);
+                foreach (var attributeMapping in oldMappings)
+                {
+                    _productAttributeService.DeleteProductAttributeMapping(attributeMapping);
+                }
+
+                var newMappings = new List<ProductAttributeMapping>();
+                //foreach (var mapping in categoryAttributeMappings.Where(_ => _.ProductAttributeId.IsNotIn(oldMappings.Select(o => o.ProductAttributeId))))
+                foreach (var mapping in categoryAttributeMappings)
+                {
+                    var productAttributeMapping = new ProductAttributeMapping
+                    {
+                        ProductId = productId,
+                        ProductAttributeId = mapping.ProductAttributeId,
+                        TextPrompt = mapping.TextPrompt,
+                        IsRequired = mapping.IsRequired,
+                        AttributeControlTypeId = mapping.AttributeControlTypeId,
+                        DisplayOrder = mapping.DisplayOrder,
+                        ValidationMinLength = mapping.ValidationMinLength,
+                        ValidationMaxLength = mapping.ValidationMaxLength,
+                        ValidationFileAllowedExtensions = mapping.ValidationFileAllowedExtensions,
+                        ValidationFileMaximumSize = mapping.ValidationFileMaximumSize,
+                        DefaultValue = mapping.DefaultValue
+                    };
+                    newMappings.Add(productAttributeMapping);
+                    //var oldMapping = oldMappings.FirstOrDefault(_ => _.ProductAttributeId == mapping.ProductAttributeId);
+
+                    //newMappings.Add(oldMapping != null ? oldMapping : productAttributeMapping);
+                }
+
+                foreach (var productAttributeMapping in newMappings)
+                {
+                    _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
+
+                    // copy predefined values from attribute to the product attribute mapping
+                    //var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(productAttributeMapping.ProductAttributeId);
+                    //foreach (var predefinedValue in predefinedValues)
+                    //{
+                    //    var pav = new ProductAttributeValue
+                    //    {
+                    //        ProductAttributeMappingId = productAttributeMapping.Id,
+                    //        AttributeValueType = AttributeValueType.Simple,
+                    //        Name = predefinedValue.Name,
+                    //        PriceAdjustment = predefinedValue.PriceAdjustment,
+                    //        WeightAdjustment = predefinedValue.WeightAdjustment,
+                    //        Cost = predefinedValue.Cost,
+                    //        IsPreSelected = predefinedValue.IsPreSelected,
+                    //        DisplayOrder = predefinedValue.DisplayOrder
+                    //    };
+                    //    _productAttributeService.InsertProductAttributeValue(pav);
+                    //    //locales
+                    //    var languages = _languageService.GetAllLanguages(true);
+                    //    //localization
+                    //    foreach (var lang in languages)
+                    //    {
+                    //        var name = predefinedValue.GetLocalized(x => x.Name, lang.Id, false, false);
+                    //        if (!string.IsNullOrEmpty(name))
+                    //            _localizedEntityService.SaveLocalizedValue(pav, x => x.Name, name, lang.Id);
+                    //    }
+                    //}
+                }
+            }
+        }
+
+
+        [HttpPost]
+        public virtual IActionResult OverWriteAllProductSpecAttributes(string selectedIds)
+        {
+            if (selectedIds != null)
+            {
+                var ids = selectedIds
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => Convert.ToInt32(x))
+                    .ToArray();
+                var productIds = new List<int>();
+                foreach (var cateId in ids)
+                {
+                    productIds.AddRange(_productService.GetAllProductIdsByCategoryId(cateId));
+                }
+
+                OverwriteProductSpecsAttr(productIds.Distinct().ToList());
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        private void OverwriteProductSpecsAttr(List<int> productIds)
+        {
+            foreach (var productId in productIds)
+            {
+                // A B C
+                var oldMappings = _specificationAttributeService.GetProductSpecificationAttributes(productId);
+
+                // B C D
+                // => giữ B, C thêm D, xóa A
+                // Collect all product category attribute mappings
+                var productCategories = _categoryService.GetProductCategoriesByProductId(productId, true);
+                //var categoryAttributeMappings = categories.SelectMany(category => _specificationAttributeService.GetCategorySpecificationAttributes(category.CategoryId))
+                //    .DistinctBy(_ => _.SpecificationAttributeOption.SpecificationAttributeId).ToList();
+                var categoryAttributeMappings = new List<CategorySpecificationAttribute>();
+                foreach (var productCategory in productCategories)
+                {
+                    var categorySpecificationAttributes = _specificationAttributeService.GetCategorySpecificationAttributes(productCategory.CategoryId).ToList();
+                    foreach (var item in categorySpecificationAttributes)
+                    {
+                        if (item.SpecificationAttributeOption == null && item.SpecificationAttributeOptionId > 0)
+                        {
+                            item.SpecificationAttributeOption = _specificationAttributeService.GetSpecificationAttributeOptionById(item.SpecificationAttributeOptionId);
+                        }
+                    }
+                    categoryAttributeMappings.AddRange(categorySpecificationAttributes);
+                }
+                var newMappings = new List<ProductSpecificationAttribute>();
+                foreach (var mapping in categoryAttributeMappings.DistinctBy(_ => _.SpecificationAttributeOption.SpecificationAttributeId).ToList())
+                {
+                    var oldSpec = oldMappings.FirstOrDefault(_ => _.SpecificationAttributeOption.SpecificationAttributeId == mapping.SpecificationAttributeOption.SpecificationAttributeId);
+                    if (oldSpec != null)
+                    {
+                        newMappings.Add(oldSpec);
+                    }
+                    else
+                    {
+                        var newSpec = new ProductSpecificationAttribute
+                        {
+                            AttributeTypeId = mapping.AttributeTypeId,
+                            SpecificationAttributeOptionId = mapping.SpecificationAttributeOptionId,
+                            ProductId = productId,
+                            CustomValue = mapping.CustomValue,
+                            AllowFiltering = mapping.AllowFiltering,
+                            ShowOnProductPage = mapping.ShowOnProductPage,
+                            DisplayOrder = mapping.DisplayOrder,
+                        };
+                        newMappings.Add(newSpec);
+                        _specificationAttributeService.InsertProductSpecificationAttribute(newSpec);
+                    }
+                }
+
+                // tìm A only
+                foreach (var item in oldMappings.Where(_ => _.SpecificationAttributeOption.SpecificationAttributeId.IsNotIn(newMappings.Select(n => n.SpecificationAttributeOption.SpecificationAttributeId))))
+                {
+                    _specificationAttributeService.DeleteProductSpecificationAttribute(item);
+                }
+            }
         }
 
         public virtual IActionResult CategoryProductAttributeMappingEdit(int id)
@@ -1143,6 +1256,8 @@ namespace Nop.Web.Areas.Admin.Controllers
             _categoryAttributeService.Update(categoryProductAttributeMapping);
 
             UpdateLocales(categoryProductAttributeMapping, model);
+
+
             //if (model.IsUpdateProduct)
             //{
             //    //Get list product
@@ -1287,14 +1402,16 @@ namespace Nop.Web.Areas.Admin.Controllers
             {
                 AttributeTypeId = attributeTypeId,
                 SpecificationAttributeOptionId = specificationAttributeOptionId,
+                SpecificationAttributeOption = _specificationAttributeService.GetSpecificationAttributeOptionById(specificationAttributeOptionId),
                 CategoryId = categoryId,
                 CustomValue = customValue,
                 AllowFiltering = allowFiltering,
                 ShowOnProductPage = showOnProductPage,
                 DisplayOrder = displayOrder,
             };
-            var listCateIds = _specificationAttributeService.Insert(psa,true);
-
+            var listCateIds = _specificationAttributeService.Insert(psa, true);
+            var productIds = _productService.GetAllProductIdsByCategoryId(categoryId);
+            OverwriteProductSpecsAttr(productIds);
             //if (psa.Id > 0)
             //{
             //    foreach (var cateId in listCateIds)
@@ -1322,7 +1439,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             //            _specificationAttributeService.InsertProductSpecificationAttribute(psaProduct);
             //        }
             //    }
-                
+
             //}
             return Json(new { Result = true });
         }
@@ -1405,23 +1522,6 @@ namespace Nop.Web.Areas.Admin.Controllers
             psa.ShowOnProductPage = model.ShowOnProductPage;
             psa.DisplayOrder = model.DisplayOrder;
             _specificationAttributeService.UpdateCategorySpecificationAttribute(psa);
-            //Get list product
-            //var productCategories = _categoryService.GetProductCategoriesByCategoryId(psa.CategoryId, showHidden: true);
-            //foreach (var product in productCategories)
-            //{
-            //    var psaProduct = _specificationAttributeService.GetProductSpecificationAttributeById(product.ProductId);
-
-            //    //we allow filtering and change option only for "Option" attribute type
-            //    if (model.AttributeTypeId == (int)SpecificationAttributeType.Option)
-            //    {
-            //        psa.AllowFiltering = model.AllowFiltering;
-            //        psa.SpecificationAttributeOptionId = model.SpecificationAttributeOptionId;
-            //    }
-
-            //    psa.ShowOnProductPage = model.ShowOnProductPage;
-            //    psa.DisplayOrder = model.DisplayOrder;
-            //    _specificationAttributeService.UpdateProductSpecificationAttribute(psaProduct);
-            //}
             return new NullJsonResult();
         }
 
@@ -1434,21 +1534,11 @@ namespace Nop.Web.Areas.Admin.Controllers
             var psa = _specificationAttributeService.GetCategorySpecificationAttributeById(id);
             if (psa == null)
                 throw new ArgumentException("No specification attribute found with the specified id");
-            ////Get list product
-            //var productCategories = _categoryService.GetProductCategoriesByCategoryId(psa.CategoryId, showHidden: true);
-            //foreach (var product in productCategories)
-            //{
-            //    var specAttributeProducts = _specificationAttributeService.GetProductSpecificationAttributes(product.ProductId);
-            //    foreach (var spec in specAttributeProducts)
-            //    {
-            //        if (spec.SpecificationAttributeOptionId == psa.SpecificationAttributeOptionId)
-            //        {
-            //            _specificationAttributeService.DeleteProductSpecificationAttribute(spec);
-            //        }
-            //    }
-            //}
+
             _specificationAttributeService.DeleteCategorySpecificationAttribute(psa);
 
+            var productIds = _productService.GetAllProductIdsByCategoryId(psa.CategoryId);
+            OverwriteProductSpecsAttr(productIds);
             return new NullJsonResult();
         }
 

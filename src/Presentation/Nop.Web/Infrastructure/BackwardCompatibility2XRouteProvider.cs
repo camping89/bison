@@ -34,6 +34,10 @@ namespace Nop.Web.Infrastructure
             routeBuilder.MapLocalizedRoute("", "m/{manufacturerId:min(0)}/{SeName?}",
                 new { controller = "BackwardCompatibility2X", action = "RedirectManufacturerById" });
 
+            //categoriesnews
+            routeBuilder.MapLocalizedRoute("", "c/{categoryNewsId:min(0)}/{SeName?}",
+                new { controller = "BackwardCompatibility2X", action = "RedirectCategoryNewsById" });
+
             //news
             routeBuilder.MapLocalizedRoute("", "news/{newsItemId:min(0)}/{SeName?}",
                 new { controller = "BackwardCompatibility2X", action = "RedirectNewsItemById" });

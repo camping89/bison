@@ -8,6 +8,7 @@ namespace Nop.Web.Factories
     /// </summary>
     public partial interface INewsModelFactory
     {
+        CategoriesNewsModel PrepareCategoriesNewsModel();
         /// <summary>
         /// Prepare the news comment model
         /// </summary>
@@ -29,12 +30,14 @@ namespace Nop.Web.Factories
         /// </summary>
         /// <returns>Home page news items model</returns>
         HomePageNewsItemsModel PrepareHomePageNewsItemsModel();
+        RecentNewsItemModel PrepareRecentNewsItemsModel();
 
         /// <summary>
         /// Prepare the news item list model
         /// </summary>
+        /// <param name="categoryNewsId"></param>
         /// <param name="command">News paging filtering model</param>
         /// <returns>News item list model</returns>
-        NewsItemListModel PrepareNewsItemListModel(NewsPagingFilteringModel command);
+        NewsItemListModel PrepareNewsItemListModel(int categoryNewsId,NewsPagingFilteringModel command);
     }
 }

@@ -1710,7 +1710,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public virtual IActionResult ShowOrHidePriceSelected(ICollection<int> productIds,bool isShow)
+        public virtual IActionResult ShowOrHidePriceSelected(ICollection<int> productIds, bool isShow)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
                 return AccessDeniedView();
@@ -1734,7 +1734,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public virtual IActionResult ShowOrHideStockSelected(ICollection<int> productIds,bool isShow)
+        public virtual IActionResult ShowOrHideStockSelected(ICollection<int> productIds, bool isShow)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
                 return AccessDeniedView();
@@ -1768,12 +1768,12 @@ namespace Nop.Web.Areas.Admin.Controllers
             {
                 foreach (var productId in selectedIdsProducToAdd)
                 {
-                    //var existingProductCategories = _categoryService.GetProductCategoriesByProductId(productId, true);
+                    var existingProductCategories = _categoryService.GetProductCategoriesByProductId(productId, true);
 
                     //delete categories
-                    //foreach (var existingProductCategory in existingProductCategories)
-                    //    if (!SelectedCategoryIds.Contains(existingProductCategory.CategoryId))
-                    //        _categoryService.DeleteProductCategory(existingProductCategory);
+                    foreach (var existingProductCategory in existingProductCategories)
+                        if (!SelectedCategoryIds.Contains(existingProductCategory.CategoryId))
+                            _categoryService.DeleteProductCategory(existingProductCategory);
                     //find next display order
                     var displayOrder = 1;
                     var existingCategoryMapping = _categoryService.GetProductCategoriesByCategoryId(categoryId, showHidden: true);
@@ -1787,6 +1787,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     });
                 }
             }
+            OverwriteProductsAttr(selectedIdsProducToAdd.ToList());
             return Json(new { Result = true });
         }
 
@@ -3451,7 +3452,76 @@ namespace Nop.Web.Areas.Admin.Controllers
         #endregion
 
         #region Bulk editing
+        public virtual IActionResult BulkGroupProducts()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
+                return AccessDeniedView();
+            var products = _productService.GetAllProducts().Where(_ => _.Sku.Contains("|"));
+            foreach (var product in products)
+            {
+                var parentSku = product.Sku.Split('|')[0];
+                var parentProduct = _productService.GetProductBySku(parentSku);
+                if (parentProduct == null)
+                {
+                    parentProduct = _productService.GetProductBySkuSingle(product.Sku);
+                    parentProduct.Sku = parentSku;
+                    parentProduct.KiotVietId = string.Empty;
+                    parentProduct.ProductTypeId = ProductType.GroupedProduct.ToInt();
+                    _productService.InsertProduct(parentProduct);
 
+                    if (product.Id != parentProduct.Id)
+                    {
+                        product.ParentGroupedProductId = parentProduct.Id;
+                        foreach (var productPicture in product.ProductPictures)
+                        {
+                            var picture = productPicture.Picture;
+                            var pictureCopy = _pictureService.InsertPicture(
+                                _pictureService.LoadPictureBinary(picture),
+                                picture.MimeType,
+                                _pictureService.GetPictureSeName("group_" + productPicture.Picture.SeoFilename),
+                                picture.AltAttribute,
+                                picture.TitleAttribute);
+                            _productService.InsertProductPicture(new ProductPicture
+                            {
+                                ProductId = parentProduct.Id,
+                                PictureId = pictureCopy.Id,
+                                DisplayOrder = productPicture.DisplayOrder
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    if (product.Id != parentProduct.Id)
+                    {
+                        product.ParentGroupedProductId = parentProduct.Id;
+                    }
+
+                    if (parentProduct.ProductPictures.Count == 0)
+                    {
+                        foreach (var productPicture in product.ProductPictures)
+                        {
+                            var picture = productPicture.Picture;
+                            var pictureCopy = _pictureService.InsertPicture(
+                                _pictureService.LoadPictureBinary(picture),
+                                picture.MimeType,
+                                _pictureService.GetPictureSeName("group_" + productPicture.Picture.SeoFilename),
+                                picture.AltAttribute,
+                                picture.TitleAttribute);
+                            _productService.InsertProductPicture(new ProductPicture
+                            {
+                                ProductId = parentProduct.Id,
+                                PictureId = pictureCopy.Id,
+                                DisplayOrder = productPicture.DisplayOrder
+                            });
+                        }
+                    }
+                }
+                _productService.UpdateProduct(product);
+            }
+
+            return Json("Group product success");
+        }
         public virtual IActionResult BulkEdit()
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProducts))
@@ -3851,90 +3921,98 @@ namespace Nop.Web.Areas.Admin.Controllers
         #region Product attributes
 
         [HttpPost]
-        public virtual IActionResult OverWriteAllProductAttributes()
+        public virtual IActionResult OverWriteAllProductAttributes(int categoryId = 0, string selectedIds = null)
         {
-            var productIds = _productService.GetAllProductIds();
-            foreach (var productId in productIds)
+            if (selectedIds != null)
             {
-
-                DeleteAllAttributeMappingWithProduct(productId);
-
-                //Mapping overwrite product attribute
-                var categories = _categoryService.GetProductCategoriesByProductId(productId, true);
-                var categoryProductAttributeMappings = new List<CategoryProductAttributeMapping>();
-                foreach (var category in categories)
-                {
-                    var categoryAttributes = _categoryAttributeService.GetByCatId(category.CategoryId);
-                    foreach (var categoryAttribute in categoryAttributes)
-                    {
-                        if (!categoryProductAttributeMappings.Any(t=>t.ProductAttributeId.Equals(categoryAttribute.ProductAttributeId)))
-                        {
-                            categoryProductAttributeMappings.Add(categoryAttribute);
-                        }
-                    }
-                }
-
-                foreach (var model in categoryProductAttributeMappings)
-                {
-                    //insert mapping
-                    var productAttributeMapping = new ProductAttributeMapping
-                    {
-                        ProductId = productId,
-                        ProductAttributeId = model.ProductAttributeId,
-                        TextPrompt = model.TextPrompt,
-                        IsRequired = model.IsRequired,
-                        AttributeControlTypeId = model.AttributeControlTypeId,
-                        DisplayOrder = model.DisplayOrder,
-                        ValidationMinLength = model.ValidationMinLength,
-                        ValidationMaxLength = model.ValidationMaxLength,
-                        ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions,
-                        ValidationFileMaximumSize = model.ValidationFileMaximumSize,
-                        DefaultValue = model.DefaultValue
-                    };
-                    _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
-
-                    //predefined values
-                    var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
-                    foreach (var predefinedValue in predefinedValues)
-                    {
-                        var pav = new ProductAttributeValue
-                        {
-                            ProductAttributeMappingId = productAttributeMapping.Id,
-                            AttributeValueType = AttributeValueType.Simple,
-                            Name = predefinedValue.Name,
-                            PriceAdjustment = predefinedValue.PriceAdjustment,
-                            WeightAdjustment = predefinedValue.WeightAdjustment,
-                            Cost = predefinedValue.Cost,
-                            IsPreSelected = predefinedValue.IsPreSelected,
-                            DisplayOrder = predefinedValue.DisplayOrder
-                        };
-                        _productAttributeService.InsertProductAttributeValue(pav);
-                        //locales
-                        var languages = _languageService.GetAllLanguages(true);
-                        //localization
-                        foreach (var lang in languages)
-                        {
-                            var name = predefinedValue.GetLocalized(x => x.Name, lang.Id, false, false);
-                            if (!string.IsNullOrEmpty(name))
-                                _localizedEntityService.SaveLocalizedValue(pav, x => x.Name, name, lang.Id);
-                        }
-                    }
-
-                }
+                var ids = selectedIds
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => Convert.ToInt32(x))
+                    .ToArray();
+                OverwriteProductsAttr(ids.ToList());
             }
+            else
+            {
+                var productIds = categoryId == 0 ? _productService.GetAllProductIds() : _productService.GetAllProductIdsByCategoryId(categoryId);
+                OverwriteProductsAttr(productIds);
+            }
+
+
             return RedirectToAction("Index");
         }
 
-        private void DeleteAllAttributeMappingWithProduct(int productId)
+        private void OverwriteProductsAttr(List<int> productIds)
         {
-            //Delete all mapping with product
-            var attributes = _productAttributeService.GetProductAttributeMappingsByProductId(productId);
-            foreach (var attributeMapping in attributes)
+            foreach (var productId in productIds)
             {
-                _productAttributeService.DeleteProductAttributeMapping(attributeMapping);
+                // Collect all product category attribute mappings
+                var categories = _categoryService.GetProductCategoriesByProductId(productId, true);
+                var categoryAttributeMappings = categories.SelectMany(category => _categoryAttributeService.GetByCatId(category.CategoryId))
+                    .DistinctBy(_ => _.ProductAttributeId).ToList();
+
+                var oldMappings = _productAttributeService.GetProductAttributeMappingsByProductId(productId);
+                foreach (var attributeMapping in oldMappings)
+                {
+                    _productAttributeService.DeleteProductAttributeMapping(attributeMapping);
+                }
+
+                var newMappings = new List<ProductAttributeMapping>();
+                //foreach (var mapping in categoryAttributeMappings.Where(_ => _.ProductAttributeId.IsNotIn(oldMappings.Select(o=>o.ProductAttributeId))))
+                foreach (var mapping in categoryAttributeMappings)
+                {
+                    var productAttributeMapping = new ProductAttributeMapping
+                    {
+                        ProductId = productId,
+                        ProductAttributeId = mapping.ProductAttributeId,
+                        TextPrompt = mapping.TextPrompt,
+                        IsRequired = mapping.IsRequired,
+                        AttributeControlTypeId = mapping.AttributeControlTypeId,
+                        DisplayOrder = mapping.DisplayOrder,
+                        ValidationMinLength = mapping.ValidationMinLength,
+                        ValidationMaxLength = mapping.ValidationMaxLength,
+                        ValidationFileAllowedExtensions = mapping.ValidationFileAllowedExtensions,
+                        ValidationFileMaximumSize = mapping.ValidationFileMaximumSize,
+                        DefaultValue = mapping.DefaultValue
+                    };
+                    newMappings.Add(productAttributeMapping);
+                    //var oldMapping = oldMappings.FirstOrDefault(_ => _.ProductAttributeId == mapping.ProductAttributeId);
+
+                    //newMappings.Add(oldMapping != null ? oldMapping : productAttributeMapping);
+                }
+
+                foreach (var productAttributeMapping in newMappings)
+                {
+                    _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
+
+                    // copy predefined values from attribute to the product attribute mapping
+                    //var predefinedValues = _productAttributeService.GetPredefinedProductAttributeValues(productAttributeMapping.ProductAttributeId);
+                    //foreach (var predefinedValue in predefinedValues)
+                    //{
+                    //    var pav = new ProductAttributeValue
+                    //    {
+                    //        ProductAttributeMappingId = productAttributeMapping.Id,
+                    //        AttributeValueType = AttributeValueType.Simple,
+                    //        Name = predefinedValue.Name,
+                    //        PriceAdjustment = predefinedValue.PriceAdjustment,
+                    //        WeightAdjustment = predefinedValue.WeightAdjustment,
+                    //        Cost = predefinedValue.Cost,
+                    //        IsPreSelected = predefinedValue.IsPreSelected,
+                    //        DisplayOrder = predefinedValue.DisplayOrder
+                    //    };
+                    //    _productAttributeService.InsertProductAttributeValue(pav);
+                    //    //locales
+                    //    var languages = _languageService.GetAllLanguages(true);
+                    //    //localization
+                    //    foreach (var lang in languages)
+                    //    {
+                    //        var name = predefinedValue.GetLocalized(x => x.Name, lang.Id, false, false);
+                    //        if (!string.IsNullOrEmpty(name))
+                    //            _localizedEntityService.SaveLocalizedValue(pav, x => x.Name, name, lang.Id);
+                    //    }
+                    //}
+                }
             }
         }
-
         [HttpPost]
         public virtual IActionResult ProductAttributeMappingList(DataSourceRequest command, int productId)
         {

@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Seo;
 using Nop.Core.Domain.Stores;
+using System;
+using System.Collections.Generic;
 
 namespace Nop.Core.Domain.News
 {
@@ -17,6 +17,7 @@ namespace Nop.Core.Domain.News
         /// Gets or sets the language identifier
         /// </summary>
         public int LanguageId { get; set; }
+        public int CategoryNewsId { get; set; }
 
         /// <summary>
         /// Gets or sets the news title
@@ -78,6 +79,8 @@ namespace Nop.Core.Domain.News
         /// </summary>
         public DateTime CreatedOnUtc { get; set; }
 
+        public int PictureId { get; set; }
+
         /// <summary>
         /// Gets or sets the news comments
         /// </summary>
@@ -86,7 +89,7 @@ namespace Nop.Core.Domain.News
             get { return _newsComments ?? (_newsComments = new List<NewsComment>()); }
             protected set { _newsComments = value; }
         }
-        
+
         /// <summary>
         /// Gets or sets the language
         /// </summary>

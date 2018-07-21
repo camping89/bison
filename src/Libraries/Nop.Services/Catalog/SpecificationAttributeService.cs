@@ -31,7 +31,7 @@ namespace Nop.Services.Catalog
         /// Key pattern to clear cache
         /// </summary>
         private const string PRODUCTSPECIFICATIONATTRIBUTE_PATTERN_KEY = "Nop.productspecificationattribute.";
-        private const string CATEGORYSPECIFICATIONATTRIBUTE_ALLBYPRODUCTID_KEY = "Nop.categoryspecificationattribute.allbycategoryid-{0}-{1}-{2}-{3}";
+        private const string CATEGORYSPECIFICATIONATTRIBUTE_ALLBYPRODUCTID_KEY = "Nop.categoryspecificationattribute.allbycategoryid-{0}";
 
         private const string CATEGORYSPECIFICATIONATTRIBUTE_PATTERN_KEY = "Nop.categoryspecificationattribute.";
 
@@ -199,6 +199,14 @@ namespace Nop.Services.Catalog
                     sortedSpecificationAttributeOptions.Add(sao);
             }
             return sortedSpecificationAttributeOptions;
+        }
+        public IList<int> GetSpecificationAttributeOptionsIdsByTerm(string term)
+        {
+
+            var query = from sao in _specificationAttributeOptionRepository.Table
+                        where sao.Name.Contains(term)
+                        select sao.Id;
+            return query.ToList();
         }
 
         public virtual IList<SpecificationAttributeOption> GetSpecificationAttributeOptionsByParentIds(int[] specificationAttributeOptionIds)
@@ -444,10 +452,7 @@ namespace Nop.Services.Catalog
         public virtual IList<CategorySpecificationAttribute> GetCategorySpecificationAttributes(int categoryId = 0,
             int specificationAttributeOptionId = 0, bool? allowFiltering = null, bool? showOnProductPage = null)
         {
-            var allowFilteringCacheStr = allowFiltering.HasValue ? allowFiltering.ToString() : "null";
-            var showOnProductPageCacheStr = showOnProductPage.HasValue ? showOnProductPage.ToString() : "null";
-            var key = string.Format(CATEGORYSPECIFICATIONATTRIBUTE_ALLBYPRODUCTID_KEY,
-                categoryId, specificationAttributeOptionId, allowFilteringCacheStr, showOnProductPageCacheStr);
+            var key = string.Format(CATEGORYSPECIFICATIONATTRIBUTE_ALLBYPRODUCTID_KEY, categoryId);
 
             return _cacheManager.Get(key, () =>
             {
@@ -478,9 +483,9 @@ namespace Nop.Services.Catalog
         public IList<CategorySpecificationAttribute> GetByCatId(int categoryId)
         {
             var query = from pa in _categorySpecificationAttributeRepository.Table
-                where pa.CategoryId == categoryId
-                orderby pa.DisplayOrder
-                select pa;
+                        where pa.CategoryId == categoryId
+                        orderby pa.DisplayOrder
+                        select pa;
             return query.ToList();
         }
         public virtual void InsertCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute)

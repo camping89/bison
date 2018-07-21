@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Localization;
@@ -22,6 +20,8 @@ using Nop.Web.Framework.Mvc.Rss;
 using Nop.Web.Framework.Security;
 using Nop.Web.Framework.Security.Captcha;
 using Nop.Web.Models.News;
+using System;
+using System.Collections.Generic;
 
 namespace Nop.Web.Controllers
 {
@@ -45,14 +45,14 @@ namespace Nop.Web.Controllers
         private readonly NewsSettings _newsSettings;
         private readonly LocalizationSettings _localizationSettings;
         private readonly CaptchaSettings _captchaSettings;
-        
+
         #endregion
-        
+
         #region Ctor
 
         public NewsController(INewsModelFactory newsModelFactory,
             INewsService newsService,
-            IWorkContext workContext, 
+            IWorkContext workContext,
             IStoreContext storeContext,
             ILocalizationService localizationService,
             IWorkflowMessageService workflowMessageService,
@@ -62,7 +62,7 @@ namespace Nop.Web.Controllers
             IPermissionService permissionService,
             IEventPublisher eventPublisher,
             NewsSettings newsSettings,
-            LocalizationSettings localizationSettings, 
+            LocalizationSettings localizationSettings,
             CaptchaSettings captchaSettings)
         {
             this._newsModelFactory = newsModelFactory;
@@ -81,17 +81,25 @@ namespace Nop.Web.Controllers
             this._localizationSettings = localizationSettings;
             this._captchaSettings = captchaSettings;
         }
-        
+
         #endregion
-        
+        //#region CategoryNews
+
+        //public virtual IActionResult CategoryNews(int categoryId)
+        //{
+
+        //}
+
+
+        //#endregion
         #region Methods
 
-        public virtual IActionResult List(NewsPagingFilteringModel command)
+        public virtual IActionResult List(int categoryNewsId, NewsPagingFilteringModel command)
         {
             if (!_newsSettings.Enabled)
                 return RedirectToRoute("HomePage");
 
-            var model = _newsModelFactory.PrepareNewsItemListModel(command);
+            var model = _newsModelFactory.PrepareNewsItemListModel(categoryNewsId, command);
             return View(model);
         }
 
@@ -193,7 +201,7 @@ namespace Nop.Web.Controllers
 
                 //The text boxes should be cleared after a comment has been posted
                 //That' why we reload the page
-                TempData["nop.news.addcomment.result"] = comment.IsApproved 
+                TempData["nop.news.addcomment.result"] = comment.IsApproved
                     ? _localizationService.GetResource("News.Comments.SuccessfullyAdded")
                     : _localizationService.GetResource("News.Comments.SeeAfterApproving");
 
@@ -204,7 +212,7 @@ namespace Nop.Web.Controllers
             model = _newsModelFactory.PrepareNewsItemModel(model, newsItem, true);
             return View(model);
         }
-        
+
         #endregion
     }
 }

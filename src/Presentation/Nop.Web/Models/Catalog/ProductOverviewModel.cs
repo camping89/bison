@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Nop.Core.Domain.Catalog;
+﻿using Nop.Core.Domain.Catalog;
 using Nop.Web.Framework.Mvc.Models;
 using Nop.Web.Models.Media;
+using System;
+using System.Collections.Generic;
 
 namespace Nop.Web.Models.Catalog
 {
@@ -37,7 +37,7 @@ namespace Nop.Web.Models.Catalog
         //price
         public ProductReviewOverviewModel ReviewOverviewModel { get; set; }
 
-		#region Nested Classes
+        #region Nested Classes
 
         public partial class ProductPriceModel : BaseNopModel
         {
@@ -68,6 +68,6 @@ namespace Nop.Web.Models.Catalog
             public bool CallForPrice { get; set; }
         }
 
-		#endregion
+        #endregion
     }
 }

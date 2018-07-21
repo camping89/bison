@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Nop.Web.Areas.Admin.Extensions;
-using Nop.Web.Areas.Admin.Models.News;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.News;
 using Nop.Services.Events;
@@ -15,16 +10,21 @@ using Nop.Services.News;
 using Nop.Services.Security;
 using Nop.Services.Seo;
 using Nop.Services.Stores;
+using Nop.Web.Areas.Admin.Extensions;
+using Nop.Web.Areas.Admin.Models.News;
 using Nop.Web.Framework.Extensions;
 using Nop.Web.Framework.Kendoui;
 using Nop.Web.Framework.Mvc;
 using Nop.Web.Framework.Mvc.Filters;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Nop.Web.Areas.Admin.Controllers
 {
     public partial class NewsController : BaseAdminController
-	{
-		#region Fields
+    {
+        #region Fields
 
         private readonly INewsService _newsService;
         private readonly ILanguageService _languageService;
@@ -36,21 +36,22 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IStoreService _storeService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly ICustomerActivityService _customerActivityService;
+        private readonly ICategoryNewsService _categoryNewsService;
 
         #endregion
 
         #region Ctor
 
-        public NewsController(INewsService newsService, 
+        public NewsController(INewsService newsService,
             ILanguageService languageService,
             IDateTimeHelper dateTimeHelper,
             IEventPublisher eventPublisher,
             ILocalizationService localizationService,
             IPermissionService permissionService,
             IUrlRecordService urlRecordService,
-            IStoreService storeService, 
+            IStoreService storeService,
             IStoreMappingService storeMappingService,
-            ICustomerActivityService customerActivityService)
+            ICustomerActivityService customerActivityService, ICategoryNewsService categoryNewsService)
         {
             this._newsService = newsService;
             this._languageService = languageService;
@@ -62,6 +63,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             this._storeService = storeService;
             this._storeMappingService = storeMappingService;
             this._customerActivityService = customerActivityService;
+            _categoryNewsService = categoryNewsService;
         }
 
         #endregion
@@ -104,6 +106,24 @@ namespace Nop.Web.Areas.Admin.Controllers
             }
         }
 
+        protected virtual void PrepareCategoryMappingModel(NewsItemModel model)
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+
+            var allCategoriesNews = _categoryNewsService.GetAllCategoryNews();
+            foreach (var cateNews in allCategoriesNews)
+            {
+                model.AvailableCategories.Add(new SelectListItem
+                {
+                    Text = cateNews.Name,
+                    Value = cateNews.Id.ToString(),
+                    Selected = model.CategoryNewsId == cateNews.Id
+                });
+            }
+        }
+
         protected virtual void SaveStoreMappings(NewsItem newsItem, NewsItemModel model)
         {
             newsItem.LimitedToStores = model.SelectedStoreIds.Any();
@@ -127,8 +147,9 @@ namespace Nop.Web.Areas.Admin.Controllers
                 }
             }
         }
-        
+
         #endregion
+
 
         #region News items
 
@@ -192,6 +213,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             PrepareLanguagesModel(model);
             //Stores
             PrepareStoresMappingModel(model, null, false);
+            PrepareCategoryMappingModel(model);
             //default values
             model.Published = true;
             model.AllowComments = true;
@@ -237,6 +259,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             //If we got this far, something failed, redisplay form
             PrepareLanguagesModel(model);
             PrepareStoresMappingModel(model, null, true);
+            PrepareCategoryMappingModel(model);
             return View(model);
         }
 
@@ -257,6 +280,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             PrepareLanguagesModel(model);
             //Store
             PrepareStoresMappingModel(model, newsItem, false);
+            PrepareCategoryMappingModel(model);
             return View(model);
         }
 
@@ -295,7 +319,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     //selected tab
                     SaveSelectedTabName();
 
-                    return RedirectToAction("Edit", new {id = newsItem.Id});
+                    return RedirectToAction("Edit", new { id = newsItem.Id });
                 }
                 return RedirectToAction("List");
             }
@@ -303,6 +327,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             //If we got this far, something failed, redisplay form
             PrepareLanguagesModel(model);
             PrepareStoresMappingModel(model, newsItem, true);
+            PrepareCategoryMappingModel(model);
             return View(model);
         }
 
@@ -439,7 +464,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             return new NullJsonResult();
         }
-        
+
         [HttpPost]
         public virtual IActionResult DeleteSelectedComments(ICollection<int> selectedIds)
         {
@@ -477,7 +502,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 {
                     newsComment.IsApproved = true;
                     _newsService.UpdateNews(newsComment.NewsItem);
-                    
+
                     //raise event 
                     _eventPublisher.Publish(new NewsCommentApprovedEvent(newsComment));
 

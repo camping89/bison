@@ -1,28 +1,4 @@
 ﻿using AutoMapper;
-using Nop.Web.Areas.Admin.Models.Blogs;
-using Nop.Web.Areas.Admin.Models.Catalog;
-using Nop.Web.Areas.Admin.Models.Cms;
-using Nop.Web.Areas.Admin.Models.Common;
-using Nop.Web.Areas.Admin.Models.Customers;
-using Nop.Web.Areas.Admin.Models.Directory;
-using Nop.Web.Areas.Admin.Models.Discounts;
-using Nop.Web.Areas.Admin.Models.ExternalAuthentication;
-using Nop.Web.Areas.Admin.Models.Forums;
-using Nop.Web.Areas.Admin.Models.Localization;
-using Nop.Web.Areas.Admin.Models.Logging;
-using Nop.Web.Areas.Admin.Models.Messages;
-using Nop.Web.Areas.Admin.Models.News;
-using Nop.Web.Areas.Admin.Models.Orders;
-using Nop.Web.Areas.Admin.Models.Payments;
-using Nop.Web.Areas.Admin.Models.Plugins;
-using Nop.Web.Areas.Admin.Models.Polls;
-using Nop.Web.Areas.Admin.Models.Settings;
-using Nop.Web.Areas.Admin.Models.Shipping;
-using Nop.Web.Areas.Admin.Models.Stores;
-using Nop.Web.Areas.Admin.Models.Tax;
-using Nop.Web.Areas.Admin.Models.Templates;
-using Nop.Web.Areas.Admin.Models.Topics;
-using Nop.Web.Areas.Admin.Models.Vendors;
 using Nop.Core.Domain.Blogs;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
@@ -51,6 +27,30 @@ using Nop.Services.Seo;
 using Nop.Services.Shipping;
 using Nop.Services.Shipping.Pickup;
 using Nop.Services.Tax;
+using Nop.Web.Areas.Admin.Models.Blogs;
+using Nop.Web.Areas.Admin.Models.Catalog;
+using Nop.Web.Areas.Admin.Models.Cms;
+using Nop.Web.Areas.Admin.Models.Common;
+using Nop.Web.Areas.Admin.Models.Customers;
+using Nop.Web.Areas.Admin.Models.Directory;
+using Nop.Web.Areas.Admin.Models.Discounts;
+using Nop.Web.Areas.Admin.Models.ExternalAuthentication;
+using Nop.Web.Areas.Admin.Models.Forums;
+using Nop.Web.Areas.Admin.Models.Localization;
+using Nop.Web.Areas.Admin.Models.Logging;
+using Nop.Web.Areas.Admin.Models.Messages;
+using Nop.Web.Areas.Admin.Models.News;
+using Nop.Web.Areas.Admin.Models.Orders;
+using Nop.Web.Areas.Admin.Models.Payments;
+using Nop.Web.Areas.Admin.Models.Plugins;
+using Nop.Web.Areas.Admin.Models.Polls;
+using Nop.Web.Areas.Admin.Models.Settings;
+using Nop.Web.Areas.Admin.Models.Shipping;
+using Nop.Web.Areas.Admin.Models.Stores;
+using Nop.Web.Areas.Admin.Models.Tax;
+using Nop.Web.Areas.Admin.Models.Templates;
+using Nop.Web.Areas.Admin.Models.Topics;
+using Nop.Web.Areas.Admin.Models.Vendors;
 using Nop.Web.Framework.Security.Captcha;
 
 namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
@@ -224,8 +224,8 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
                 .ForMember(dest => dest.SubjectToAcl, mo => mo.Ignore())
                 .ForMember(dest => dest.AppliedDiscounts, mo => mo.Ignore())
                 .ForMember(dest => dest.LimitedToStores, mo => mo.Ignore())
-                .ForMember(dest=>dest.CategoryAttributeMappings, mo => mo.Ignore())
-                .ForMember(dest=>dest.CategorySpecificationAttributes, mo => mo.Ignore());
+                .ForMember(dest => dest.CategoryAttributeMappings, mo => mo.Ignore())
+                .ForMember(dest => dest.CategorySpecificationAttributes, mo => mo.Ignore());
             //manufacturer
             CreateMap<Manufacturer, ManufacturerModel>()
                 .ForMember(dest => dest.AvailableManufacturerTemplates, mo => mo.Ignore())
@@ -518,6 +518,16 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
                 .ForMember(dest => dest.EndDateUtc, mo => mo.Ignore())
                 .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
                 .ForMember(dest => dest.LimitedToStores, mo => mo.Ignore());
+
+            //category news
+            CreateMap<CategoryNews, CategoryNewsModel>()
+                .ForMember(dest => dest.Breadcrumb, mo => mo.Ignore())
+                .ForMember(dest => dest.SeName, mo => mo.MapFrom(src => src.GetSeName(0, true, false)));
+
+            CreateMap<CategoryNewsModel, CategoryNews>()
+                .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
+                .ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore())
+                .ForMember(dest => dest.Deleted, mo => mo.Ignore());
             //news
             CreateMap<NewsItem, NewsItemModel>()
                 .ForMember(dest => dest.SeName, mo => mo.MapFrom(src => src.GetSeName(src.LanguageId, true, false)))
@@ -1024,7 +1034,7 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
                 .ForMember(dest => dest.CustomProperties, mo => mo.Ignore());
             CreateMap<TopicTemplateModel, TopicTemplate>();
         }
-        
+
         /// <summary>
         /// Order of this mapper implementation
         /// </summary>

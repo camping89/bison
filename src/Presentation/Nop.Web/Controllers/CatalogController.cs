@@ -16,6 +16,7 @@ using Nop.Web.Framework;
 using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Framework.Security;
 using Nop.Web.Models.Catalog;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Nop.Web.Controllers
@@ -40,6 +41,7 @@ namespace Nop.Web.Controllers
         private readonly IStoreMappingService _storeMappingService;
         private readonly IPermissionService _permissionService;
         private readonly ICustomerActivityService _customerActivityService;
+        private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
         private readonly VendorSettings _vendorSettings;
@@ -50,11 +52,11 @@ namespace Nop.Web.Controllers
 
         public CatalogController(ICatalogModelFactory catalogModelFactory,
             IProductModelFactory productModelFactory,
-            ICategoryService categoryService, 
+            ICategoryService categoryService,
             IManufacturerService manufacturerService,
-            IProductService productService, 
+            IProductService productService,
             IVendorService vendorService,
-            IWorkContext workContext, 
+            IWorkContext workContext,
             IStoreContext storeContext,
             ILocalizationService localizationService,
             IWebHelper webHelper,
@@ -62,11 +64,11 @@ namespace Nop.Web.Controllers
             IGenericAttributeService genericAttributeService,
             IAclService aclService,
             IStoreMappingService storeMappingService,
-            IPermissionService permissionService, 
+            IPermissionService permissionService,
             ICustomerActivityService customerActivityService,
             MediaSettings mediaSettings,
             CatalogSettings catalogSettings,
-            VendorSettings vendorSettings)
+            VendorSettings vendorSettings, ISpecificationAttributeService specificationAttributeService)
         {
             this._catalogModelFactory = catalogModelFactory;
             this._productModelFactory = productModelFactory;
@@ -87,12 +89,14 @@ namespace Nop.Web.Controllers
             this._mediaSettings = mediaSettings;
             this._catalogSettings = catalogSettings;
             this._vendorSettings = vendorSettings;
+            _specificationAttributeService = specificationAttributeService;
         }
 
         #endregion
-        
+
+
         #region Categories
-        
+
         [HttpsRequirement(SslRequirement.No)]
         public virtual IActionResult Category(int categoryId, CatalogPagingFilteringModel command)
         {
@@ -113,8 +117,8 @@ namespace Nop.Web.Controllers
                 return InvokeHttp404();
 
             //'Continue shopping' URL
-            _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer, 
-                SystemCustomerAttributeNames.LastContinueShoppingPage, 
+            _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer,
+                SystemCustomerAttributeNames.LastContinueShoppingPage,
                 _webHelper.GetThisPageUrl(false),
                 _storeContext.CurrentStore.Id);
 
@@ -133,23 +137,24 @@ namespace Nop.Web.Controllers
             return View(templateViewPath, model);
         }
 
+
         [HttpsRequirement(SslRequirement.No)]
         public virtual IActionResult ProductFilter(CatalogPagingFilteringModel command)
         {
-          
+
             //'Continue shopping' URL
-            _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer, 
-                SystemCustomerAttributeNames.LastContinueShoppingPage, 
+            _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer,
+                SystemCustomerAttributeNames.LastContinueShoppingPage,
                 _webHelper.GetThisPageUrl(false),
                 _storeContext.CurrentStore.Id);
-            
+
             //activity log
             _customerActivityService.InsertActivity("PublicStore.ProductFilter", _localizationService.GetResource("ActivityLog.PublicStore.ProductFilter"));
 
             //model
             var model = _catalogModelFactory.PrepareProductFilterModel(command);
-            
-            return View("CategoryTemplate.ProductsInGridOrLines", model);
+
+            return View("CategoryTemplateFilter.ProductsInGridOrLines", model);
         }
 
         #endregion
@@ -176,11 +181,11 @@ namespace Nop.Web.Controllers
                 return InvokeHttp404();
 
             //'Continue shopping' URL
-            _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer, 
-                SystemCustomerAttributeNames.LastContinueShoppingPage, 
+            _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer,
+                SystemCustomerAttributeNames.LastContinueShoppingPage,
                 _webHelper.GetThisPageUrl(false),
                 _storeContext.CurrentStore.Id);
-            
+
             //display "edit" (manage) link
             if (_permissionService.Authorize(StandardPermissionProvider.AccessAdminPanel) && _permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
                 DisplayEditLink(Url.Action("Edit", "Manufacturer", new { id = manufacturer.Id, area = AreaNames.Admin }));
@@ -190,7 +195,7 @@ namespace Nop.Web.Controllers
 
             //model
             var model = _catalogModelFactory.PrepareManufacturerModel(manufacturer, command);
-            
+
             //template
             var templateViewPath = _catalogModelFactory.PrepareManufacturerTemplateViewPath(manufacturer.ManufacturerTemplateId);
             return View(templateViewPath, model);
@@ -202,7 +207,7 @@ namespace Nop.Web.Controllers
             var model = _catalogModelFactory.PrepareManufacturerAllModels();
             return View(model);
         }
-        
+
         #endregion
 
         #region Vendors
@@ -219,7 +224,7 @@ namespace Nop.Web.Controllers
                 SystemCustomerAttributeNames.LastContinueShoppingPage,
                 _webHelper.GetThisPageUrl(false),
                 _storeContext.CurrentStore.Id);
-            
+
             //display "edit" (manage) link
             if (_permissionService.Authorize(StandardPermissionProvider.AccessAdminPanel) && _permissionService.Authorize(StandardPermissionProvider.ManageVendors))
                 DisplayEditLink(Url.Action("Edit", "Vendor", new { id = vendor.Id, area = AreaNames.Admin }));
@@ -244,7 +249,7 @@ namespace Nop.Web.Controllers
         #endregion
 
         #region Product tags
-        
+
         [HttpsRequirement(SslRequirement.No)]
         public virtual IActionResult ProductsByTag(int productTagId, CatalogPagingFilteringModel command)
         {
@@ -287,30 +292,64 @@ namespace Nop.Web.Controllers
         {
             if (string.IsNullOrWhiteSpace(term) || term.Length < _catalogSettings.ProductSearchTermMinimumLength)
                 return Content("");
+            IList<int> alreadyFilteredSpecOptionIds = _specificationAttributeService.GetSpecificationAttributeOptionsIdsByTerm(term);
+            IList<int> childSpecOptionIds = _specificationAttributeService.GetSpecificationAttributeOptionsByParentIds(alreadyFilteredSpecOptionIds.ToArray()).Select(s => s.Id).ToList();
+            foreach (var childId in childSpecOptionIds)
+            {
+                alreadyFilteredSpecOptionIds.Add(childId);
+            }
+            if (alreadyFilteredSpecOptionIds.Count > 0)
+            {
+                //products
+                var productNumber = _catalogSettings.ProductSearchAutoCompleteNumberOfProducts > 0 ?
+                    _catalogSettings.ProductSearchAutoCompleteNumberOfProducts : 10;
+                var products = _productService.SearchProducts(out IList<int> filterableSpecificationAttributeOptionIds,
+                    true,
+                    categoryIds: null,
+                    storeId: _storeContext.CurrentStore.Id,
+                    visibleIndividuallyOnly: true,
+                    featuredProducts: _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : (bool?)false,
+                    filteredSpecs: alreadyFilteredSpecOptionIds,
+                    orderBy: ProductSortingEnum.NameAsc,
+                    pageSize: productNumber);
+                var models = _productModelFactory.PrepareProductOverviewModels(products, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize).ToList();
+                var result = (from p in models
+                              select new
+                              {
+                                  label = p.Name,
+                                  producturl = Url.RouteUrl("Product", new { SeName = p.SeName }),
+                                  productpictureurl = p.DefaultPictureModel.ImageUrl
+                              })
+                    .ToList();
+                return Json(result);
+            }
+            else
+            {
+                //products
+                var productNumber = _catalogSettings.ProductSearchAutoCompleteNumberOfProducts > 0 ?
+                    _catalogSettings.ProductSearchAutoCompleteNumberOfProducts : 10;
 
-            //products
-            var productNumber = _catalogSettings.ProductSearchAutoCompleteNumberOfProducts > 0 ?
-                _catalogSettings.ProductSearchAutoCompleteNumberOfProducts : 10;
+                var products = _productService.SearchProducts(
+                    storeId: _storeContext.CurrentStore.Id,
+                    keywords: term,
+                    languageId: _workContext.WorkingLanguage.Id,
+                    visibleIndividuallyOnly: true,
+                    pageSize: productNumber);
 
-            var products = _productService.SearchProducts(
-                storeId: _storeContext.CurrentStore.Id,
-                keywords: term,
-                languageId: _workContext.WorkingLanguage.Id,
-                visibleIndividuallyOnly: true,
-                pageSize: productNumber);
+                var models = _productModelFactory.PrepareProductOverviewModels(products, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize).ToList();
+                var result = (from p in models
+                              select new
+                              {
+                                  label = p.Name,
+                                  producturl = Url.RouteUrl("Product", new { SeName = p.SeName }),
+                                  productpictureurl = p.DefaultPictureModel.ImageUrl
+                              })
+                    .ToList();
+                return Json(result);
+            }
 
-            var models =  _productModelFactory.PrepareProductOverviewModels(products, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize).ToList();
-            var result = (from p in models
-                    select new
-                    {
-                        label = p.Name,
-                        producturl = Url.RouteUrl("Product", new {SeName = p.SeName}),
-                        productpictureurl = p.DefaultPictureModel.ImageUrl
-                    })
-                .ToList();
-            return Json(result);
         }
-        
+
         #endregion
     }
 }

@@ -1,30 +1,4 @@
-﻿using System;
-using System.Linq;
-using Nop.Web.Areas.Admin.Models.Blogs;
-using Nop.Web.Areas.Admin.Models.Catalog;
-using Nop.Web.Areas.Admin.Models.Cms;
-using Nop.Web.Areas.Admin.Models.Common;
-using Nop.Web.Areas.Admin.Models.Customers;
-using Nop.Web.Areas.Admin.Models.Directory;
-using Nop.Web.Areas.Admin.Models.Discounts;
-using Nop.Web.Areas.Admin.Models.ExternalAuthentication;
-using Nop.Web.Areas.Admin.Models.Forums;
-using Nop.Web.Areas.Admin.Models.Localization;
-using Nop.Web.Areas.Admin.Models.Logging;
-using Nop.Web.Areas.Admin.Models.Messages;
-using Nop.Web.Areas.Admin.Models.News;
-using Nop.Web.Areas.Admin.Models.Orders;
-using Nop.Web.Areas.Admin.Models.Payments;
-using Nop.Web.Areas.Admin.Models.Plugins;
-using Nop.Web.Areas.Admin.Models.Polls;
-using Nop.Web.Areas.Admin.Models.Settings;
-using Nop.Web.Areas.Admin.Models.Shipping;
-using Nop.Web.Areas.Admin.Models.Stores;
-using Nop.Web.Areas.Admin.Models.Tax;
-using Nop.Web.Areas.Admin.Models.Templates;
-using Nop.Web.Areas.Admin.Models.Topics;
-using Nop.Web.Areas.Admin.Models.Vendors;
-using Nop.Core.Domain.Blogs;
+﻿using Nop.Core.Domain.Blogs;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
@@ -52,7 +26,33 @@ using Nop.Services.Payments;
 using Nop.Services.Shipping;
 using Nop.Services.Shipping.Pickup;
 using Nop.Services.Tax;
+using Nop.Web.Areas.Admin.Models.Blogs;
+using Nop.Web.Areas.Admin.Models.Catalog;
+using Nop.Web.Areas.Admin.Models.Cms;
+using Nop.Web.Areas.Admin.Models.Common;
+using Nop.Web.Areas.Admin.Models.Customers;
+using Nop.Web.Areas.Admin.Models.Directory;
+using Nop.Web.Areas.Admin.Models.Discounts;
+using Nop.Web.Areas.Admin.Models.ExternalAuthentication;
+using Nop.Web.Areas.Admin.Models.Forums;
+using Nop.Web.Areas.Admin.Models.Localization;
+using Nop.Web.Areas.Admin.Models.Logging;
+using Nop.Web.Areas.Admin.Models.Messages;
+using Nop.Web.Areas.Admin.Models.News;
+using Nop.Web.Areas.Admin.Models.Orders;
+using Nop.Web.Areas.Admin.Models.Payments;
+using Nop.Web.Areas.Admin.Models.Plugins;
+using Nop.Web.Areas.Admin.Models.Polls;
+using Nop.Web.Areas.Admin.Models.Settings;
+using Nop.Web.Areas.Admin.Models.Shipping;
+using Nop.Web.Areas.Admin.Models.Stores;
+using Nop.Web.Areas.Admin.Models.Tax;
+using Nop.Web.Areas.Admin.Models.Templates;
+using Nop.Web.Areas.Admin.Models.Topics;
+using Nop.Web.Areas.Admin.Models.Vendors;
 using Nop.Web.Framework.Security.Captcha;
+using System;
+using System.Linq;
 
 namespace Nop.Web.Areas.Admin.Extensions
 {
@@ -67,7 +67,7 @@ namespace Nop.Web.Areas.Admin.Extensions
         {
             return AutoMapperConfiguration.Mapper.Map(source, destination);
         }
-        
+
         #region Category
 
         public static CategoryModel ToModel(this Category entity)
@@ -292,7 +292,7 @@ namespace Nop.Web.Areas.Admin.Extensions
         {
             return model.MapTo(destination);
         }
-        
+
         #endregion
 
         #region Email account
@@ -418,7 +418,7 @@ namespace Nop.Web.Areas.Admin.Extensions
         }
 
         #endregion
-        
+
         #region Currencies
 
         public static CurrencyModel ToModel(this Currency entity)
@@ -503,7 +503,7 @@ namespace Nop.Web.Areas.Admin.Extensions
         }
 
         #endregion
-        
+
         #region Shipping rate computation method
 
         public static ShippingRateComputationMethodModel ToModel(this IShippingRateComputationMethod entity)
@@ -596,7 +596,7 @@ namespace Nop.Web.Areas.Admin.Extensions
         }
 
         #endregion
-        
+
         #region Widgets
 
         public static WidgetModel ToModel(this IWidgetPlugin entity)
@@ -812,6 +812,21 @@ namespace Nop.Web.Areas.Admin.Extensions
         #endregion
 
         #region News
+        //category news items
+        public static CategoryNewsModel ToModel(this CategoryNews entity)
+        {
+            return entity.MapTo<CategoryNews, CategoryNewsModel>();
+        }
+
+        public static CategoryNews ToEntity(this CategoryNewsModel model)
+        {
+            return model.MapTo<CategoryNewsModel, CategoryNews>();
+        }
+
+        public static CategoryNews ToEntity(this CategoryNewsModel model, CategoryNews destination)
+        {
+            return model.MapTo(destination);
+        }
 
         //news items
         public static NewsItemModel ToModel(this NewsItem entity)

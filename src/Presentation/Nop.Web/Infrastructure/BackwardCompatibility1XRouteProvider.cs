@@ -31,23 +31,27 @@ namespace Nop.Web.Infrastructure
                 new { controller = "BackwardCompatibility1X", action = "RedirectProduct" });
 
             //categories
-            routeBuilder.MapRoute("", "category/{id}.aspx", 
+            routeBuilder.MapRoute("", "category/{id}.aspx",
                 new { controller = "BackwardCompatibility1X", action = "RedirectCategory" });
 
             //manufacturers
-            routeBuilder.MapRoute("", "manufacturer/{id}.aspx", 
+            routeBuilder.MapRoute("", "manufacturer/{id}.aspx",
                 new { controller = "BackwardCompatibility1X", action = "RedirectManufacturer" });
 
             //product tags
-            routeBuilder.MapRoute("", "producttag/{id}.aspx", 
+            routeBuilder.MapRoute("", "producttag/{id}.aspx",
                 new { controller = "BackwardCompatibility1X", action = "RedirectProductTag" });
 
+            //categoriesnews
+            routeBuilder.MapRoute("", "categorynews/{id}.aspx",
+                new { controller = "BackwardCompatibility1X", action = "RedirectCategoryNews" });
+
             //news
-            routeBuilder.MapRoute("", "news/{id}.aspx", 
+            routeBuilder.MapRoute("", "news/{id}.aspx",
                 new { controller = "BackwardCompatibility1X", action = "RedirectNewsItem" });
 
             //blog posts
-            routeBuilder.MapRoute("", "blog/{id}.aspx", 
+            routeBuilder.MapRoute("", "blog/{id}.aspx",
                 new { controller = "BackwardCompatibility1X", action = "RedirectBlogPost" });
 
             //topics

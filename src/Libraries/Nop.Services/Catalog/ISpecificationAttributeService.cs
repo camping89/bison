@@ -61,6 +61,7 @@ namespace Nop.Services.Catalog
         /// <param name="specificationAttributeOptionIds">Identifiers</param>
         /// <returns>Specification attribute options</returns>
         IList<SpecificationAttributeOption> GetSpecificationAttributeOptionsByIds(int[] specificationAttributeOptionIds);
+        IList<int> GetSpecificationAttributeOptionsIdsByTerm(string term);
         IList<SpecificationAttributeOption> GetSpecificationAttributeOptionsByParentIds(int[] specificationAttributeOptionIds);
 
         /// <summary>
@@ -148,23 +149,23 @@ namespace Nop.Services.Catalog
 
         #region Category specification attribute
 
-        
+
         void DeleteCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute);
 
-        
+
         IList<CategorySpecificationAttribute> GetCategorySpecificationAttributes(int categoryId = 0,
             int specificationAttributeOptionId = 0, bool? allowFiltering = null, bool? showOnProductPage = null);
 
-        
+
         CategorySpecificationAttribute GetCategorySpecificationAttributeById(int categorySpecificationAttributeId);
 
-       
+
         void InsertCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute);
 
         List<int> Insert(CategorySpecificationAttribute mapping, bool cascadeToChildren);
         void UpdateCategorySpecificationAttribute(CategorySpecificationAttribute categorySpecificationAttribute);
 
-       
+
         int GetCategorySpecificationAttributeCount(int categoryId = 0, int specificationAttributeOptionId = 0);
 
         #endregion

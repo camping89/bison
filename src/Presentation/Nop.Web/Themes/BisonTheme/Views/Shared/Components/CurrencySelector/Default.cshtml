@@ -19,7 +19,7 @@
             }
             @foreach (var item in currencies.Where(x => x.Selected))
             {
-            <a href="@item.Value" class="currency-current title14 black"><span class="currency-index">@item.CurrencySymbol</span><span>@item.Text</span><i class="fa fa-angle-down" aria-hidden="true"></i></a>
+            <a href="@item.Value" class="currency-current black"><span class="currency-index">@item.CurrencySymbol</span><span>@item.Text</span><i class="fa fa-angle-down" aria-hidden="true"></i></a>
             }
             
             <ul class="currency-list list-none text-left">

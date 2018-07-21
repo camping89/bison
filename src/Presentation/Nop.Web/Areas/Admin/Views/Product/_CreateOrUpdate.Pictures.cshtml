@@ -117,7 +117,7 @@
                 </script>
             </div>
         </div>
-        
+
         <script>
             //Delete item grid
             function deleteImage(e) {
@@ -169,12 +169,15 @@
                             pictureUrls.push($("#PictureUrl3").val());
                             pictureUrls.push($("#PictureUrl4").val());
 
-                            var pictureId = $("#@Html.IdFor(model => model.AddPictureModel.PictureId)").val();
+                            var pictureIdStrs = $("#@Html.IdFor(model => model.AddPictureModel.PictureId)").val();
                             var overrideAltAttribute = $("#@Html.IdFor(model => model.AddPictureModel.OverrideAltAttribute)").val();
                             var overrideTitleAttribute = $("#@Html.IdFor(model => model.AddPictureModel.OverrideTitleAttribute)").val();
                             var displayOrder = $("#@Html.IdFor(model => model.AddPictureModel.DisplayOrder)").val();
-                            if (pictureId !== 0) {
-                                pictureIds.push(pictureId);
+                            if (pictureIdStrs !== null && pictureIdStrs !== '' && pictureIdStrs != undefined) {
+                                var ids = pictureIdStrs.split(';');
+                                for (var i = 0; i <ids.length; i++) {
+                                    pictureIds.push(ids[i]);
+                                }
                             }
                             $('#addProductPicture').attr('disabled', true);
 
@@ -215,6 +218,7 @@
                             $("#PictureUrl3").val("");
                             $("#imageFromUrl4").html("");
                             $("#PictureUrl4").val("");
+                            $("#@Html.IdFor(model => model.AddPictureModel.PictureId)").val("0");
                         }
                         @*function downloadImage(control,number) {
                             if (control.val() != null && control.val() !== '') {

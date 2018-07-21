@@ -1,46 +1,67 @@
-﻿@model NewsItemListModel
+﻿@using Nop.Core.Extensions
+@model NewsItemListModel
 @{
-    Layout = "_ColumnsTwo";
+    Layout = "_ColumnsTwoNews";
 
     //title
     Html.AddTitleParts(T("PageTitle.NewsArchive").Text);
     //page class
     Html.AppendPageCssClassParts("html-news-list-page");
 }
-<div class="page news-list-page">
-    <div class="page-title">
-        <a href="@Url.RouteUrl("NewsRSS", new { languageId = Model.WorkingLanguageId })" class="link-rss" title="@T("News.RSS.Hint")">@T("News.RSS")</a>
-        <h1>@T("News")</h1>
+
+@section Breadcrumb
+    {
+    <div class="bread-crumb">
+        <a href="@Url.RouteUrl("HomePage")" class="silver" title="@T("CategoriesNews.Breadcrumb.Top")">@T("CategoriesNews.Breadcrumb.Top")</a>
+        <strong class="color">@(Model.CategoryName.IsNullOrEmpty() ? T("CategoriesNews.Breadcrumb.Top").Text : Model.CategoryName)</strong>
     </div>
-    <div class="page-body">
-        @await Component.InvokeAsync("Widget", new { widgetZone = "newslist_page_before_items" })
-        <div class="news-items">
-            @foreach (var item in Model.NewsItems)
-            {
-                <div class="news-item">
-                    <div class="news-head">
-                        <a class="news-title" href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">@item.Title</a>
-                        <span class="news-date">-@item.CreatedOn.ToString("D")</span>
-                    </div>
-                    <div class="news-body">
-                        @Html.Raw(item.Short)
-                    </div>
-                    <div class="buttons">
-                        <a href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })" class="read-more">@T("News.MoreInfo")</a>
-                    </div>
-                    @await Component.InvokeAsync("Widget", new { widgetZone = "newslist_page_inside_item", additionalData = item.Id })
-                </div>
-            }
-        </div>
-        @{
-            var pager = Html.Pager(Model.PagingFilteringContext).QueryParam("pagenumber");
-        }
-        @if (!pager.IsEmpty())
+}
+<div class="content-blog">
+    <h2 class="title18 title-box5">@T("CategoriesNews.Breadcrumb.Top")</h2>
+    <div class="list-blog-post">
+        @foreach (var item in Model.NewsItems)
         {
-            <div class="pager">
-                @pager
+            <div class="item-blog-post">
+                <div class="row">
+                    <div class="col-md-5 col-sm-5 col-xs-12">
+                        <div class="post-thumb">
+                            <a href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })" class="post-thumb-link"><img src="@item.ImageUrl" alt="@item.Title"></a>
+                        </div>
+                    </div>
+                    <div class="col-md-7 col-sm-7 col-xs-12">
+                        <div class="post-info">
+                            <div class="post-title-date">
+                                <div class="postdate">
+                                    <strong class="title30">@item.CreatedOn.Day</strong>
+                                    <span class="title12">@item.CreatedOn.Month @item.CreatedOn.Year</span>
+                                </div>
+                                <div class="post-title-comment">
+                                    <h2 class="title14"><a href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">@item.Title</a></h2>
+                                </div>
+                            </div>
+                            <p class="desc">@Html.Raw(item.Short)</p>
+                            <a href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })" class="title14 readmore">@T("Readmore")</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         }
-        @await Component.InvokeAsync("Widget", new { widgetZone = "newslist_page_after_items" })
+
+        <!-- End Item -->
     </div>
+    @{
+        var pager = Html.Pager(Model.PagingFilteringContext).QueryParam("pagenumber");
+    }
+    @if (!pager.IsEmpty())
+    {
+        <div class="sort-paginav pull-right">
+
+            <div class="pagi-bar">
+                @pager
+            </div>
+        </div>
+
+    }
+    @await Component.InvokeAsync("Widget", new { widgetZone = "newslist_page_after_items" })
+
 </div>

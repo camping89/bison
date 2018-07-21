@@ -10,11 +10,12 @@ namespace Nop.Web.Controllers
 {
     public partial class BackwardCompatibility2XController : BasePublicController
     {
-		#region Fields
+        #region Fields
 
         private readonly IProductService _productService;
         private readonly ICategoryService _categoryService;
         private readonly IManufacturerService _manufacturerService;
+        private readonly ICategoryNewsService _categoryNewsService;
         private readonly INewsService _newsService;
         private readonly IBlogService _blogService;
         private readonly ITopicService _topicService;
@@ -22,15 +23,15 @@ namespace Nop.Web.Controllers
 
         #endregion
 
-		#region Ctor
+        #region Ctor
 
         public BackwardCompatibility2XController(IProductService productService,
-            ICategoryService categoryService, 
+            ICategoryService categoryService,
             IManufacturerService manufacturerService,
-            INewsService newsService, 
+            INewsService newsService,
             IBlogService blogService,
             ITopicService topicService,
-            IVendorService vendorService)
+            IVendorService vendorService, ICategoryNewsService categoryNewsService)
         {
             this._productService = productService;
             this._categoryService = categoryService;
@@ -39,12 +40,13 @@ namespace Nop.Web.Controllers
             this._blogService = blogService;
             this._topicService = topicService;
             this._vendorService = vendorService;
+            _categoryNewsService = categoryNewsService;
         }
 
-		#endregion
-        
+        #endregion
+
         #region Methods
-        
+
         //in versions 2.00-2.65 we had ID in product URLs
         public virtual IActionResult RedirectProductById(int productId)
         {
@@ -83,6 +85,16 @@ namespace Nop.Web.Controllers
                 return RedirectToRoutePermanent("HomePage");
 
             return RedirectToRoutePermanent("NewsItem", new { SeName = newsItem.GetSeName(newsItem.LanguageId, ensureTwoPublishedLanguages: false) });
+        }
+
+        //in versions 2.00-2.65 we had ID in category URLs
+        public virtual IActionResult RedirectCategoryNewsById(int categoryNewsId)
+        {
+            var category = _categoryNewsService.GetCategoryNewsById(categoryNewsId);
+            if (category == null)
+                return RedirectToRoutePermanent("HomePage");
+
+            return RedirectToRoutePermanent("CategoryNews", new { SeName = category.GetSeName() });
         }
 
         //in versions 2.00-2.70 we had ID in blog URLs

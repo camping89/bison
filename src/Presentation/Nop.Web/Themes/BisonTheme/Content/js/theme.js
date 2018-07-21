@@ -126,22 +126,24 @@ function slick_control(){
 	});
 }
 //Detail Gallery
-function detail_gallery(){
-	if($('.detail-gallery').length>0){
+function detail_gallery(numbercount){
+	if($('.detail-gallery').length>0) {
+	    alert($('.detail-gallery').length);
 		$('.detail-gallery').each(function(){
 			$(this).find(".carousel").jCarouselLite({
 				btnNext: $(this).find(".gallery-control .next"),
 				btnPrev: $(this).find(".gallery-control .prev"),
 				speed: 800,
-				visible:4
+				visible:numbercount + 0.5,
+				circular: false
 			});
 			//Elevate Zoom
-			//$('.detail-gallery').find('.mid img').elevateZoom({
-			//	zoomType: "inner",
-			//	cursor: "crosshair",
-			//	zoomWindowFadeIn: 500,
-			//	zoomWindowFadeOut: 750
-			//});
+			$('.detail-gallery').find('.mid img').elevateZoom({
+				zoomType: "inner",
+				cursor: "crosshair",
+				zoomWindowFadeIn: 500,
+				zoomWindowFadeOut: 850
+			});
 			$(this).find(".carousel a").on('click',function(event) {
 				event.preventDefault();
 				$(this).parents('.detail-gallery').find(".carousel a").removeClass('active');
@@ -206,12 +208,22 @@ jQuery(document).ready(function(){
 	}
 	//Filter Price
     if($('.range-filter').length>0){
+        var urlParams = new URLSearchParams(location.search);
+        var pf = urlParams.get("pf");
+        var pt = urlParams.get("pt");
+        if (pf == null) {
+            pf = 0;
+        }
+        if (pt == null || pt === 0) {
+            pt = 8000000;
+        }
         $('.range-filter').each(function(){
             $(this).find( ".slider-range" ).slider({
                 range: true,
-                min: 10000,
-                max: 80000000,
-                values: [ 10000, 80000000 ],
+                min: 0,
+                step: 100000,
+                max: 8000000,
+                values: [ pf, pt ],
                 slide: function( event, ui ) {
                     $(this).parents('.range-filter').find( ".amount" ).html( '<span class="startprice">'+ui.values[ 0 ].format()+'</span>' + '<span class="endprice">' + ui.values[ 1 ].format()+'</span>');
                 }
@@ -241,7 +253,7 @@ jQuery(document).ready(function(){
 		});
 	});
 	//Detail Gallery
-	detail_gallery();
+	//detail_gallery();
 	//Wishlist Popup
 	popup_wishlist();
 	//Menu Responsive 
@@ -361,7 +373,7 @@ jQuery(window).on('load',function(){
 jQuery(window).on('resize',function(){
 	offset_menu();
 	fixed_header();
-	detail_gallery();
+	//detail_gallery();
 	//Menu Responsive 
 	menu_responsive();
 });
@@ -385,7 +397,7 @@ Number.prototype.format = function(n, x) {
 };
 String.prototype.toInt = function() {
     if (this != null || this != "") {
-        var c = this.replace(",", "");
+        var c = this.replace(/,/g, "");
         return parseInt(c);
     }
     return 0;
@@ -393,8 +405,17 @@ String.prototype.toInt = function() {
 
 String.prototype.toFloat = function() {
     if (this != null || this != "") {
-        var c = this.replace(",", "");
+        var c = this.replace(/,/g, "");
         return parseFloat(c);
+    }
+    return 0;
+}
+
+
+String.prototype.removeComma = function() {
+    if (this != null || this != "") {
+        var c = this.replace(/,/g, "");
+        return c;
     }
     return 0;
 }

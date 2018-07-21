@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
 using Nop.Core.Domain.Discounts;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Seo;
 using Nop.Core.Domain.Stores;
+using System;
+using System.Collections.Generic;
 
 namespace Nop.Core.Domain.Catalog
 {
@@ -553,6 +553,7 @@ namespace Nop.Core.Domain.Catalog
         /// </summary>
         public DateTime UpdatedOnUtc { get; set; }
 
+        public string KiotVietId { get; set; }
         /// <summary>
         /// Gets or sets the product type
         /// </summary>
