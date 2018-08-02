@@ -327,6 +327,7 @@ namespace Nop.Web.Models.Catalog
             {
                 this.AlreadyFilteredItems = new List<SpecificationFilterItem>();
                 this.NotFilteredItems = new List<SpecificationFilterItem>();
+                this.AllFilteredItems = new List<SpecificationFilterItem>();
             }
 
             #endregion
@@ -436,11 +437,22 @@ namespace Nop.Web.Models.Catalog
                 var removeFilterUrl = webHelper.RemoveQueryString(webHelper.GetThisPageUrl(true), QUERYSTRINGPARAM);
                 RemoveFilterUrl = ExcludeQueryStringParams(removeFilterUrl, webHelper);
 
+                AllFilteredItems = allFilters.Select(x =>
+                    new SpecificationFilterItem
+                    {
+                        Id = x.SpecificationAttributeOptionId,
+                        SpecificationAttributeName = x.SpecificationAttributeName,
+                        SpecificationAttributeOptionName = x.SpecificationAttributeOptionName,
+                        SpecificationAttributeOptionColorRgb = x.SpecificationAttributeOptionColorRgb
+
+                    }).ToList();
+
                 //get already filtered specification options
                 var alreadyFilteredOptions = allFilters.Where(x => alreadyFilteredSpecOptionIds.Contains(x.SpecificationAttributeOptionId));
                 AlreadyFilteredItems = alreadyFilteredOptions.Select(x =>
                     new SpecificationFilterItem
                     {
+                        Id = x.SpecificationAttributeId,
                         SpecificationAttributeName = x.SpecificationAttributeName,
                         SpecificationAttributeOptionName = x.SpecificationAttributeOptionName,
                         SpecificationAttributeOptionColorRgb = x.SpecificationAttributeOptionColorRgb
@@ -477,6 +489,7 @@ namespace Nop.Web.Models.Catalog
             /// Already filtered items
             /// </summary>
             public IList<SpecificationFilterItem> AlreadyFilteredItems { get; set; }
+            public IList<SpecificationFilterItem> AllFilteredItems { get; set; }
             /// <summary>
             /// Not filtered yet items
             /// </summary>
@@ -492,7 +505,7 @@ namespace Nop.Web.Models.Catalog
         /// <summary>
         /// Specification filter item
         /// </summary>
-        public partial class SpecificationFilterItem : BaseNopModel
+        public partial class SpecificationFilterItem : BaseNopEntityModel
         {
             /// <summary>
             /// Specification attribute name

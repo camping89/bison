@@ -24,7 +24,7 @@
 }
 @*category breadcrumb*@
 @section Breadcrumb
-{
+    {
     @if (Model.DisplayCategoryBreadcrumb)
     {
         <div class="breadcrumb">
@@ -53,6 +53,7 @@
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_breadcrumb", additionalData = Model.Id })
     }
 }
+
 <div class="page category-page">
     <div class="page-title">
         <h1>@Model.Name</h1>

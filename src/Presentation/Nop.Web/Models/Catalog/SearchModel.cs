@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Nop.Core.Domain.Catalog;
 using Nop.Web.Framework.Mvc.ModelBinding;
 using Nop.Web.Framework.Mvc.Models;
+using System.Collections.Generic;
 
 namespace Nop.Web.Models.Catalog
 {
@@ -15,8 +16,9 @@ namespace Nop.Web.Models.Catalog
             this.AvailableCategories = new List<SelectListItem>();
             this.AvailableManufacturers = new List<SelectListItem>();
             this.AvailableVendors = new List<SelectListItem>();
+            this.Manufacturers = new List<Manufacturer>();
         }
-
+        public List<Manufacturer> Manufacturers { get; set; }
         public string Warning { get; set; }
 
         public bool NoResults { get; set; }

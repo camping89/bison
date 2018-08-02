@@ -3472,6 +3472,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     if (product.Id != parentProduct.Id)
                     {
                         product.ParentGroupedProductId = parentProduct.Id;
+                        product.VisibleIndividually = false;
                         foreach (var productPicture in product.ProductPictures)
                         {
                             var picture = productPicture.Picture;
@@ -3495,6 +3496,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     if (product.Id != parentProduct.Id)
                     {
                         product.ParentGroupedProductId = parentProduct.Id;
+                        product.VisibleIndividually = false;
                     }
 
                     if (parentProduct.ProductPictures.Count == 0)

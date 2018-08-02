@@ -206,33 +206,77 @@ jQuery(document).ready(function(){
 			});
 		});
 	}
-	//Filter Price
-    if($('.range-filter').length>0){
-        var urlParams = new URLSearchParams(location.search);
-        var pf = urlParams.get("pf");
-        var pt = urlParams.get("pt");
-        if (pf == null) {
-            pf = 0;
-        }
-        if (pt == null || pt === 0) {
-            pt = 8000000;
-        }
-        $('.range-filter').each(function(){
-            $(this).find( ".slider-range" ).slider({
-                range: true,
-                min: 0,
-                step: 100000,
-                max: 8000000,
-                values: [ pf, pt ],
-                slide: function( event, ui ) {
-                    $(this).parents('.range-filter').find( ".amount" ).html( '<span class="startprice">'+ui.values[ 0 ].format()+'</span>' + '<span class="endprice">' + ui.values[ 1 ].format()+'</span>');
-                }
-            });
-            $(this).find( ".amount" ).html('<span class="startprice">'+$(this).find( ".slider-range" ).slider( "values", 0 )+'</span>' + '<span class="endprice">'+$(this).find( ".slider-range" ).slider( "values", 1 )+'</span>');
-            $(".startprice").html($(".startprice").text().toInt().format());
-            $(".endprice").html($(".endprice").text().toInt().format());
+    //New Filter price
+    if ($('.new-filter').length > 0) {
+
+            //var urlParams = new URLSearchParams(location.search);
+            var pf = getParameterByName("pf",window.location.href);
+            var pt = getParameterByName("pt",window.location.href);
+            if (pf == null) {
+                pf = 0;
+            }
+            if (pt == null || pt === 0) {
+                pt = 10000000;
+            }
+        var slider = $("#slider-range").slider({
+            range: true,
+            step: 100000,
+            min: 0,
+            max: 10000000,
+            values: [pf, pt],
+            slide: function(event, ui) {
+                $(".filter-from-price").val(ui.values[0]);
+                $(".filter-to-price").val(ui.values[1]);
+               
+            },
+            change: function(event, ui) {
+                minPrice = ui.values[0];
+                maxPrice = ui.values[1];
+                SearchProductAjax();
+            }
+        });
+
+        $(".filter-from-price").val($("#slider-range").slider("values", 0));
+        $(".filter-to-price").val($("#slider-range").slider("values", 1));
+
+        $(".filter-from-price").on( "change", function() {
+            slider.slider( "option", "values", [$(this).val(), $(".filter-to-price").val()]);
+        });
+        
+        $(".filter-to-price").on( "change", function() {
+            slider.slider( "option", "values", [$(".filter-from-price").val(),$(this).val()]);
         });
     }
+
+    //Filter Price
+    //if($('.range-filter').length>0){
+    //    var urlParams = new URLSearchParams(location.search);
+    //    var pf = urlParams.get("pf");
+    //    var pt = urlParams.get("pt");
+    //    if (pf == null) {
+    //        pf = 0;
+    //    }
+    //    if (pt == null || pt === 0) {
+    //        pt = 800;
+    //    }
+    //    $('.range-filter').each(function(){
+    //        $(this).find( ".slider-range" ).slider({
+    //            range: true,
+    //            min: 0,
+    //            step: 100,
+    //            max: 800,
+    //            values: [ pf, pt ],
+    //            slide: function( event, ui ) {
+    //                $(this).parents('.range-filter').find( ".amount" ).html( '<span class="startprice">'+ui.values[ 0 ].format()+'</span>' + '<span class="endprice">' + ui.values[ 1 ].format()+'</span>');
+    //            }
+    //        });
+    //        $(this).find( ".amount" ).html('<span class="startprice">'+$(this).find( ".slider-range" ).slider( "values", 0 )+'</span>' + '<span class="endprice">'+$(this).find( ".slider-range" ).slider( "values", 1 )+'</span>');
+    //        $(".startprice").html($(".startprice").text().toInt().format());
+    //        $(".endprice").html($(".endprice").text().toInt().format());
+    //    });
+    //}
+
+
 	//Qty Up-Down
 	$('.detail-qty').each(function(){
 		var qtyval = parseInt($(this).find('.qty-val').text(),10);
@@ -318,7 +362,7 @@ jQuery(window).on('load',function(){
 				infinite: true,
 				slidesToShow: 1,
 				prevArrow:'<div class="slick-prev"><div class="slick-caption"></div><div class="slick-nav"></div></div>',
-				nextArrow:'<div class="slick-next"><div class="slick-caption"></div><div class="slick-nav"></div></div>',
+				nextArrow:'<div class="slick-next"><div class="slick-caption"></div><div class="slick-nav"></div></div>'
 			});
 			slick_control();
 			$('.slick').on('afterChange', function(event){
@@ -418,4 +462,171 @@ String.prototype.removeComma = function() {
         return c;
     }
     return 0;
+}
+/*Ajax search products*/
+
+$(document).on('click', '.individual-page a, .next-page a, .previous-page a', function (event) {
+    event.preventDefault();
+    SearchProductAjax(getParameterByName("pagenumber", $(this)[0].href) == null ? 0 : getParameterByName("pagenumber", $(this)[0].href));
+});
+jQuery(document).ready(function() {
+    var labelID;
+
+    $('.DebuggedCheckbox_Label').on('click',function() {
+        labelID = $(this).attr('for');
+        alert(labelID);
+        $('#'+labelID).trigger('click');
+    });
+    $(".DebuggedCheckbox").change(function () {
+        var currentCheckbox = $(this).attr("name");
+    
+        if ($(this).is(':checked')) {
+            //enableCheckbox = true;
+            specs.push(currentCheckbox);
+        }
+        else {
+            //enableCheckbox = false;
+            specs.pop(currentCheckbox);
+        }
+        SearchProductAjax();
+    });
+});
+
+function getParameterByName(name, url) {
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+var specs = [];
+var attr = [];
+var minPrice = 0;
+var maxPrice = 10000000;
+var pagesize = 12;
+var pageNumber = 0;
+var viewMode = "grid";
+var sorting = "";
+var dataPost = {};
+var categoryId = "";
+var manufacturerId = "";
+function SearchProductAjax(_pageNumber) {
+    pageNumber = _pageNumber;
+    var specsStr = getParameterByName("specs", window.location);
+    if (specsStr !== '') {
+        specs = specsStr.split(',');
+    }
+    var dataPost = { specs: specs.join(","), attr: attr.join(","), cid: categoryId, viewmode: viewMode, pagesize: pagesize, pagenumber: pageNumber, orderby: sorting, mid: manufacturerId  , pf: minPrice, pt: maxPrice };
+    addAntiForgeryToken(dataPost);
+    $.ajax({
+                method: "GET",
+                url: "/Catalog/ProductFilterAjax",
+                data: dataPost
+            }).done(function (msg) {
+                $("#filter-ajax-result").eq(0).html(msg);
+                //if ($(".product-grid").length != 0) {
+                //    $(".product-grid").eq(0).html(msg.View);
+                //}
+                //else {
+                //    $(".product-list")[0].eq(0).html(msg.View);
+                //}
+                //var checkedSpecSearch;
+                //var checkedAttrSearch;
+                ////loop all checkboxes and disable the checkboxes that cant be filtered
+
+                //var checkedSpecs = $('input[data-type="chk_spec_"]').map(function () {
+
+                //    if ($.inArray(parseInt(this.value), msg.FilterableSpecAttr) == -1) {
+                //        if ($(this).attr("name") != currentCheckbox) {
+                //            $(this).attr("disabled", true);
+                //            $(this).parent().addClass("disabled");
+                //        }
+
+                //    }
+                //    else {
+                //        $(this).parent().removeClass("disabled");
+                //        $(this).removeAttr("disabled");
+                //    }
+                //});
+                ////loop all checkboxes and disable the checkboxes that cant be filtered
+                //var checkedSpecs = $('input[data-type="chk_attr_"]').map(function () {
+                //    if ($.inArray(parseInt(this.value), msg.FilterableProdAttr) == -1) {
+                //        if ($(this).attr("name") != currentCheckbox) {
+                //            $(this).parent().addClass("disabled");
+                //        }
+                //    }
+                //    else {
+                //        $(this).parent().removeClass("disabled");
+
+                //    }
+                //});
+                //var inputSpecSearch;
+                //var inputAttrSearch;
+                //if (resetDropdown) {
+                //    inputSpecSearch = 'select[data-type="cmb_spec_"] option';
+                //    inputAttrSearch = 'select[data-type="cmb_attr_"] option';
+                //}
+                //else {
+                //    inputSpecSearch = 'select[data-type="cmb_spec_"][name!="' + currentDropdown + '"] option';
+                //    inputAttrSearch = 'select[data-type="cmb_attr_"][name!="' + currentDropdown + '"] option';
+                //}
+                ////loop all input options and disable the checkboxes that cant be filtered
+                //var inputSpecs = $(inputSpecSearch).map(function () {
+                //    if (this.value != 0) {
+                //        if ($.inArray(parseInt(this.value), msg.FilterableSpecAttr) == -1) {
+                //            $(this).attr("disabled", true);
+                //            $(this).parent().addClass("disabled");
+                //        }
+                //        else {
+                //            $(this).parent().removeClass("disabled");
+                //            $(this).removeAttr("disabled");
+                //        }
+                //    }
+                //});
+                ////loop all input options and disable the checkboxes that cant be filtered
+                //var inputAttr = $(inputAttrSearch).map(function () {
+                //    if (this.value != 0) {
+                //        if ($.inArray(parseInt(this.value), msg.FilterableProdAttr) == -1) {
+                //            $(this).attr("disabled", true);
+                //        }
+                //        else {
+                //            $(this).removeAttr("disabled");
+                //        }
+                //    }
+                //});
+                    
+                //        //filter out manufacturers
+                //        var manuFilter = $('input[data-type="manufacturer_chk"]').map(function () {
+                //            if (this.value != 0) {
+                //                if ($.inArray(parseInt(this.value), msg.ManufacturersIds) == -1) {
+                //                    $(this).attr("disabled", true);
+                //                    $(this).parent().addClass("disabled");
+                //                }
+                //                else {
+                //                    $(this).parent().removeClass("disabled");
+                //                    $(this).removeAttr("disabled");
+                //                }
+                //            }
+                //        });
+                    
+
+
+                //enableCheckbox = true;
+                //currentCheckbox = '';
+                //currentDropdown = '';
+                //currentManufacturer = '';
+                //resetDropdown = false;
+                if (history.pushState) {
+                    var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?specs=' + specs.join(",") + "&attr=" + attr.join(",") + "&categoryId=" + categoryId + "&viewmode=" + viewMode + "&pagesize=" + pagesize + "&pagenumber=" + pageNumber + "&manufacturerId=" + manufacturerId + "&orderby=" + sorting   + "&minPrice=" + minPrice + "&maxPrice=" + maxPrice;
+                    window.history.pushState({ path: newurl }, '', newurl);
+                }
+
+                //$('.page-body > .pager').remove();
+                //spinner.spin(false);
+            })
+            .fail(function (error) {
+                console.log('error');
+                console.log(error);
+            });
 }

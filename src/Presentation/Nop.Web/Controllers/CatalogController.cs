@@ -157,6 +157,26 @@ namespace Nop.Web.Controllers
             return View("CategoryTemplateFilter.ProductsInGridOrLines", model);
         }
 
+
+        [HttpsRequirement(SslRequirement.No)]
+        public virtual IActionResult ProductFilterAjax(CatalogPagingFilteringModel command)
+        {
+
+            //'Continue shopping' URL
+            _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer,
+                SystemCustomerAttributeNames.LastContinueShoppingPage,
+                _webHelper.GetThisPageUrl(false),
+                _storeContext.CurrentStore.Id);
+
+            //activity log
+            _customerActivityService.InsertActivity("PublicStore.ProductFilter", _localizationService.GetResource("ActivityLog.PublicStore.ProductFilter"));
+
+            //model
+            var model = _catalogModelFactory.PrepareProductFilterModel(command);
+
+            return PartialView("_ProductFilterAjax", model);
+        }
+
         #endregion
 
         #region Manufacturers
@@ -288,6 +308,8 @@ namespace Nop.Web.Controllers
             return View(model);
         }
 
+
+
         public virtual IActionResult SearchTermAutoComplete(string term)
         {
             if (string.IsNullOrWhiteSpace(term) || term.Length < _catalogSettings.ProductSearchTermMinimumLength)
@@ -303,6 +325,35 @@ namespace Nop.Web.Controllers
                 //products
                 var productNumber = _catalogSettings.ProductSearchAutoCompleteNumberOfProducts > 0 ?
                     _catalogSettings.ProductSearchAutoCompleteNumberOfProducts : 10;
+                if (alreadyFilteredSpecOptionIds.Count > 1)
+                {
+                    foreach (var filteredSpecOptionId in alreadyFilteredSpecOptionIds)
+                    {
+                        var productsFilter = _productService.SearchProducts(out IList<int> filterableSpecificationAttributeOptionIdsFilter,
+                            true,
+                            categoryIds: null,
+                            storeId: _storeContext.CurrentStore.Id,
+                            visibleIndividuallyOnly: true,
+                            featuredProducts: _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : (bool?)false,
+                            filteredSpecs: new List<int> { filteredSpecOptionId },
+                            orderBy: ProductSortingEnum.NameAsc,
+                            pageSize: productNumber);
+
+                        if (productsFilter.Count > 0)
+                        {
+                            var modelsFilter = _productModelFactory.PrepareProductOverviewModels(productsFilter, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize).ToList();
+                            var resultFilter = (from p in modelsFilter
+                                                select new
+                                                {
+                                                    label = p.Name,
+                                                    producturl = Url.RouteUrl("Product", new { SeName = p.SeName }),
+                                                    productpictureurl = p.DefaultPictureModel.ImageUrl
+                                                })
+                                .ToList();
+                            return Json(resultFilter);
+                        }
+                    }
+                }
                 var products = _productService.SearchProducts(out IList<int> filterableSpecificationAttributeOptionIds,
                     true,
                     categoryIds: null,
@@ -312,6 +363,7 @@ namespace Nop.Web.Controllers
                     filteredSpecs: alreadyFilteredSpecOptionIds,
                     orderBy: ProductSortingEnum.NameAsc,
                     pageSize: productNumber);
+
                 var models = _productModelFactory.PrepareProductOverviewModels(products, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize).ToList();
                 var result = (from p in models
                               select new

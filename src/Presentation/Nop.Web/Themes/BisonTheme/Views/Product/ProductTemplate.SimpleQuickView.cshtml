@@ -73,11 +73,11 @@
                                     {
                                         <del><span class="title14 silver">@Model.ProductPrice.Price</span></del>
                                     }
-                                    <ins><span class="title14 color">@Model.ProductPrice.Price</span></ins>
+                                    <ins><span class="price-value-@Model.Id title14 color">@Model.ProductPrice.Price</span></ins>
 
                                 </div>
                                 <p class="desc">@Html.Raw(Model.ShortDescription)</p>
-                                
+
                                 @await Html.PartialAsync("_ProductTags", Model.ProductTags)
 
                                 <div class="detail-social">

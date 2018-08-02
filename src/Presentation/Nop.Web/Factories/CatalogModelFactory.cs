@@ -24,6 +24,7 @@ using Nop.Web.Framework.Events;
 using Nop.Web.Infrastructure.Cache;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Models.Media;
+using NUglify.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -517,6 +518,7 @@ namespace Nop.Web.Factories
                 pageSize: command.PageSize);
             model.Products = _productModelFactory.PrepareProductOverviewModels(products).ToList();
 
+            model.Manufacturers = products.SelectMany(_ => _.ProductManufacturers).ToList().DistinctBy(_ => _.ManufacturerId).Select(p => p.Manufacturer).DistinctBy(d => d.Id).ToList();
             model.PagingFilteringContext.LoadPagedList(products);
 
             //specs
@@ -581,6 +583,7 @@ namespace Nop.Web.Factories
                 pageSize: command.PageSize);
             model.Products = _productModelFactory.PrepareProductOverviewModels(products).ToList();
 
+            model.Manufacturers = products.SelectMany(_ => _.ProductManufacturers).ToList().DistinctBy(_ => _.ManufacturerId).Select(p => p.Manufacturer).DistinctBy(d => d.Id).ToList();
             model.PagingFilteringContext.LoadPagedList(products);
 
             //specs
@@ -893,7 +896,7 @@ namespace Nop.Web.Factories
                 SeName = manufacturer.GetSeName(),
                 ShowPriceProduct = manufacturer.ShowPriceProduct
             };
-
+            model.Manufacturers.Add(manufacturer);
             //sorting
             PrepareSortingOptions(model.PagingFilteringContext, command);
             //view mode
@@ -1494,24 +1497,62 @@ namespace Nop.Web.Factories
                     //var searchInProductTags = false;
                     var searchInProductTags = searchInDescriptions;
 
-                    //products
-                    products = _productService.SearchProducts(
-                        categoryIds: categoryIds,
-                        manufacturerId: manufacturerId,
-                        storeId: _storeContext.CurrentStore.Id,
-                        visibleIndividuallyOnly: true,
-                        priceMin: minPriceConverted,
-                        priceMax: maxPriceConverted,
-                        keywords: searchTerms,
-                        searchDescriptions: searchInDescriptions,
-                        searchProductTags: searchInProductTags,
-                        languageId: _workContext.WorkingLanguage.Id,
-                        orderBy: (ProductSortingEnum)command.OrderBy,
-                        pageIndex: command.PageNumber - 1,
-                        pageSize: command.PageSize,
-                        vendorId: vendorId);
+                    IList<int> alreadyFilteredSpecOptionIds = _specificationAttributeService.GetSpecificationAttributeOptionsIdsByTerm(searchTerms);
+                    IList<int> childSpecOptionIds = _specificationAttributeService.GetSpecificationAttributeOptionsByParentIds(alreadyFilteredSpecOptionIds.ToArray()).Select(s => s.Id).ToList();
+                    foreach (var childId in childSpecOptionIds)
+                    {
+                        alreadyFilteredSpecOptionIds.Add(childId);
+                    }
+
+                    if (alreadyFilteredSpecOptionIds.Count > 0)
+                    {
+                        foreach (var filteredSpecOptionId in alreadyFilteredSpecOptionIds)
+                        {
+                            //products
+                            products = _productService.SearchProducts(out IList<int> filterableSpecificationAttributeOptionIds,
+                                true,
+                                categoryIds: categoryIds,
+                                manufacturerId: manufacturerId,
+                                storeId: _storeContext.CurrentStore.Id,
+                                visibleIndividuallyOnly: true,
+                                priceMin: minPriceConverted,
+                                priceMax: maxPriceConverted,
+                                filteredSpecs: new List<int> { filteredSpecOptionId },
+                                searchDescriptions: searchInDescriptions,
+                                searchProductTags: searchInProductTags,
+                                languageId: _workContext.WorkingLanguage.Id,
+                                orderBy: (ProductSortingEnum)command.OrderBy,
+                                pageIndex: command.PageNumber - 1,
+                                pageSize: command.PageSize,
+                                vendorId: vendorId);
+                            if (products.Count > 0)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //products
+                        products = _productService.SearchProducts(
+                            categoryIds: categoryIds,
+                            manufacturerId: manufacturerId,
+                            storeId: _storeContext.CurrentStore.Id,
+                            visibleIndividuallyOnly: true,
+                            priceMin: minPriceConverted,
+                            priceMax: maxPriceConverted,
+                            keywords: searchTerms,
+                            searchDescriptions: searchInDescriptions,
+                            searchProductTags: searchInProductTags,
+                            languageId: _workContext.WorkingLanguage.Id,
+                            orderBy: (ProductSortingEnum)command.OrderBy,
+                            pageIndex: command.PageNumber - 1,
+                            pageSize: command.PageSize,
+                            vendorId: vendorId);
+                    }
                     model.Products = _productModelFactory.PrepareProductOverviewModels(products).ToList();
 
+                    model.Manufacturers = products.SelectMany(_ => _.ProductManufacturers).ToList().DistinctBy(_ => _.ManufacturerId).Select(p => p.Manufacturer).DistinctBy(d => d.Id).ToList();
                     model.NoResults = !model.Products.Any();
 
                     //search term statistics

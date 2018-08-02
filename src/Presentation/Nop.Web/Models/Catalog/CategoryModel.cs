@@ -1,4 +1,5 @@
-﻿using Nop.Web.Framework.Mvc.Models;
+﻿using Nop.Core.Domain.Catalog;
+using Nop.Web.Framework.Mvc.Models;
 using Nop.Web.Models.Media;
 using System.Collections.Generic;
 
@@ -19,8 +20,10 @@ namespace Nop.Web.Models.Catalog
             SubCategories = new List<SubCategoryModel>();
             CategoryBreadcrumb = new List<CategoryModel>();
             ShowPriceProduct = true;
+            Manufacturers = new List<Manufacturer>();
         }
 
+        public List<Manufacturer> Manufacturers { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string MetaKeywords { get; set; }
@@ -34,13 +37,13 @@ namespace Nop.Web.Models.Catalog
 
         public bool DisplayCategoryBreadcrumb { get; set; }
         public IList<CategoryModel> CategoryBreadcrumb { get; set; }
-        
+
         public IList<SubCategoryModel> SubCategories { get; set; }
 
         public IList<ProductOverviewModel> FeaturedProducts { get; set; }
         public IList<ProductOverviewModel> Products { get; set; }
 
-		#region Nested Classes
+        #region Nested Classes
 
         public partial class SubCategoryModel : BaseNopEntityModel
         {
@@ -58,7 +61,7 @@ namespace Nop.Web.Models.Catalog
             public PictureModel PictureModel { get; set; }
         }
 
-		#endregion
+        #endregion
     }
 
 }

@@ -29,17 +29,25 @@
     <div class="filter-price">
         <h3 class="title14">@T("Filtering.PriceRangeFilter")</h3>
         <div class="range-filter">
-            @*<span class="currency-index">$</span>*@
-            <span class="amount"></span>
-            <button class="btn-filter-price shop-button title14">@T("Filtering.Button.Filter")</button>
-            <div class="slider-range"></div>
+            <div class="new-filter">
+                From: <input type="text" class="filter-from-price" />
+                To: <input type="text" class="filter-to-price" />
+                <hr />
+                <div id="slider-range"></div>
+            </div>
+            <hr />
+            @*<button class="btn-filter-price shop-button title14" style="margin-left: 185px;">@T("Filtering.Button.Filter")</button>*@
+
+            @*<span class="amount"></span>
+
+                <div class="slider-range"></div>*@
         </div>
     </div>
     <script>
         $(document).ready(function () {
             $('.btn-filter-price').on('click', function () {
-                var pf = $(".startprice").text().removeComma();
-                var pt = $(".endprice").text().removeComma();
+                var pf = $(".filter-from-price").val().removeComma();
+                var pt = $(".filter-to-price").val().removeComma();
                 var searchParams = new URLSearchParams(window.location.search);
                 if (searchParams.has('pf') && searchParams.has('pt')) {
                     searchParams.set('pf', pf);

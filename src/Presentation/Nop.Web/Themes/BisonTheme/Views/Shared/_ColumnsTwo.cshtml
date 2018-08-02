@@ -44,6 +44,10 @@
                             @if (IsSectionDefined("left"))
                             {
                                 @RenderSection("left")
+                                if (IsSectionDefined("LeftFilter"))
+                                {
+                                    @RenderSection("LeftFilter")
+                                }
                             }
                             else
                             {
@@ -53,15 +57,15 @@
                                 @await Component.InvokeAsync("ManufacturerNavigation", new { currentManufacturerId = currentManufacturerId })
                                 @await Component.InvokeAsync("VendorNavigation")
                                 if (IsSectionDefined("LeftFilter"))
-                                 {
-                                     @RenderSection("LeftFilter")
-                                 }
+                                {
+                                    @RenderSection("LeftFilter")
+                                }
                                 @await Component.InvokeAsync("RecentlyViewedProductsBlock", new { productThumbPictureSize = 64 })
                                 @await Component.InvokeAsync("PopularProductTags")
                                 @await Component.InvokeAsync("PollBlock", new { systemKeyword = "LeftColumnPoll" })
                                 @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after" })
                             }
-                            
+
                         </div>
                     </div>
                 </div>

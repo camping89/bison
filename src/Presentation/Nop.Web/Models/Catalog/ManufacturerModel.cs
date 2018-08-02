@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Nop.Core.Domain.Catalog;
 using Nop.Web.Framework.Mvc.Models;
 using Nop.Web.Models.Media;
+using System.Collections.Generic;
 
 namespace Nop.Web.Models.Catalog
 {
@@ -12,8 +13,10 @@ namespace Nop.Web.Models.Catalog
             FeaturedProducts = new List<ProductOverviewModel>();
             Products = new List<ProductOverviewModel>();
             PagingFilteringContext = new CatalogPagingFilteringModel();
+            Manufacturers = new List<Manufacturer>();
         }
 
+        public List<Manufacturer> Manufacturers { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string MetaKeywords { get; set; }

@@ -31,7 +31,7 @@
     <div class="connected-carousels">
         <div class="stage">
             <div class="carousel carousel-stage">
-                <ul>
+                <ul id="main-ul-images-@Model.Id">
                     @foreach (var picture in Model.PictureModels)
                     {
                         <li><a class="popup-image" href="@picture.FullSizeImageUrl"><img src="@picture.FullSizeImageUrl" alt="@picture.AlternateText" title="@picture.Title" /></a></li>
@@ -50,7 +50,7 @@
                 <a href="#" class="next next-navigation">&rsaquo;</a>
             }
             <div class="carousel carousel-navigation">
-                <ul>
+                <ul id="main-ul-nav-images-@Model.Id">
                     @foreach (var picture in Model.PictureModels)
                     {
                         <li><a href="#"><img src="@picture.ThumbImageUrl" alt="@picture.AlternateText" title="@picture.Title" /></a></li>

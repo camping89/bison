@@ -38,9 +38,9 @@
                 <div class="product-price">
                     @if (!string.IsNullOrEmpty(Model.ProductPrice.OldPrice))
                     {
-                        <del><span class="title14 silver">@Model.ProductPrice.Price</span></del>
+                        <del><span class="title14 silver">@Model.ProductPrice.OldPrice</span></del>
                     }
-                    <ins><span class="title14 color">@Model.ProductPrice.Price</span></ins>
+                    <ins><span class="price-value-@Model.Id title14 color">@Model.ProductPrice.Price</span></ins>
 
                 </div>
                 <p class="desc">@Html.Raw(Model.ShortDescription)</p>
