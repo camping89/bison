@@ -25,11 +25,7 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet
             product.Price = kvProduct.basePrice;
             product.UpdatedOnUtc = DateTime.UtcNow;
             product.KiotVietId = kvProduct.id.ToString();
-
-            var inventory = kvProduct.inventories.FirstOrDefault();
-            product.StockQuantity = inventory != null ? Convert.ToInt32(inventory.onHand) : 0;
         }
-
 
         public static Product MapNewProduct(KVProduct kvProduct)
         {

@@ -4,7 +4,6 @@ using Nop.Plugin.Integration.KiotViet.Integration.KiotViet;
 using Nop.Plugin.Integration.KiotViet.Integration.KiotViet.Entities;
 using Nop.Services.Catalog;
 using Nop.Services.Logging;
-using Nop.Services.Media;
 using Nop.Services.Seo;
 using Nop.Services.Tasks;
 using System;
@@ -19,22 +18,16 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
         private readonly ICategoryService _categoryService;
         private readonly IProductService _productService;
         private readonly IUrlRecordService _urlRecordService;
-        private readonly IPictureService _pictureService;
-        private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly IProductAttributeService _productAttributeService;
         private readonly ILogger _logger;
 
         public SyncProductTask(ILogger logger, ICategoryService categoryService,
-            IProductService productService, IUrlRecordService urlRecordService,
-            IPictureService pictureService,
-            ISpecificationAttributeService specificationAttributeService, IProductAttributeService productAttributeService)
+            IProductService productService, IUrlRecordService urlRecordService, IProductAttributeService productAttributeService)
         {
             _logger = logger;
             _categoryService = categoryService;
             _productService = productService;
             _urlRecordService = urlRecordService;
-            _pictureService = pictureService;
-            _specificationAttributeService = specificationAttributeService;
             _productAttributeService = productAttributeService;
             _apiConsumer = new KiotVietApiConsumer();
             _kiotVietService = new KiotVietService(categoryService, urlRecordService);
@@ -60,6 +53,8 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                 {
                     product = KiotVietHelper.MapNewProduct(sourceProduct);
                     product.Price = basePrice;
+                    product.StockQuantity = (int)sourceProducts.SelectMany(_ => _.inventories).Sum(_ => _.onHand);
+
                     _productService.InsertProduct(product);
                     if (product.Id <= 0) continue;
 
@@ -67,18 +62,37 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                     _urlRecordService.SaveSlug(product, parentSeachEngineName, 0);
                     SaveCategoryMappings(product.Id, kiotVietCategory.Id);
 
-                    MapProductAttributes("Size", sourceProduct, "Size", product, true, basePrice);
-                    MapProductAttributes("Colour", sourceProduct, "Color", product);
+                    foreach (var variant in sourceProducts)
+                    {
+                        MapProductAttributes("Size", variant, "Size", product, true, basePrice);
+                        MapProductAttributes("Colour", variant, "Color", product);
+                    }
                 }
                 else // update to existing product
                 {
-                    //group product
+
                     KiotVietHelper.MergeProduct(sourceProduct, product);
-                    // merge size color
-                    // TODO HUY Here
+                    product.StockQuantity = (int)sourceProducts.SelectMany(_ => _.inventories).Sum(_ => _.onHand);
+
+                    var attMappings = _productAttributeService.GetProductAttributeMappingsByProductId(product.Id);
+                    var sizeMappings = attMappings.Where(_ => _.ProductAttribute.Name.Equals("Size", StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    var colorMappings = attMappings.Where(_ => _.ProductAttribute.Name.Equals("Color", StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    var madeInMappings = attMappings.Where(_ => _.ProductAttribute.Name.Equals("Made in", StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    foreach (var mapping in sizeMappings.Union(colorMappings).Union(madeInMappings))
+                    {
+                        _productAttributeService.DeleteProductAttributeMapping(mapping);
+                    }
+
+                    foreach (var variant in sourceProducts)
+                    {
+                        MapProductAttributes("Size", variant, "Size", product, true, basePrice);
+                        MapProductAttributes("Colour", variant, "Color", product);
+                    }
+
 
                     _productService.UpdateProduct(product);
                 }
+
             }
         }
 
@@ -95,23 +109,17 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
             }
         }
 
-        //private void MethodA(KVProduct kvProduct, Product product, decimal originPrice)
-        //{
-        //    MapProductAttributes("Size", kvProduct, "Size", product, true, originPrice);
-        //    MapProductAttributes("Colour", kvProduct, "Color", product);
-        //}
-
-        private void MapProductAttributes(string kvAttributeName, KVProduct kvProduct, string attributeName, Product product, bool adjustPrice = false, decimal originPrice = 0)
+        private void MapProductAttributes(string kvAttributeName, KVProduct sourceVariant, string attributeName, Product product, bool adjustPrice = false, decimal originPrice = 0)
         {
-            var kiotVietAttribute = kvProduct.attributes.FirstOrDefault(_ => _.attributeName.Equals(kvAttributeName, StringComparison.InvariantCultureIgnoreCase));
+            var kiotVietAttribute = sourceVariant.attributes?.FirstOrDefault(_ => _.attributeName.Equals(kvAttributeName, StringComparison.InvariantCultureIgnoreCase));
             if (kiotVietAttribute != null)
             {
                 var attributeSize = _productAttributeService.GetAllProductAttributes().FirstOrDefault(_ => _.Name.Equals(attributeName, StringComparison.InvariantCultureIgnoreCase));
                 if (attributeSize != null)
                 {
+                    var productAttMappings = _productAttributeService.GetProductAttributeMappingsByProductId(product.Id);
 
-                    var sizeMapping = _productAttributeService
-                        .GetProductAttributeMappingsByProductId(product.Id).FirstOrDefault(x => x.ProductAttributeId == attributeSize.Id);
+                    var sizeMapping = productAttMappings.FirstOrDefault(_ => _.ProductAttributeId == attributeSize.Id);
 
                     if (sizeMapping != null)
                     {
