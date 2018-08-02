@@ -1,5 +1,4 @@
 ﻿using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Logging;
 using Nop.Core.Extensions;
 using Nop.Plugin.Integration.KiotViet.Integration.KiotViet;
 using Nop.Plugin.Integration.KiotViet.Integration.KiotViet.Entities;
@@ -10,13 +9,12 @@ using Nop.Services.Seo;
 using Nop.Services.Tasks;
 using System;
 using System.Linq;
-using System.Net;
 
 namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
 {
     public class SyncProductTask : IScheduleTask
     {
-        private KiotVietApiConsumer _apiConsumer;
+        private readonly KiotVietApiConsumer _apiConsumer;
         private KiotVietService _kiotVietService;
         private readonly ICategoryService _categoryService;
         private readonly IProductService _productService;
@@ -24,7 +22,8 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
         private readonly IPictureService _pictureService;
         private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly IProductAttributeService _productAttributeService;
-        private ILogger _logger;
+        private readonly ILogger _logger;
+
         public SyncProductTask(ILogger logger, ICategoryService categoryService,
             IProductService productService, IUrlRecordService urlRecordService,
             IPictureService pictureService,
@@ -43,177 +42,46 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
 
         public void Execute()
         {
-            _logger.InsertLog(LogLevel.Information, "Start to sync data KiotViet to Bison nopcommerce.");
+            //_logger.InsertLog(LogLevel.Information, "Start to sync data KiotViet to Bison nopcommerce.");
+            var kiotVietCategory = _categoryService.GetAllCategories("KiotViet", showHidden: true).FirstOrDefault();
+            if (kiotVietCategory == null) return;
 
-            var uncategory = _categoryService.GetAllCategories("KiotViet", showHidden: true).FirstOrDefault();
-            if (uncategory != null)
+            var sourceProductGroups = _apiConsumer.GetProducts().GroupBy(_ => _.sku);
+            foreach (var group in sourceProductGroups)
             {
-                var lstProducts = _apiConsumer.GetAllProducts();
-                foreach (var kvProduct in lstProducts)
+                // RST429|BLACK-L
+                var sku = group.Key;
+                var sourceProducts = group.ToList();
+                var sourceProduct = sourceProducts.First();
+                var basePrice = sourceProducts.Min(_ => _.basePrice);
+
+                var product = _productService.GetProductBySku(sku);
+                if (product == null) // create new product
                 {
-                    //rst312-l-bla
-                    var procBySku = _productService.GetProductBySku(kvProduct.code);
-                    if (procBySku == null)
-                    {
-                        var nopProduct = ConvertKVProcToNopProduct(kvProduct);
+                    product = KiotVietHelper.MapNewProduct(sourceProduct);
+                    product.Price = basePrice;
+                    _productService.InsertProduct(product);
+                    if (product.Id <= 0) continue;
 
-                        if (kvProduct.code.Contains("|"))
-                        {
-                            var parentSku = kvProduct.code.Split('|')[0];
-                            var parentProduct = _productService.GetProductBySku(parentSku);
-                            if (parentProduct == null)
-                            {
-                                parentProduct = _productService.GetProductBySkuSingle(nopProduct.Sku);
-                                if (parentProduct == null)
-                                {
-                                    parentProduct = nopProduct;
-                                }
-                                parentProduct.Sku = parentSku;
-                                parentProduct.KiotVietId = string.Empty;
-                                parentProduct.Price = lstProducts.Where(_ => _.code.Contains(parentSku)).Min(p => p.basePrice);
-                                //parentProduct.ProductTypeId = ProductType.GroupedProduct.ToInt();
-                                _productService.InsertProduct(parentProduct);
-                                var parentseName = parentProduct.ValidateSeName(string.Empty, nopProduct.Name, true);
-                                _urlRecordService.SaveSlug(parentProduct, parentseName, 0);
-                                SaveCategoryMappings(parentProduct.Id, uncategory.Id);
+                    var parentSeachEngineName = product.ValidateSeName(string.Empty, product.Name, true);
+                    _urlRecordService.SaveSlug(product, parentSeachEngineName, 0);
+                    SaveCategoryMappings(product.Id, kiotVietCategory.Id);
 
-                                InsertAttributeToProduct(kvProduct.code.Split('|')[1], parentProduct, parentProduct);
+                    MapProductAttributes("Size", sourceProduct, "Size", product, true, basePrice);
+                    MapProductAttributes("Colour", sourceProduct, "Color", product);
+                }
+                else // update to existing product
+                {
+                    //group product
+                    KiotVietHelper.MergeProduct(sourceProduct, product);
+                    // merge size color
+                    // TODO HUY Here
 
-                                if (kvProduct.images == null) continue;
-                                foreach (var img in kvProduct.images)
-                                {
-                                    InsertProductPictureFromUrl(img, parentseName, nopProduct.Id);
-                                }
-                                //if (nopProduct.Id != parentProduct.Id)
-                                //{
-                                //    nopProduct.ParentGroupedProductId = parentProduct.Id;
-                                //}
-
-                            }
-                            else
-                            {
-                                //if (nopProduct.Id != parentProduct.Id)
-                                //{
-                                //    nopProduct.ParentGroupedProductId = parentProduct.Id;
-                                //}
-                                parentProduct.ProductType = ProductType.SimpleProduct;
-                                parentProduct.ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes.ToInt();
-                                parentProduct.VisibleIndividually = true;
-                                _productService.UpdateProduct(parentProduct);
-                                InsertAttributeToProduct(kvProduct.code.Split('|')[1], nopProduct, parentProduct);
-                            }
-
-                        }
-                        else
-                        {
-                            _productService.InsertProduct(nopProduct);
-                            if (nopProduct.Id <= 0) continue;
-                            var seName = nopProduct.ValidateSeName(string.Empty, nopProduct.Name, true);
-                            _urlRecordService.SaveSlug(nopProduct, seName, 0);
-                            SaveCategoryMappings(nopProduct.Id, uncategory.Id);
-                            if (kvProduct.images == null) continue;
-                            foreach (var img in kvProduct.images)
-                            {
-                                InsertProductPictureFromUrl(img, seName, nopProduct.Id);
-                            }
-                        }
-
-                    }
-                    else
-                    {
-                        //group product
-                        if (procBySku.Sku.Contains("|"))
-                        {
-                            var parentSku = procBySku.Sku.Split('|')[0];
-                            var parentProduct = _productService.GetProductBySku(parentSku);
-                            if (parentProduct == null)
-                            {
-                                parentProduct = _productService.GetProductBySkuSingle(procBySku.Sku);
-                                parentProduct.Sku = parentSku;
-                                parentProduct.KiotVietId = string.Empty;
-                                parentProduct.VisibleIndividually = true;
-                                parentProduct.ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes.ToInt();
-                                parentProduct.Price = lstProducts.Where(_ => _.code.Contains(parentSku)).Min(p => p.basePrice);
-                                //parentProduct.ProductTypeId = ProductType.GroupedProduct.ToInt();
-                                _productService.InsertProduct(parentProduct);
-                                var parentseName = parentProduct.ValidateSeName(string.Empty, procBySku.Name, true);
-                                _urlRecordService.SaveSlug(parentProduct, parentseName, 0);
-                                SaveCategoryMappings(parentProduct.Id, uncategory.Id);
-
-
-                                if (procBySku.Id != parentProduct.Id)
-                                {
-                                    //procBySku.ParentGroupedProductId = parentProduct.Id;
-                                    //procBySku.VisibleIndividually = false;
-                                    foreach (var productPicture in procBySku.ProductPictures)
-                                    {
-                                        var picture = productPicture.Picture;
-                                        var pictureCopy = _pictureService.InsertPicture(
-                                            _pictureService.LoadPictureBinary(picture),
-                                            picture.MimeType,
-                                            _pictureService.GetPictureSeName(productPicture.Picture.SeoFilename),
-                                            picture.AltAttribute,
-                                            picture.TitleAttribute);
-                                        _productService.InsertProductPicture(new ProductPicture
-                                        {
-                                            ProductId = parentProduct.Id,
-                                            PictureId = pictureCopy.Id,
-                                            DisplayOrder = productPicture.DisplayOrder
-                                        });
-                                    }
-                                }
-                                InsertAttributeToProduct(kvProduct.code.Split('|')[1], parentProduct, parentProduct);
-                            }
-                            else
-                            {
-                                //if (procBySku.Id != parentProduct.Id)
-                                //{
-                                //    procBySku.ParentGroupedProductId = parentProduct.Id;
-                                //    procBySku.VisibleIndividually = false;
-                                //}
-                                parentProduct.ProductType = ProductType.SimpleProduct;
-                                parentProduct.ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes.ToInt();
-                                parentProduct.VisibleIndividually = true;
-                                _productService.UpdateProduct(parentProduct);
-                                InsertAttributeToProduct(kvProduct.code.Split('|')[1], procBySku, parentProduct);
-                            }
-                            _productService.DeleteProduct(procBySku);
-                        }
-                        else
-                        {
-                            var inventory = kvProduct.inventories.FirstOrDefault();
-                            var stock = 0;
-                            if (inventory != null)
-                            {
-                                stock = Convert.ToInt32(inventory.onHand);
-                            }
-                            //procBySku.Name = kvProduct.fullName;
-                            //procBySku.ShortDescription = kvProduct.description;
-                            //procBySku.FullDescription = kvProduct.description;
-                            procBySku.Price = kvProduct.basePrice;
-                            procBySku.StockQuantity = stock;
-                            procBySku.ManageInventoryMethodId = ManageInventoryMethod.ManageStock.ToInt(); //1 track inventory product
-                            procBySku.KiotVietId = kvProduct.id.ToString();
-                            _productService.UpdateProduct(procBySku);
-                        }
-                    }
+                    _productService.UpdateProduct(product);
                 }
             }
-            _logger.InsertLog(LogLevel.Information, "End sync data KiotViet to Bison nopcommerce.");
         }
 
-        private void InsertProductPictureFromUrl(string urlImage, string seName, int productId)
-        {
-            var webClient = new WebClient();
-            var imageBytes = webClient.DownloadData(urlImage);
-            var picture = _pictureService.InsertPicture(imageBytes, "image/jpeg", seName, validateBinary: false);
-            _productService.InsertProductPicture(new ProductPicture
-            {
-                PictureId = picture.Id,
-                ProductId = productId,
-                DisplayOrder = 0,
-            });
-        }
         private void SaveCategoryMappings(int productId, int categoryId)
         {
             if (categoryId > 0)
@@ -227,118 +95,141 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
             }
         }
 
-        private void InsertAttributeToProduct(string attributeValue, Product newProduct, Product existProduct)
+        //private void MethodA(KVProduct kvProduct, Product product, decimal originPrice)
+        //{
+        //    MapProductAttributes("Size", kvProduct, "Size", product, true, originPrice);
+        //    MapProductAttributes("Colour", kvProduct, "Color", product);
+        //}
+
+        private void MapProductAttributes(string kvAttributeName, KVProduct kvProduct, string attributeName, Product product, bool adjustPrice = false, decimal originPrice = 0)
         {
-            //var kvProductMinPrice = kvProducts.Where(_ => _.code.Contains(srouceProduct.Sku)).Min(p => p.basePrice);
-            var attributeSize = _productAttributeService.GetAllProductAttributes().FirstOrDefault(_ => _.Name.Equals("Size", StringComparison.InvariantCultureIgnoreCase));
-            if (attributeSize != null)
+            var kiotVietAttribute = kvProduct.attributes.FirstOrDefault(_ => _.attributeName.Equals(kvAttributeName, StringComparison.InvariantCultureIgnoreCase));
+            if (kiotVietAttribute != null)
             {
-                var productAttributeMapping = _productAttributeService
-                    .GetProductAttributeMappingsByProductId(existProduct.Id).FirstOrDefault(x => x.ProductAttributeId == attributeSize.Id);
-                if (productAttributeMapping != null)
+                var attributeSize = _productAttributeService.GetAllProductAttributes().FirstOrDefault(_ => _.Name.Equals(attributeName, StringComparison.InvariantCultureIgnoreCase));
+                if (attributeSize != null)
                 {
-                    if (productAttributeMapping.ProductAttributeValues.Count(a => a.Name.Equals(attributeValue, StringComparison.InvariantCultureIgnoreCase)) == 0)
+
+                    var sizeMapping = _productAttributeService
+                        .GetProductAttributeMappingsByProductId(product.Id).FirstOrDefault(x => x.ProductAttributeId == attributeSize.Id);
+
+                    if (sizeMapping != null)
                     {
-                        _productAttributeService.InsertProductAttributeValue(new ProductAttributeValue
+                        if (!sizeMapping.ProductAttributeValues.Any(a => a.Name.Equals(kiotVietAttribute.attributeValue, StringComparison.InvariantCultureIgnoreCase)))
                         {
-                            ProductAttributeMappingId = productAttributeMapping.Id,
-                            Name = attributeValue,
-                            PriceAdjustment = newProduct.Price - existProduct.Price,
-                            Quantity = newProduct.StockQuantity
-                        });
+                            _productAttributeService.InsertProductAttributeValue(new ProductAttributeValue
+                            {
+                                ProductAttributeMappingId = sizeMapping.Id,
+                                Name = kiotVietAttribute.attributeValue,
+                                PriceAdjustment = adjustPrice ? product.Price - originPrice : 0,
+                                Quantity = product.StockQuantity
+                            });
+                        }
+                    }
+                    else
+                    {
+                        sizeMapping = new ProductAttributeMapping
+                        {
+                            ProductId = product.Id,
+                            ProductAttributeId = attributeSize.Id,
+                            TextPrompt = attributeName,
+                            IsRequired = true,
+                            AttributeControlTypeId = AttributeControlType.DropdownList.ToInt(),
+                            DisplayOrder = 0,
+                        };
+                        _productAttributeService.InsertProductAttributeMapping(sizeMapping);
+
+                        if (sizeMapping.Id > 0)
+                        {
+                            _productAttributeService.InsertProductAttributeValue(new ProductAttributeValue
+                            {
+                                ProductAttributeMappingId = sizeMapping.Id,
+                                Name = kiotVietAttribute.attributeValue.Trim(),
+                                PriceAdjustment = adjustPrice ? product.Price - originPrice : 0,
+                                Quantity = product.StockQuantity
+                            });
+                        }
                     }
                 }
-                else
-                {
-                    //insert mapping
-                    productAttributeMapping = new ProductAttributeMapping
-                    {
-                        ProductId = existProduct.Id,
-                        ProductAttributeId = attributeSize.Id,
-                        TextPrompt = "Size",
-                        IsRequired = true,
-                        AttributeControlTypeId = AttributeControlType.DropdownList.ToInt(),
-                        DisplayOrder = 0,
-                        //ValidationMinLength = model.ValidationMinLength,
-                        //ValidationMaxLength = model.ValidationMaxLength,
-                        //ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions,
-                        //ValidationFileMaximumSize = model.ValidationFileMaximumSize,
-                        //DefaultValue = model.DefaultValue
-                    };
-                    _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
-                    if (productAttributeMapping.Id > 0)
-                    {
-                        _productAttributeService.InsertProductAttributeValue(new ProductAttributeValue
-                        {
-                            ProductAttributeMappingId = productAttributeMapping.Id,
-                            Name = attributeValue,
-                            PriceAdjustment = newProduct.Price - existProduct.Price,
-                            Quantity = newProduct.StockQuantity
-                        });
-                    }
-                }
             }
         }
-        private void InsertSpecificationAttributeProduct(int attributeTypeId, int specificationAttributeOptionId,
-            string customValue, bool allowFiltering, bool showOnProductPage,
-            int displayOrder, int productId)
-        {
 
-            //we allow filtering only for "Option" attribute type
-            if (attributeTypeId != (int)SpecificationAttributeType.Option)
-            {
-                allowFiltering = false;
-            }
-            //we don't allow CustomValue for "Option" attribute type
-            if (attributeTypeId == (int)SpecificationAttributeType.Option)
-            {
-                customValue = null;
-            }
+        //private void MapProductAttributes(string attributeValue, Product newProduct, Product existProduct)
+        //{
+        //    //var kvProductMinPrice = kvProducts.Where(_ => _.code.Contains(srouceProduct.Sku)).Min(p => p.basePrice);
+        //    var attributeSize = _productAttributeService.GetAllProductAttributes().FirstOrDefault(_ => _.Name.Equals("Size", StringComparison.InvariantCultureIgnoreCase));
+        //    if (attributeSize != null)
+        //    {
+        //        var productAttributeMapping = _productAttributeService
+        //            .GetProductAttributeMappingsByProductId(existProduct.Id).FirstOrDefault(x => x.ProductAttributeId == attributeSize.Id);
+        //        if (productAttributeMapping != null)
+        //        {
+        //            if (productAttributeMapping.ProductAttributeValues.Count(a => a.Name.Equals(attributeValue, StringComparison.InvariantCultureIgnoreCase)) == 0)
+        //            {
+        //                _productAttributeService.InsertProductAttributeValue(new ProductAttributeValue
+        //                {
+        //                    ProductAttributeMappingId = productAttributeMapping.Id,
+        //                    Name = attributeValue,
+        //                    PriceAdjustment = newProduct.Price - existProduct.Price,
+        //                    Quantity = newProduct.StockQuantity
+        //                });
+        //            }
+        //        }
+        //        else
+        //        {
+        //            //insert mapping
+        //            productAttributeMapping = new ProductAttributeMapping
+        //            {
+        //                ProductId = existProduct.Id,
+        //                ProductAttributeId = attributeSize.Id,
+        //                TextPrompt = "Size",
+        //                IsRequired = true,
+        //                AttributeControlTypeId = AttributeControlType.DropdownList.ToInt(),
+        //                DisplayOrder = 0,
+        //            };
+        //            _productAttributeService.InsertProductAttributeMapping(productAttributeMapping);
+        //            if (productAttributeMapping.Id > 0)
+        //            {
+        //                _productAttributeService.InsertProductAttributeValue(new ProductAttributeValue
+        //                {
+        //                    ProductAttributeMappingId = productAttributeMapping.Id,
+        //                    Name = attributeValue,
+        //                    PriceAdjustment = newProduct.Price - existProduct.Price,
+        //                    Quantity = newProduct.StockQuantity
+        //                });
+        //            }
+        //        }
+        //    }
+        //}
 
-            var psa = new ProductSpecificationAttribute
-            {
-                AttributeTypeId = attributeTypeId,
-                SpecificationAttributeOptionId = specificationAttributeOptionId,
-                ProductId = productId,
-                CustomValue = customValue,
-                AllowFiltering = allowFiltering,
-                ShowOnProductPage = showOnProductPage,
-                DisplayOrder = displayOrder,
-            };
-            _specificationAttributeService.InsertProductSpecificationAttribute(psa);
-        }
-        private Product ConvertKVProcToNopProduct(KVProduct kvProduct)
-        {
-            var inventory = kvProduct.inventories.FirstOrDefault();
-            var stock = 0;
-            if (inventory != null)
-            {
-                stock = Convert.ToInt32(inventory.onHand);
-            }
-            return new Product
-            {
-                ProductTypeId = ProductType.SimpleProduct.ToInt(),
-                VisibleIndividually = true,
-                Name = kvProduct.fullName,
-                ShortDescription = kvProduct.description,
-                FullDescription = kvProduct.description,
-                ProductTemplateId = 1, //1: Simple product  | 2: Grouped product(with variants)
-                AllowCustomerReviews = true,
-                Sku = kvProduct.code,
-                DisplayStockAvailability = true,
-                DisplayStockQuantity = false,
-                LowStockActivityId = 1,
-                NotifyAdminForQuantityBelow = 1,
-                OrderMinimumQuantity = 1,
-                OrderMaximumQuantity = 10000,
-                Price = kvProduct.basePrice,
-                CreatedOnUtc = DateTime.UtcNow,
-                UpdatedOnUtc = DateTime.UtcNow,
-                Published = true,
-                StockQuantity = stock,
-                ManageInventoryMethodId = 1, //1 track inventory product
-                KiotVietId = kvProduct.id.ToString()
-            };
-        }
+        //private void InsertSpecificationAttributeProduct(int attributeTypeId, int specificationAttributeOptionId,
+        //    string customValue, bool allowFiltering, bool showOnProductPage,
+        //    int displayOrder, int productId)
+        //{
+
+        //    //we allow filtering only for "Option" attribute type
+        //    if (attributeTypeId != (int)SpecificationAttributeType.Option)
+        //    {
+        //        allowFiltering = false;
+        //    }
+        //    //we don't allow CustomValue for "Option" attribute type
+        //    if (attributeTypeId == (int)SpecificationAttributeType.Option)
+        //    {
+        //        customValue = null;
+        //    }
+
+        //    var psa = new ProductSpecificationAttribute
+        //    {
+        //        AttributeTypeId = attributeTypeId,
+        //        SpecificationAttributeOptionId = specificationAttributeOptionId,
+        //        ProductId = productId,
+        //        CustomValue = customValue,
+        //        AllowFiltering = allowFiltering,
+        //        ShowOnProductPage = showOnProductPage,
+        //        DisplayOrder = displayOrder,
+        //    };
+        //    _specificationAttributeService.InsertProductSpecificationAttribute(psa);
+        //}
+
     }
 }

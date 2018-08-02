@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Nop.Core.Extensions;
 using Nop.Plugin.Integration.KiotViet.Integration.KiotViet.Entities;
 using RestSharp;
+using System.Collections.Generic;
 using System.Net;
 
 namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet
@@ -51,7 +50,7 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet
             return apiResponse.Resource?.access_token ?? string.Empty;
         }
 
-        public List<KVCategory> GetKVCategories()
+        public List<KVCategory> GetCategories()
         {
             if (string.IsNullOrEmpty(_token))
             {
@@ -69,62 +68,63 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet
             return apiResponse.Resource.data;
         }
 
-        public List<KVProduct> GetAllProducts()
+        public List<KVProduct> GetProducts()
         {
-            var currentItemId = 0;
+            var itemIndex = 0;
             var pageSize = 100;
-            var allowContinue = true;
-            if (string.IsNullOrEmpty(_token))
+            var @continue = true;
+            if (string.IsNullOrEmpty(_token)) return null;
+
+            var sourceProduct = new List<KVProduct>();
+            while (@continue)
             {
-                return null;
-            }
-            List<KVProduct> kvProducts = new List<KVProduct>();
-            while (allowContinue)
-            {
-                var request = new RestRequest(string.Format(KiotVietConstant.UrlApiGetProduct, currentItemId,pageSize), Method.GET);
+                var request = new RestRequest(string.Format(KiotVietConstant.UrlApiGetProduct, itemIndex, pageSize), Method.GET);
                 request.AddHeader("Retailer", "bisonkiotvietcom");
                 request.AddHeader("Authorization", $"Bearer {_token}");
+
                 var response = Client.Execute(request);
                 var apiResponse = HandleResponse<GetProductResponse>(response);
+
                 if (apiResponse.Status == HttpStatusCode.Unauthorized)
                 {
                     _token = GetToken();
                 }
                 else
                 {
-                    var dataResult = apiResponse.Resource.data;
-                    kvProducts.AddRange(dataResult);
-                    if (dataResult.Count < pageSize)
+                    var products = apiResponse.Resource.data;
+                    foreach (var product in products) product.sku = KiotVietHelper.GetSku(product.code);
+
+                    sourceProduct.AddRange(products);
+                    if (products.Count < pageSize)
                     {
-                        allowContinue = false;
+                        @continue = false;
                     }
                     else
                     {
-                        currentItemId = (kvProducts.Count - 1);
+                        itemIndex = sourceProduct.Count - 1;
                     }
                 }
             }
-            return kvProducts;
+            return sourceProduct;
         }
 
-        public List<KVProduct> GetProductsByCategoryId(int categoryId)
+        public List<KVProduct> GetProducts(int categoryId)
         {
-            if (string.IsNullOrEmpty(_token))
-            {
-                return null;
-            }
-            var request = new RestRequest(string.Format(KiotVietConstant.UrlApiGetProduct,categoryId), Method.GET);
+            if (string.IsNullOrEmpty(_token)) return null;
+
+            var request = new RestRequest(string.Format(KiotVietConstant.UrlApiGetProduct, categoryId), Method.GET);
             request.AddHeader("Retailer", "bisonkiotvietcom");
             request.AddHeader("Authorization", $"Bearer {_token}");
+
             var response = Client.Execute(request);
+
             var apiResponse = HandleResponse<GetProductResponse>(response);
             if (apiResponse.Status == HttpStatusCode.Unauthorized)
             {
                 _token = GetToken();
             }
+
             return apiResponse.Resource.data;
         }
-
-
     }
 }
