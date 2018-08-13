@@ -659,12 +659,15 @@ namespace Nop.Web.Factories
             }
 
             var manufactureIds = new List<int>();
-            foreach (var item in command.ManufacturerIds.Split(',').ToList())
+            if (string.IsNullOrEmpty(command.ManufacturerIds) == false)
             {
-                int.TryParse(item, out int manufactureId);
-                if (manufactureId > 0)
+                foreach (var item in command.ManufacturerIds.Split(',').ToList())
                 {
-                    manufactureIds.Add(manufactureId);
+                    int.TryParse(item, out int manufactureId);
+                    if (manufactureId > 0)
+                    {
+                        manufactureIds.Add(manufactureId);
+                    }
                 }
             }
             var products = _productService.SearchProductsAjax(out IList<int> filterableSpecificationAttributeOptionIds,
