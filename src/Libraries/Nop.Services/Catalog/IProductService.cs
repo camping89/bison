@@ -211,6 +211,35 @@ namespace Nop.Services.Catalog
             bool showHidden = false,
             bool? overridePublished = null, bool onlyShowNoAddCategory = false);
 
+        IPagedList<Product> SearchProductsAjax(
+            out IList<int> filterableSpecificationAttributeOptionIds,
+            bool loadFilterableSpecificationAttributeOptionIds = false,
+            int pageIndex = 0,
+            int pageSize = int.MaxValue,
+            IList<int> categoryIds = null,
+            IList<int> manufacturerIds = null,
+            int storeId = 0,
+            int vendorId = 0,
+            int warehouseId = 0,
+            ProductType? productType = null,
+            bool visibleIndividuallyOnly = false,
+            bool markedAsNewOnly = false,
+            bool? featuredProducts = null,
+            decimal? priceMin = null,
+            decimal? priceMax = null,
+            int productTagId = 0,
+            string keywords = null,
+            bool searchDescriptions = false,
+            bool searchManufacturerPartNumber = true,
+            bool searchSku = true,
+            bool searchProductTags = false,
+            int languageId = 0,
+            IList<int> filteredSpecs = null,
+            ProductSortingEnum orderBy = ProductSortingEnum.Position,
+            bool showHidden = false,
+            bool? overridePublished = null, bool onlyShowNoAddCategory = false);
+
+
         /// <summary>
         /// Gets products by product attribute
         /// </summary>

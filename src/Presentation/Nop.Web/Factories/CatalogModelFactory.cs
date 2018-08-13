@@ -568,10 +568,109 @@ namespace Nop.Web.Factories
                 if (decimal.TryParse(command.pt, out decimal maxPrice))
                     maxPriceConverted = _currencyService.ConvertToPrimaryStoreCurrency(maxPrice, _workContext.WorkingCurrency);
             }
+            var categoryIds = new List<int>();
 
+            if (command.CategoryId > 0)
+            {
+                categoryIds.Add(command.CategoryId);
+                if (_catalogSettings.ShowProductsFromSubcategories)
+                {
+                    //include subcategories
+                    categoryIds.AddRange(GetChildCategoryIds(command.CategoryId));
+                }
+
+            }
             var products = _productService.SearchProducts(out IList<int> filterableSpecificationAttributeOptionIds,
                 true,
-                categoryIds: null,
+                categoryIds: categoryIds,
+                manufacturerId: command.ManufacturerId,
+                storeId: _storeContext.CurrentStore.Id,
+                visibleIndividuallyOnly: true,
+                featuredProducts: _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : (bool?)false,
+                filteredSpecs: alreadyFilteredSpecOptionIds,
+                orderBy: (ProductSortingEnum)command.OrderBy,
+                priceMin: minPriceConverted,
+                priceMax: maxPriceConverted,
+                pageIndex: command.PageNumber - 1,
+                pageSize: command.PageSize);
+            model.Products = _productModelFactory.PrepareProductOverviewModels(products).ToList();
+
+            model.Manufacturers = products.SelectMany(_ => _.ProductManufacturers).ToList().DistinctBy(_ => _.ManufacturerId).Select(p => p.Manufacturer).DistinctBy(d => d.Id).ToList();
+            model.PagingFilteringContext.LoadPagedList(products);
+
+            //specs
+            model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
+                filterableSpecificationAttributeOptionIds != null ? filterableSpecificationAttributeOptionIds.ToArray() : null,
+                _specificationAttributeService,
+                _webHelper,
+                _workContext,
+                _cacheManager);
+
+            return model;
+        }
+
+        public ProductFilterModel PrepareProductFilterModelAjax(CatalogPagingFilteringModel command)
+        {
+            var model = new ProductFilterModel();
+
+
+            //sorting
+            PrepareSortingOptions(model.PagingFilteringContext, command);
+            //view mode
+            PrepareViewModes(model.PagingFilteringContext, command);
+            //page size
+            PreparePageSizeOptions(model.PagingFilteringContext, command,
+                _catalogSettings.SearchPageAllowCustomersToSelectPageSize,
+                _catalogSettings.SearchPagePageSizeOptions,
+                _catalogSettings.SearchPageProductsPerPage);
+            //products
+            IList<int> alreadyFilteredSpecOptionIds = model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds(_webHelper);
+            IList<int> childSpecOptionIds = new List<int>();
+            childSpecOptionIds = _specificationAttributeService.GetSpecificationAttributeOptionsByParentIds(alreadyFilteredSpecOptionIds.ToArray()).Select(s => s.Id).ToList();
+            foreach (var childId in childSpecOptionIds)
+            {
+                alreadyFilteredSpecOptionIds.Add(childId);
+            }
+            decimal? minPriceConverted = null;
+            decimal? maxPriceConverted = null;
+            //min price
+            if (!string.IsNullOrEmpty(command.pf))
+            {
+                if (decimal.TryParse(command.pf, out decimal minPrice))
+                    minPriceConverted = _currencyService.ConvertToPrimaryStoreCurrency(minPrice, _workContext.WorkingCurrency);
+            }
+            //max price
+            if (!string.IsNullOrEmpty(command.pt))
+            {
+                if (decimal.TryParse(command.pt, out decimal maxPrice))
+                    maxPriceConverted = _currencyService.ConvertToPrimaryStoreCurrency(maxPrice, _workContext.WorkingCurrency);
+            }
+            var categoryIds = new List<int>();
+
+            if (command.CategoryId > 0)
+            {
+                categoryIds.Add(command.CategoryId);
+                if (_catalogSettings.ShowProductsFromSubcategories)
+                {
+                    //include subcategories
+                    categoryIds.AddRange(GetChildCategoryIds(command.CategoryId));
+                }
+
+            }
+
+            var manufactureIds = new List<int>();
+            foreach (var item in command.ManufacturerIds.Split(',').ToList())
+            {
+                int.TryParse(item, out int manufactureId);
+                if (manufactureId > 0)
+                {
+                    manufactureIds.Add(manufactureId);
+                }
+            }
+            var products = _productService.SearchProductsAjax(out IList<int> filterableSpecificationAttributeOptionIds,
+                true,
+                categoryIds: categoryIds,
+                manufacturerIds: manufactureIds,
                 storeId: _storeContext.CurrentStore.Id,
                 visibleIndividuallyOnly: true,
                 featuredProducts: _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : (bool?)false,

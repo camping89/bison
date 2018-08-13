@@ -170,11 +170,13 @@ namespace Nop.Web.Controllers
 
             //activity log
             _customerActivityService.InsertActivity("PublicStore.ProductFilter", _localizationService.GetResource("ActivityLog.PublicStore.ProductFilter"));
-
-            //model
-            var model = _catalogModelFactory.PrepareProductFilterModel(command);
-
-            return PartialView("_ProductFilterAjax", model);
+            var model = _catalogModelFactory.PrepareProductFilterModelAjax(command);
+            return Json(new
+            {
+                ViewData = RenderPartialViewToString("_ProductFilterAjax", model),
+                FilterableSpecAttr = model.PagingFilteringContext.SpecificationFilter.NotFilteredItems.Select(_ => _.SpecificationAttributeOptionId).ToList(),
+                ManufacturersIds = model.Manufacturers.Select(_ => _.Id).ToList()
+            });
         }
 
         #endregion

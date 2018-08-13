@@ -53,6 +53,9 @@ namespace Nop.Services.Catalog
         /// {0} : product attribute mapping ID
         /// </remarks>
         private const string PRODUCTATTRIBUTEVALUES_ALL_KEY = "Nop.productattributevalue.all-{0}";
+
+
+        private const string PRODUCTATTRIBUTEVALUES_ALL_INONLYSTOCK_KEY = "Nop.productattributevalue.all-{0}-inonlystock-{1}";
         /// <summary>
         /// Key for caching
         /// </summary>
@@ -389,6 +392,31 @@ namespace Nop.Services.Catalog
                 return productAttributeValues;
             });
         }
+
+        public virtual IList<ProductAttributeValue> GetProductAttributeValuesInOnlyStock(int productAttributeMappingId, bool inStockOnly)
+        {
+            var key = string.Format(PRODUCTATTRIBUTEVALUES_ALL_INONLYSTOCK_KEY, productAttributeMappingId, inStockOnly);
+            return _cacheManager.Get(key, () =>
+            {
+
+                if (inStockOnly)
+                {
+                    var query = from pav in _productAttributeValueRepository.Table
+                                join pam in _productAttributeMappingRepository.Table on pav.ProductAttributeMappingId equals pam.Id
+                                join pac in _productAttributeCombinationRepository.Table on pam.ProductId equals pac.ProductId
+                                where pav.ProductAttributeMappingId == productAttributeMappingId && pac.StockQuantity > 0 && pac.AttributesXml.Contains(pav.Id.ToString())
+                                select pav;
+
+                    var productAttributeValues = query.ToList();
+                    return productAttributeValues;
+                }
+                else
+                {
+                    return GetProductAttributeValues(productAttributeMappingId);
+                }
+            });
+        }
+
 
         /// <summary>
         /// Gets a product attribute value

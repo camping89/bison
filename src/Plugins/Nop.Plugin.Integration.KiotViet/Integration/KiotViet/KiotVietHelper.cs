@@ -25,6 +25,11 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet
             product.Price = kvProduct.basePrice;
             product.UpdatedOnUtc = DateTime.UtcNow;
             product.KiotVietId = kvProduct.id.ToString();
+            if (kvProduct.hasVariants)
+            {
+                product.ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes.ToInt();
+                product.AllowAddingOnlyExistingAttributeCombinations = true;
+            }
         }
 
         public static Product MapNewProduct(KVProduct kvProduct)
@@ -42,12 +47,12 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet
 
                 ProductTypeId = ProductType.SimpleProduct.ToInt(),
                 ProductTemplateId = 1, //1: Simple product  | 2: Grouped product(with variants)
-                ManageInventoryMethodId = 1, //1 track inventory product
+                ManageInventoryMethodId = kvProduct.hasVariants ? ManageInventoryMethod.ManageStockByAttributes.ToInt() : ManageInventoryMethod.ManageStock.ToInt(), //1 track inventory product
                 LowStockActivityId = 1,
                 NotifyAdminForQuantityBelow = 1,
                 OrderMinimumQuantity = 1,
                 OrderMaximumQuantity = 10000,
-
+                AllowAddingOnlyExistingAttributeCombinations = kvProduct.hasVariants,
                 Published = true,
                 VisibleIndividually = true,
                 AllowCustomerReviews = true,

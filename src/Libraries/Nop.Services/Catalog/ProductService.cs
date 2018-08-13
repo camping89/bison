@@ -646,6 +646,121 @@ namespace Nop.Services.Catalog
             return new PagedList<Product>(products, pageIndex, pageSize, totalRecords);
         }
 
+
+        protected virtual IPagedList<Product> SearchProductsUseStoredProcedureAjax(ref IList<int> filterableSpecificationAttributeOptionIds,
+            bool loadFilterableSpecificationAttributeOptionIds, int pageIndex, int pageSize, IList<int> categoryIds,
+            IList<int> manufacturerIds, int storeId, int vendorId, int warehouseId, ProductType? productType,
+            bool visibleIndividuallyOnly, bool markedAsNewOnly, bool? featuredProducts, decimal? priceMin, decimal? priceMax,
+            int productTagId, string keywords, bool searchDescriptions, bool searchManufacturerPartNumber, bool searchSku,
+            int[] allowedCustomerRolesIds, bool searchProductTags, bool searchLocalizedValue, int languageId,
+            IList<int> filteredSpecs, ProductSortingEnum orderBy, bool showHidden, bool? overridePublished, bool onlyShowNoAddCategory = false)
+        {
+            //pass category identifiers as comma-delimited string
+            var commaSeparatedCategoryIds = categoryIds == null ? "" : string.Join(",", categoryIds);
+            var commaSeparatedManufactureIds = manufacturerIds == null ? "" : string.Join(",", manufacturerIds);
+
+            //pass customer role identifiers as comma-delimited string
+            var commaSeparatedAllowedCustomerRoleIds = string.Join(",", allowedCustomerRolesIds);
+
+            //pass specification identifiers as comma-delimited string
+            var commaSeparatedSpecIds = "";
+            if (filteredSpecs != null)
+            {
+                ((List<int>)filteredSpecs).Sort();
+                commaSeparatedSpecIds = string.Join(",", filteredSpecs);
+            }
+
+            //some databases don't support int.MaxValue
+            if (pageSize == int.MaxValue)
+                pageSize = int.MaxValue - 1;
+
+            //prepare input parameters
+            var pCategoryIds = _dataProvider.GetStringParameter("CategoryIds", commaSeparatedCategoryIds);
+            var pManufacturerIds = _dataProvider.GetStringParameter("ManufacturerIds", commaSeparatedManufactureIds);
+            var pStoreId = _dataProvider.GetInt32Parameter("StoreId", !_catalogSettings.IgnoreStoreLimitations ? storeId : 0);
+            var pVendorId = _dataProvider.GetInt32Parameter("VendorId", vendorId);
+            var pWarehouseId = _dataProvider.GetInt32Parameter("WarehouseId", warehouseId);
+            var pProductTypeId = _dataProvider.GetInt32Parameter("ProductTypeId", (int?)productType);
+            var pVisibleIndividuallyOnly = _dataProvider.GetBooleanParameter("VisibleIndividuallyOnly", visibleIndividuallyOnly);
+            var pMarkedAsNewOnly = _dataProvider.GetBooleanParameter("MarkedAsNewOnly", markedAsNewOnly);
+            var pProductTagId = _dataProvider.GetInt32Parameter("ProductTagId", productTagId);
+            var pFeaturedProducts = _dataProvider.GetBooleanParameter("FeaturedProducts", featuredProducts);
+            var pPriceMin = _dataProvider.GetDecimalParameter("PriceMin", priceMin);
+            var pPriceMax = _dataProvider.GetDecimalParameter("PriceMax", priceMax);
+            var pKeywords = _dataProvider.GetStringParameter("Keywords", keywords);
+            var pSearchDescriptions = _dataProvider.GetBooleanParameter("SearchDescriptions", searchDescriptions);
+            var pSearchManufacturerPartNumber = _dataProvider.GetBooleanParameter("SearchManufacturerPartNumber", searchManufacturerPartNumber);
+            var pSearchSku = _dataProvider.GetBooleanParameter("SearchSku", searchSku);
+            var pSearchProductTags = _dataProvider.GetBooleanParameter("SearchProductTags", searchProductTags);
+            var pUseFullTextSearch = _dataProvider.GetBooleanParameter("UseFullTextSearch", _commonSettings.UseFullTextSearch);
+            var pFullTextMode = _dataProvider.GetInt32Parameter("FullTextMode", (int)_commonSettings.FullTextMode);
+            var pFilteredSpecs = _dataProvider.GetStringParameter("FilteredSpecs", commaSeparatedSpecIds);
+            var pLanguageId = _dataProvider.GetInt32Parameter("LanguageId", searchLocalizedValue ? languageId : 0);
+            var pOrderBy = _dataProvider.GetInt32Parameter("OrderBy", (int)orderBy);
+            var pAllowedCustomerRoleIds = _dataProvider.GetStringParameter("AllowedCustomerRoleIds", !_catalogSettings.IgnoreAcl ? commaSeparatedAllowedCustomerRoleIds : "");
+            var pPageIndex = _dataProvider.GetInt32Parameter("PageIndex", pageIndex);
+            var pPageSize = _dataProvider.GetInt32Parameter("PageSize", pageSize);
+            var pShowHidden = _dataProvider.GetBooleanParameter("ShowHidden", showHidden);
+            var pOverridePublished = _dataProvider.GetBooleanParameter("OverridePublished", overridePublished);
+            var pLoadFilterableSpecificationAttributeOptionIds = _dataProvider.GetBooleanParameter("LoadFilterableSpecificationAttributeOptionIds", loadFilterableSpecificationAttributeOptionIds);
+            var ponlyShowNoAddCategory = _dataProvider.GetBooleanParameter("OnlyShowNoAddCategory", onlyShowNoAddCategory);
+            //prepare output parameters
+            var pFilterableSpecificationAttributeOptionIds = _dataProvider.GetOutputStringParameter("FilterableSpecificationAttributeOptionIds");
+            pFilterableSpecificationAttributeOptionIds.Size = int.MaxValue - 1;
+            var pTotalRecords = _dataProvider.GetOutputInt32Parameter("TotalRecords");
+
+            //invoke stored procedure
+            var products = _dbContext.ExecuteStoredProcedureList<Product>(
+                "ProductLoadAllPagedAjax",
+                pCategoryIds,
+                pManufacturerIds,
+                pStoreId,
+                pVendorId,
+                pWarehouseId,
+                pProductTypeId,
+                pVisibleIndividuallyOnly,
+                pMarkedAsNewOnly,
+                pProductTagId,
+                pFeaturedProducts,
+                pPriceMin,
+                pPriceMax,
+                pKeywords,
+                pSearchDescriptions,
+                pSearchManufacturerPartNumber,
+                pSearchSku,
+                pSearchProductTags,
+                pUseFullTextSearch,
+                pFullTextMode,
+                pFilteredSpecs,
+                pLanguageId,
+                pOrderBy,
+                pAllowedCustomerRoleIds,
+                pPageIndex,
+                pPageSize,
+                pShowHidden,
+                pOverridePublished,
+                pLoadFilterableSpecificationAttributeOptionIds,
+                pFilterableSpecificationAttributeOptionIds,
+                pTotalRecords,
+                ponlyShowNoAddCategory);
+            //get filterable specification attribute option identifier
+            var filterableSpecificationAttributeOptionIdsStr =
+                pFilterableSpecificationAttributeOptionIds.Value != DBNull.Value
+                    ? (string)pFilterableSpecificationAttributeOptionIds.Value
+                    : "";
+
+            if (loadFilterableSpecificationAttributeOptionIds &&
+                !string.IsNullOrWhiteSpace(filterableSpecificationAttributeOptionIdsStr))
+            {
+                filterableSpecificationAttributeOptionIds = filterableSpecificationAttributeOptionIdsStr
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => Convert.ToInt32(x.Trim()))
+                    .ToList();
+            }
+            //return products
+            var totalRecords = pTotalRecords.Value != DBNull.Value ? Convert.ToInt32(pTotalRecords.Value) : 0;
+            return new PagedList<Product>(products, pageIndex, pageSize, totalRecords);
+        }
         #endregion
 
         #region Methods
@@ -1093,6 +1208,65 @@ namespace Nop.Services.Catalog
 
             return products;
         }
+
+        public virtual IPagedList<Product> SearchProductsAjax(
+            out IList<int> filterableSpecificationAttributeOptionIds,
+            bool loadFilterableSpecificationAttributeOptionIds = false,
+            int pageIndex = 0,
+            int pageSize = int.MaxValue,
+            IList<int> categoryIds = null,
+            IList<int> manufacturerIds = null,
+            int storeId = 0,
+            int vendorId = 0,
+            int warehouseId = 0,
+            ProductType? productType = null,
+            bool visibleIndividuallyOnly = false,
+            bool markedAsNewOnly = false,
+            bool? featuredProducts = null,
+            decimal? priceMin = null,
+            decimal? priceMax = null,
+            int productTagId = 0,
+            string keywords = null,
+            bool searchDescriptions = false,
+            bool searchManufacturerPartNumber = true,
+            bool searchSku = true,
+            bool searchProductTags = false,
+            int languageId = 0,
+            IList<int> filteredSpecs = null,
+            ProductSortingEnum orderBy = ProductSortingEnum.Position,
+            bool showHidden = false,
+            bool? overridePublished = null, bool onlyShowNoAddCategory = false)
+        {
+            filterableSpecificationAttributeOptionIds = new List<int>();
+
+            //search by keyword
+            var searchLocalizedValue = false;
+            if (languageId > 0)
+            {
+                if (showHidden)
+                {
+                    searchLocalizedValue = true;
+                }
+                else
+                {
+                    //ensure that we have at least two published languages
+                    var totalPublishedLanguages = _languageService.GetAllLanguages().Count;
+                    searchLocalizedValue = totalPublishedLanguages >= 2;
+                }
+            }
+
+            //validate "categoryIds" parameter
+            if (categoryIds != null && categoryIds.Contains(0))
+                categoryIds.Remove(0);
+
+            //Access control list. Allowed customer roles
+            var allowedCustomerRolesIds = _workContext.CurrentCustomer.GetCustomerRoleIds();
+
+            IPagedList<Product> products;
+            products = SearchProductsUseStoredProcedureAjax(ref filterableSpecificationAttributeOptionIds, loadFilterableSpecificationAttributeOptionIds, pageIndex, pageSize, categoryIds, manufacturerIds, storeId, vendorId, warehouseId, productType, visibleIndividuallyOnly, markedAsNewOnly, featuredProducts, priceMin, priceMax, productTagId, keywords, searchDescriptions, searchManufacturerPartNumber, searchSku, allowedCustomerRolesIds, searchProductTags, searchLocalizedValue, languageId, filteredSpecs, orderBy, showHidden, overridePublished, onlyShowNoAddCategory);
+            return products;
+        }
+
 
         /// <summary>
         /// Gets products by product attribute

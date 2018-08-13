@@ -1,22 +1,33 @@
 ﻿@model ManufacturerNavigationModel
 @if (Model.Manufacturers.Count > 0)
 {
-    <div class="filter-manufacture">
+    <div class="filter-manufacture filter">
         <h3 class="title14">@T("Manufacturers")</h3>
-        <ul class="list-none">
+        <ul>
+
             @foreach (var manufacturer in Model.Manufacturers)
             {
-                <li class="@(manufacturer.IsActive ? "active" : "inactive")">
-                    <a href="@Url.RouteUrl("Manufacturer", new { SeName = manufacturer.SeName })">@manufacturer.Name</a>
+                <li class="checkbox">
+                    <input data-type="manufacturer_chk" id="manufacturer_chk_@manufacturer.Id" class="ManuCheckbox checkbox" name="manufacturer_chk_@manufacturer.Id" value="@manufacturer.Id" type="checkbox" />
+                    <label for="manufacturer_chk_@manufacturer.Id"><span>@manufacturer.Name</span></label>
                 </li>
             }
         </ul>
-        @if (Model.TotalManufacturers > Model.Manufacturers.Count)
-        {
-            <div class="view-all">
-                <a href="@Url.RouteUrl("ManufacturerList")">@T("Manufacturers.ViewAll")</a>
-            </div>
-        }
+
+        @*<ul class="list-none">
+                @foreach (var manufacturer in Model.Manufacturers)
+                {
+                    <li class="@(manufacturer.IsActive ? "active" : "inactive")">
+                        <a href="@Url.RouteUrl("Manufacturer", new { SeName = manufacturer.SeName })">@manufacturer.Name</a>
+                    </li>
+                }
+            </ul>
+            @if (Model.TotalManufacturers > Model.Manufacturers.Count)
+            {
+                <div class="view-all">
+                    <a href="@Url.RouteUrl("ManufacturerList")">@T("Manufacturers.ViewAll")</a>
+                </div>
+            }*@
     </div>
     <!-- End Filter Manufacture -->
 }

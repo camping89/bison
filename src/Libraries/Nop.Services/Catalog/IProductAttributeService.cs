@@ -103,7 +103,7 @@ namespace Nop.Services.Catalog
         /// <param name="productAttributeMappingId">The product attribute mapping identifier</param>
         /// <returns>Product attribute values</returns>
         IList<ProductAttributeValue> GetProductAttributeValues(int productAttributeMappingId);
-
+        IList<ProductAttributeValue> GetProductAttributeValuesInOnlyStock(int productAttributeMappingId, bool inStockOnly);
         /// <summary>
         /// Gets a product attribute value
         /// </summary>

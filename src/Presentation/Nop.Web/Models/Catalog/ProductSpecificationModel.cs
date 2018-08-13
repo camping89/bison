@@ -17,6 +17,7 @@ namespace Nop.Web.Models.Catalog
         /// </summary>
         public string SpecificationAttributeName { get; set; }
 
+
         /// <summary>
         /// Option value
         /// this value is already HTML encoded

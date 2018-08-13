@@ -30,17 +30,17 @@
         <h3 class="title14">@T("Filtering.PriceRangeFilter")</h3>
         <div class="range-filter">
             <div class="new-filter">
-                From: <input type="text" class="filter-from-price" />
-                To: <input type="text" class="filter-to-price" />
+                <div class="row">
+                    <div class="col-md-6">
+                        <span>@T("Filter.FromPrice")</span><input type="text" class="filter-from-price" />
+                    </div>
+                    <div class="col-md-6">
+                        <span>@T("Filter.ToPrice")</span><input type="text" class="filter-to-price" />
+                    </div>
+                </div>
                 <hr />
                 <div id="slider-range"></div>
             </div>
-            <hr />
-            @*<button class="btn-filter-price shop-button title14" style="margin-left: 185px;">@T("Filtering.Button.Filter")</button>*@
-
-            @*<span class="amount"></span>
-
-                <div class="slider-range"></div>*@
         </div>
     </div>
     <script>

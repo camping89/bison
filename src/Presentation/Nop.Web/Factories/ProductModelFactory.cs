@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
@@ -13,6 +8,7 @@ using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Seo;
 using Nop.Core.Domain.Vendors;
 using Nop.Services.Catalog;
+using Nop.Services.Configuration;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Helpers;
@@ -24,12 +20,16 @@ using Nop.Services.Shipping.Date;
 using Nop.Services.Stores;
 using Nop.Services.Tax;
 using Nop.Services.Vendors;
-using Nop.Web.Areas.Admin.Extensions;
 using Nop.Web.Framework.Security.Captcha;
 using Nop.Web.Infrastructure.Cache;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Models.Common;
 using Nop.Web.Models.Media;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Net;
 
 namespace Nop.Web.Factories
 {
@@ -39,7 +39,7 @@ namespace Nop.Web.Factories
     public partial class ProductModelFactory : IProductModelFactory
     {
         #region Fields
-        
+
         private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly ICategoryService _categoryService;
         private readonly IManufacturerService _manufacturerService;
@@ -72,6 +72,7 @@ namespace Nop.Web.Factories
         private readonly CaptchaSettings _captchaSettings;
         private readonly OrderSettings _orderSettings;
         private readonly SeoSettings _seoSettings;
+        private readonly ISettingService _settingService;
         private readonly IStaticCacheManager _cacheManager;
 
         #endregion
@@ -110,7 +111,7 @@ namespace Nop.Web.Factories
             CaptchaSettings captchaSettings,
             OrderSettings orderSettings,
             SeoSettings seoSettings,
-            IStaticCacheManager cacheManager)
+            IStaticCacheManager cacheManager, ISettingService settingService)
         {
             this._specificationAttributeService = specificationAttributeService;
             this._categoryService = categoryService;
@@ -145,6 +146,7 @@ namespace Nop.Web.Factories
             this._orderSettings = orderSettings;
             this._seoSettings = seoSettings;
             this._cacheManager = cacheManager;
+            _settingService = settingService;
         }
 
         #endregion
@@ -212,17 +214,17 @@ namespace Nop.Web.Factories
             switch (product.ProductType)
             {
                 case ProductType.GroupedProduct:
-                {
-                    //grouped product
-                    PrepareGroupedProductOverviewPriceModel(product, priceModel);
-                }
+                    {
+                        //grouped product
+                        PrepareGroupedProductOverviewPriceModel(product, priceModel);
+                    }
                     break;
                 case ProductType.SimpleProduct:
                 default:
-                {
-                    //simple product
-                    PrepareSimpleProductOverviewPriceModel(product, priceModel);
-                }
+                    {
+                        //simple product
+                        PrepareSimpleProductOverviewPriceModel(product, priceModel);
+                    }
                     break;
             }
 
@@ -753,7 +755,7 @@ namespace Nop.Web.Factories
             }
 
             var model = new List<ProductDetailsModel.ProductAttributeModel>();
-
+            var inOnlyStock = _settingService.GetSettingByKey("InOnlyStock", true);
             foreach (var attribute in productAttributeMapping)
             {
                 var attributeModel = new ProductDetailsModel.ProductAttributeModel
@@ -776,12 +778,21 @@ namespace Nop.Web.Factories
                         .ToList();
                 }
 
+                IList<ProductAttributeValue> attributeValues;
                 if (attribute.ShouldHaveValues())
                 {
                     //values
-                    var attributeValues = _productAttributeService.GetProductAttributeValues(attribute.Id);
-                    foreach (var attributeValue in attributeValues)
+                    if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes)
                     {
+                        attributeValues = _productAttributeService.GetProductAttributeValuesInOnlyStock(attribute.Id, inStockOnly: inOnlyStock);
+                    }
+                    else
+                    {
+                        attributeValues = _productAttributeService.GetProductAttributeValues(attribute.Id);
+                    }
+                    foreach (var attributeValueGr in attributeValues.GroupBy(_ => _.Name))
+                    {
+                        var attributeValue = attributeValueGr.FirstOrDefault();
                         var valueModel = new ProductDetailsModel.ProductAttributeValueModel
                         {
                             Id = attributeValue.Id,
@@ -1153,13 +1164,13 @@ namespace Nop.Web.Factories
                 //reviews
                 model.ReviewOverviewModel = PrepareProductReviewOverviewModel(product);
                 var manufactures = _manufacturerService.GetProductManufacturersByProductId(product.Id);
-                if (manufactures.Any(m=>m.Manufacturer.ShowPriceProduct == false))
+                if (manufactures.Any(m => m.Manufacturer.ShowPriceProduct == false))
                 {
                     model.ShowPriceProduct = false;
                 }
 
                 var categories = _categoryService.GetProductCategoriesByProductId(product.Id);
-                if (categories.Any(c=>c.Category.ShowPriceProduct == false))
+                if (categories.Any(c => c.Category.ShowPriceProduct == false))
                 {
                     model.ShowPriceProduct = false;
                 }
@@ -1285,8 +1296,8 @@ namespace Nop.Web.Factories
             {
                 model.ProductTags = PrepareProductTagModels(product);
             }
-            
-           //pictures
+
+            //pictures
             model.DefaultPictureZoomEnabled = _mediaSettings.DefaultPictureZoomEnabled;
             model.DefaultPictureModel = PrepareProductDetailsPictureModel(product, isAssociatedProduct, out IList<PictureModel> allPictureModels);
             model.PictureModels = allPictureModels;
@@ -1324,7 +1335,7 @@ namespace Nop.Web.Factories
 
             //product attributes
             model.ProductAttributes = PrepareProductAttributeModels(product, updatecartitem);
-            
+
             //product specifications
             //do not prepare this model for the associated products. anyway it's not used
             if (!isAssociatedProduct)
@@ -1441,9 +1452,9 @@ namespace Nop.Web.Factories
                 pageIndex = page.Value - 1;
             }
 
-            var list = _productService.GetAllProductReviews(customerId: _workContext.CurrentCustomer.Id, 
-                approved: null, 
-                pageIndex: pageIndex, 
+            var list = _productService.GetAllProductReviews(customerId: _workContext.CurrentCustomer.Id,
+                approved: null,
+                pageIndex: pageIndex,
                 pageSize: pageSize);
 
             var productReviews = new List<CustomerProductReviewModel>();
@@ -1537,7 +1548,7 @@ namespace Nop.Web.Factories
                     var m = new ProductSpecificationModel
                     {
                         SpecificationAttributeId = psa.SpecificationAttributeOption.SpecificationAttributeId,
-                        SpecificationAttributeName = psa.SpecificationAttributeOption.SpecificationAttribute.GetLocalized(x => x.Name),
+                        SpecificationAttributeName = (psa.Id == 9) ? psa.SpecificationAttributeOption.SpecificationAttribute.GetLocalized(x => x.Name) : psa.SpecificationAttributeOption.GetFormattedSpecBreadCrumb(_specificationAttributeService),
                         ColorSquaresRgb = psa.SpecificationAttributeOption.ColorSquaresRgb
                     };
 

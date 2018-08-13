@@ -1,12 +1,16 @@
-﻿using Nop.Core.Domain.Catalog;
+﻿using Nop.Core;
+using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Orders;
 using Nop.Core.Extensions;
 using Nop.Plugin.Integration.KiotViet.Integration.KiotViet;
 using Nop.Plugin.Integration.KiotViet.Integration.KiotViet.Entities;
 using Nop.Services.Catalog;
 using Nop.Services.Logging;
+using Nop.Services.Orders;
 using Nop.Services.Seo;
 using Nop.Services.Tasks;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
@@ -19,16 +23,25 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
         private readonly IProductService _productService;
         private readonly IUrlRecordService _urlRecordService;
         private readonly IProductAttributeService _productAttributeService;
+
+        private readonly IShoppingCartService _shoppingCartService;
+        private readonly IProductAttributeFormatter _productAttributeFormatter;
+        private readonly IProductAttributeParser _productAttributeParser;
+        private readonly IWorkContext _workContext;
         private readonly ILogger _logger;
 
         public SyncProductTask(ILogger logger, ICategoryService categoryService,
-            IProductService productService, IUrlRecordService urlRecordService, IProductAttributeService productAttributeService)
+            IProductService productService, IUrlRecordService urlRecordService, IProductAttributeService productAttributeService, IWorkContext workContext, IShoppingCartService shoppingCartService, IProductAttributeFormatter productAttributeFormatter, IProductAttributeParser productAttributeParser)
         {
             _logger = logger;
             _categoryService = categoryService;
             _productService = productService;
             _urlRecordService = urlRecordService;
             _productAttributeService = productAttributeService;
+            _workContext = workContext;
+            _shoppingCartService = shoppingCartService;
+            _productAttributeFormatter = productAttributeFormatter;
+            _productAttributeParser = productAttributeParser;
             _apiConsumer = new KiotVietApiConsumer();
             _kiotVietService = new KiotVietService(categoryService, urlRecordService);
         }
@@ -67,6 +80,13 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                         MapProductAttributes("Size", variant, "Size", product, true, basePrice);
                         MapProductAttributes("Colour", variant, "Color", product);
                     }
+
+
+                    if (sourceProduct.hasVariants)
+                    {
+                        //Combine Attributes
+                        CombineProductAttributes(product);
+                    }
                 }
                 else // update to existing product
                 {
@@ -89,10 +109,61 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                         MapProductAttributes("Colour", variant, "Color", product);
                     }
 
-
                     _productService.UpdateProduct(product);
+
+                    if (sourceProduct.hasVariants)
+                    {
+                        //Combine Attributes
+                        CombineProductAttributes(product);
+                    }
                 }
 
+            }
+        }
+
+        private void CombineProductAttributes(Product product)
+        {
+
+            //Combine 
+
+            var productAttributeMappings = _productAttributeService.GetProductAttributeMappingsByProductId(product.Id);
+            if (productAttributeMappings.Count > 0)
+            {
+                var allAttributesXml = _productAttributeParser.GenerateAllCombinations(product, true);
+                foreach (var attributesXml in allAttributesXml)
+                {
+                    var existingCombination = _productAttributeParser.FindProductAttributeCombination(product, attributesXml);
+
+                    //already exists?
+                    if (existingCombination != null)
+                    {
+                        existingCombination.StockQuantity = product.StockQuantity;
+                        _productAttributeService.UpdateProductAttributeCombination(existingCombination);
+                        continue;
+                    }
+
+                    //new one
+                    var warnings = new List<string>();
+                    warnings.AddRange(_shoppingCartService.GetShoppingCartItemAttributeWarnings(_workContext.CurrentCustomer,
+                        ShoppingCartType.ShoppingCart, product, 1, attributesXml, true));
+                    if (warnings.Count != 0)
+                        continue;
+
+                    //save combination
+                    var combination = new ProductAttributeCombination
+                    {
+                        ProductId = product.Id,
+                        AttributesXml = attributesXml,
+                        StockQuantity = product.StockQuantity,
+                        AllowOutOfStockOrders = false,
+                        Sku = null,
+                        ManufacturerPartNumber = null,
+                        Gtin = null,
+                        OverriddenPrice = null,
+                        NotifyAdminForQuantityBelow = 1
+                    };
+                    _productAttributeService.InsertProductAttributeCombination(combination);
+                }
             }
         }
 

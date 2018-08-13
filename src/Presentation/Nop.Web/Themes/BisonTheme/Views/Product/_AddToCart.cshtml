@@ -6,7 +6,7 @@
 }
 @if (!Model.DisableBuyButton || Model.CustomerEntersPrice)
 {
-    <ul class="list-inline-block qty-cart">
+    <ul id="qty-cart-@Model.ProductId" class="list-inline-block qty-cart">
         <li>
             <h3 class="title14">Qty</h3>
         </li>
@@ -35,12 +35,12 @@
                                 </script>
                         }*@
                     <div class="detail-qty">
-                        <input class="qty-input" type="text" value="@Model.EnteredQuantity"  hidden="hidden"/>
+                        <input class="qty-input" type="text" value="@Model.EnteredQuantity" hidden="hidden" />
                         <span class="qty-val" data-input-min="">@Model.EnteredQuantity</span>
                         <a href="#" class="qty-up"><i class="fa fa-plus" aria-hidden="true"></i></a>
                         <a href="#" class="qty-down"><i class="fa fa-minus" aria-hidden="true"></i></a>
                     </div>
-                    
+
                 </div>
             }
 
@@ -63,33 +63,33 @@
                     addToCartText = T("ShoppingCart.PreOrder").Text;
                 }
             }
-            <li><a href="#" class="title14 shop-button" onclick="AjaxCart.addproducttocart_details('@Url.RouteUrl("AddProductToCart-Details", new {productId = Model.ProductId, shoppingCartTypeId = (int) ShoppingCartType.ShoppingCart})', '#product-details-form');return false;">@addToCartText</a></li>
+            <li><a href="#" id="add-to-cart-button-@Model.ProductId" class="title14 shop-button" onclick="AjaxCart.addproducttocart_details('@Url.RouteUrl("AddProductToCart-Details", new {productId = Model.ProductId, shoppingCartTypeId = (int) ShoppingCartType.ShoppingCart})', '#product-details-form');return false;">@addToCartText</a></li>
             @*<input type="button" id="add-to-cart-button-@Model.ProductId" class="button-1 add-to-cart-button" value="@addToCartText" data-productid="@Model.ProductId" onclick="AjaxCart.addproducttocart_details('@Url.RouteUrl("AddProductToCart-Details", new {productId = Model.ProductId, shoppingCartTypeId = (int) ShoppingCartType.ShoppingCart})', '#product-details-form');return false;" />*@
         }
 
     </ul>
 
-     if (Model.CustomerEntersPrice)
-        {
-            <div class="add-to-cart">
-                <div class="customer-entered-price">
-                    <div class="price-input">
-                        <label asp-for="CustomerEnteredPrice" asp-postfix=":" class="enter-price-label"></label>
-                        @*round price*@
-                        <input asp-for="CustomerEnteredPrice" value="@Convert.ToInt32(Math.Ceiling(Model.CustomerEnteredPrice))" class="enter-price-input" />
-                    </div>
-                    <div class="price-range">
-                        @Model.CustomerEnteredPriceRange
-                    </div>
+    if (Model.CustomerEntersPrice)
+    {
+        <div class="add-to-cart">
+            <div class="customer-entered-price">
+                <div class="price-input">
+                    <label asp-for="CustomerEnteredPrice" asp-postfix=":" class="enter-price-label"></label>
+                    @*round price*@
+                    <input asp-for="CustomerEnteredPrice" value="@Convert.ToInt32(Math.Ceiling(Model.CustomerEnteredPrice))" class="enter-price-input" />
+                </div>
+                <div class="price-range">
+                    @Model.CustomerEnteredPriceRange
                 </div>
             </div>
-            
-        }
-        if (!string.IsNullOrEmpty(Model.MinimumQuantityNotification))
-        {
-            <div class="min-qty-notification">@Model.MinimumQuantityNotification</div>
-        }
+        </div>
 
-        @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_add_info", additionalData = Model.ProductId })
-    
+    }
+    if (!string.IsNullOrEmpty(Model.MinimumQuantityNotification))
+    {
+        <div class="min-qty-notification">@Model.MinimumQuantityNotification</div>
+    }
+
+    @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_add_info", additionalData = Model.ProductId })
+
 }

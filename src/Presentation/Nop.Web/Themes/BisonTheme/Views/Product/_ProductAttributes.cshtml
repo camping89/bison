@@ -11,6 +11,7 @@
         <dl>
             @foreach (var attribute in Model)
             {
+                attribute.Values = attribute.Values.OrderBy(_ => _.Name).ToList();
                 var controlId = $"product_attribute_{attribute.Id}";
                 var textPrompt = !string.IsNullOrEmpty(attribute.TextPrompt) ? attribute.TextPrompt : attribute.Name;
                 <dt id="@($"product_attribute_label_{attribute.Id}")">
@@ -436,7 +437,14 @@
                             $('#gtin-@productId').parent(".gtin").hide();
                         }
                         if (data.stockAvailability) {
-                            $('#stock-availability-value-@productId').text(data.stockAvailability);
+                            $('#stock-availability-value-@productId').html("<b style='color:green'>" + data.stockAvailability + "</b>");
+
+                            if (data.stockNumber <= 0) {
+                                $('#stock-availability-value-@productId').html("<b style='color:red'>" + data.stockAvailability+"</b>");
+                                //$('#qty-cart-@productId').hide();
+                            } else {
+                                //$('#qty-cart-@productId').show();
+                            }
                         }
                         if (data.enabledattributemappingids) {
                             for (var i = 0; i < data.enabledattributemappingids.length; i++) {
@@ -468,7 +476,7 @@
                 });
             }
             $(document).ready(function() {
-                @(attributeChangeHandlerFuncName)();
+                //@(attributeChangeHandlerFuncName)();
                 @Html.Raw(attributeChangeScriptsBuilder.ToString())
             });
         </script>

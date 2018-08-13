@@ -63,11 +63,33 @@
 </div>
 <script>
     $(document).ready(function () {
+
         $('.popup-image').magnificPopup({
             type: 'image',
             gallery: {
                 enabled: true
             }
+        });
+
+        var jcarousel = $('.carousel-stage');
+        var width = jcarousel.innerWidth();
+        var height = jcarousel.innerHeight();
+        $('.carousel-stage ul li').css('width', width + 'px');
+
+        $(window).resize(function () {
+            var jcarousel = $('.carousel-stage');
+            var width = jcarousel.innerWidth();
+            var height = jcarousel.innerHeight();
+            $('.carousel-stage ul li').css('width', width + 'px');
+            var liHeight = $('.carousel-stage ul li').height();
+            $('.carousel-stage').css('height', liHeight + 'px');
+            //if (width < 560) {
+            //    jcarousel.jcarousel('items').css('width', width + 'px');
+            //    jcarousel.jcarousel('items').css('height', (width * 0.666) + 'px');
+            //} else {
+            //    jcarousel.jcarousel('items').css('width', '600px');
+            //    jcarousel.jcarousel('items').css('height', '400px');
+            //}
         });
     });
 </script>

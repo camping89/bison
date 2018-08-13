@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Localization;
 using Nop.Services.Shipping.Date;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Nop.Services.Catalog
 {
@@ -119,7 +119,7 @@ namespace Nop.Services.Catalog
         #endregion
 
         #region Methods
-       
+
         /// <summary>
         /// Gets a preferred tier price
         /// </summary>
@@ -144,7 +144,7 @@ namespace Nop.Services.Catalog
             var tierPrice = actualTierPrices.LastOrDefault(price => quantity >= price.Quantity);
             return tierPrice;
         }
-        
+
         /// <summary>
         /// Finds a related product item by specified identifiers
         /// </summary>
@@ -215,6 +215,40 @@ namespace Nop.Services.Catalog
 
             return stockMessage;
         }
+        public static int GetStockAvailability(this Product product, string attributesXml,
+            ILocalizationService localizationService, IProductAttributeParser productAttributeParser, IDateRangeService dateRangeService)
+        {
+            if (product == null)
+                throw new ArgumentNullException(nameof(product));
+
+            if (localizationService == null)
+                throw new ArgumentNullException(nameof(localizationService));
+
+            if (productAttributeParser == null)
+                throw new ArgumentNullException(nameof(productAttributeParser));
+
+            if (dateRangeService == null)
+                throw new ArgumentNullException(nameof(dateRangeService));
+
+            var stockNumber = 0;
+
+            switch (product.ManageInventoryMethod)
+            {
+                case ManageInventoryMethod.ManageStock:
+                    stockNumber = product.GetTotalStockQuantity();
+                    break;
+                case ManageInventoryMethod.ManageStockByAttributes:
+                    var combination = productAttributeParser.FindProductAttributeCombination(product, attributesXml);
+                    if (combination != null)
+                    {
+                        stockNumber = combination.StockQuantity;
+                    }
+                    break;
+            }
+
+            return stockNumber;
+        }
+
 
         /// <summary>
         /// Indicates whether a product tag exists
@@ -246,7 +280,7 @@ namespace Nop.Services.Catalog
             if (!string.IsNullOrWhiteSpace(product.AllowedQuantities))
             {
                 product.AllowedQuantities
-                    .Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries)
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .ToList()
                     .ForEach(qtyStr =>
                     {
@@ -273,7 +307,7 @@ namespace Nop.Services.Catalog
         /// Used only with "multiple warehouses" enabled.
         /// </param>
         /// <returns>Result</returns>
-        public static int GetTotalStockQuantity(this Product product, 
+        public static int GetTotalStockQuantity(this Product product,
             bool useReservedQuantity = true, int warehouseId = 0)
         {
             if (product == null)
@@ -325,11 +359,11 @@ namespace Nop.Services.Catalog
             switch (product.RentalPricePeriod)
             {
                 case RentalPricePeriod.Days:
-                {
-                    var totalDaysToRent = Math.Max((endDate - startDate).TotalDays, 1);
-                    var configuredPeriodDays = product.RentalPriceLength;
-                    totalPeriods = Convert.ToInt32(Math.Ceiling(totalDaysToRent/configuredPeriodDays));
-                }
+                    {
+                        var totalDaysToRent = Math.Max((endDate - startDate).TotalDays, 1);
+                        var configuredPeriodDays = product.RentalPriceLength;
+                        totalPeriods = Convert.ToInt32(Math.Ceiling(totalDaysToRent / configuredPeriodDays));
+                    }
                     break;
                 case RentalPricePeriod.Weeks:
                     {
@@ -384,7 +418,7 @@ namespace Nop.Services.Catalog
             manufacturerPartNumber = null;
             gtin = null;
 
-            if (!string.IsNullOrEmpty(attributesXml) && 
+            if (!string.IsNullOrEmpty(attributesXml) &&
                 product.ManageInventoryMethod == ManageInventoryMethod.ManageStockByAttributes)
             {
                 //manage stock by attribute combinations
@@ -497,7 +531,7 @@ namespace Nop.Services.Catalog
 
             if (localizationService == null)
                 throw new ArgumentNullException(nameof(localizationService));
-            
+
             if (measureService == null)
                 throw new ArgumentNullException(nameof(measureService));
 
@@ -531,7 +565,7 @@ namespace Nop.Services.Catalog
 
             var basePrice = productPrice.Value /
                 //do not round. otherwise, it can cause issues
-                measureService.ConvertWeight(productAmount, productUnit, referenceUnit, false) * 
+                measureService.ConvertWeight(productAmount, productUnit, referenceUnit, false) *
                 referenceAmount;
             var basePriceInCurrentCurrency = currencyService.ConvertFromPrimaryStoreCurrency(basePrice, workContext.WorkingCurrency);
             var basePriceStr = priceFormatter.FormatPrice(basePriceInCurrentCurrency, true, false);

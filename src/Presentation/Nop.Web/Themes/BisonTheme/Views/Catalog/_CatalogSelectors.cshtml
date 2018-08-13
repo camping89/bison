@@ -30,8 +30,8 @@
         {
             var gridMode = Model.AvailableViewModes[0];
             var listMode = Model.AvailableViewModes[1];
-            <a href="@gridMode.Value" class="grid-view @if(gridMode.Selected){<text>active</text>}" title="@gridMode.Text">@gridMode.Text</a>
-            <a href="@listMode.Value" class="list-view @if (listMode.Selected){<text>active</text>}" title="@listMode.Text">@listMode.Text</a>
+            <a href="@gridMode.Value" class="viewmode-icon grid-view @if(gridMode.Selected){<text>active</text>}" title="@gridMode.Text">@gridMode.Text</a>
+            <a href="@listMode.Value" class="viewmode-icon list-view @if (listMode.Selected){<text>active</text>}" title="@listMode.Text">@listMode.Text</a>
         }
     }
 

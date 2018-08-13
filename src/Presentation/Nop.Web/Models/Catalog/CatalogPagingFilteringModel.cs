@@ -33,11 +33,22 @@ namespace Nop.Web.Models.Catalog
 
             this.PriceRangeFilter = new PriceRangeFilterModel();
             this.SpecificationFilter = new SpecificationFilterModel();
+            this.ManufacturerIds = string.Empty;
+            PageNumber = 1;
         }
 
         #endregion
 
         #region Properties
+
+        public int CategoryId { get; set; }
+
+
+        public string CategoryIds { get; set; }
+
+        public int ManufacturerId { get; set; }
+
+        public string ManufacturerIds { get; set; }
 
         /// <summary>
         /// Price range filter model
@@ -327,7 +338,6 @@ namespace Nop.Web.Models.Catalog
             {
                 this.AlreadyFilteredItems = new List<SpecificationFilterItem>();
                 this.NotFilteredItems = new List<SpecificationFilterItem>();
-                this.AllFilteredItems = new List<SpecificationFilterItem>();
             }
 
             #endregion
@@ -437,22 +447,13 @@ namespace Nop.Web.Models.Catalog
                 var removeFilterUrl = webHelper.RemoveQueryString(webHelper.GetThisPageUrl(true), QUERYSTRINGPARAM);
                 RemoveFilterUrl = ExcludeQueryStringParams(removeFilterUrl, webHelper);
 
-                AllFilteredItems = allFilters.Select(x =>
-                    new SpecificationFilterItem
-                    {
-                        Id = x.SpecificationAttributeOptionId,
-                        SpecificationAttributeName = x.SpecificationAttributeName,
-                        SpecificationAttributeOptionName = x.SpecificationAttributeOptionName,
-                        SpecificationAttributeOptionColorRgb = x.SpecificationAttributeOptionColorRgb
-
-                    }).ToList();
-
                 //get already filtered specification options
                 var alreadyFilteredOptions = allFilters.Where(x => alreadyFilteredSpecOptionIds.Contains(x.SpecificationAttributeOptionId));
                 AlreadyFilteredItems = alreadyFilteredOptions.Select(x =>
                     new SpecificationFilterItem
                     {
                         Id = x.SpecificationAttributeId,
+                        SpecificationAttributeOptionId = x.SpecificationAttributeOptionId,
                         SpecificationAttributeName = x.SpecificationAttributeName,
                         SpecificationAttributeOptionName = x.SpecificationAttributeOptionName,
                         SpecificationAttributeOptionColorRgb = x.SpecificationAttributeOptionColorRgb
@@ -469,6 +470,8 @@ namespace Nop.Web.Models.Catalog
                     var filterUrl = webHelper.ModifyQueryString(webHelper.GetThisPageUrl(true), queryString, null);
                     return new SpecificationFilterItem()
                     {
+                        Id = x.SpecificationAttributeId,
+                        SpecificationAttributeOptionId = x.SpecificationAttributeOptionId,
                         SpecificationAttributeName = x.SpecificationAttributeName,
                         SpecificationAttributeOptionName = x.SpecificationAttributeOptionName,
                         SpecificationAttributeOptionColorRgb = x.SpecificationAttributeOptionColorRgb,
@@ -489,7 +492,6 @@ namespace Nop.Web.Models.Catalog
             /// Already filtered items
             /// </summary>
             public IList<SpecificationFilterItem> AlreadyFilteredItems { get; set; }
-            public IList<SpecificationFilterItem> AllFilteredItems { get; set; }
             /// <summary>
             /// Not filtered yet items
             /// </summary>
@@ -507,6 +509,7 @@ namespace Nop.Web.Models.Catalog
         /// </summary>
         public partial class SpecificationFilterItem : BaseNopEntityModel
         {
+            public int SpecificationAttributeOptionId { get; set; }
             /// <summary>
             /// Specification attribute name
             /// </summary>

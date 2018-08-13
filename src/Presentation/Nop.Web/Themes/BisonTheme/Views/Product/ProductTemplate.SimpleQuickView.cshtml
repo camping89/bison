@@ -76,6 +76,7 @@
                                     <ins><span class="price-value-@Model.Id title14 color">@Model.ProductPrice.Price</span></ins>
 
                                 </div>
+
                                 <p class="desc">@Html.Raw(Model.ShortDescription)</p>
 
                                 @await Html.PartialAsync("_ProductTags", Model.ProductTags)
@@ -92,6 +93,10 @@
                         <ul class="list-inline-block">
                             <li class="active"><a href="#tab1" class="title14" data-toggle="tab">@T("ProductDetail.Description")</a></li>
                             <li><a href="#tab2" class="title14" data-toggle="tab">@T("Products.Specs")</a></li>
+                            @if (Model.ProductSpecifications.Count(_ => _.SpecificationAttributeId == 9) > 0)
+                            {
+                                <li><a href="#tab3" class="title14" data-toggle="tab">@T("Products.Fits")</a></li>
+                            }
                         </ul>
                     </div>
                     <div class="tab-content">
@@ -106,8 +111,14 @@
                             </div>
                         </div>
                         <div id="tab2" class="tab-pane">
-                            @await Html.PartialAsync("_ProductSpecifications", Model.ProductSpecifications)
+                            @await Html.PartialAsync("_ProductSpecifications", Model.ProductSpecifications.Where(_ => _.SpecificationAttributeId != 9).OrderBy(_ => _.SpecificationAttributeName).ToList())
                         </div>
+                        @if (Model.ProductSpecifications.Count(_ => _.SpecificationAttributeId == 9) > 0)
+                        {
+                            <div id="tab3" class="tab-pane">
+                                @await Html.PartialAsync("_ProductSpecificationsMoto", Model.ProductSpecifications.Where(_ => _.SpecificationAttributeId == 9).OrderBy(_ => _.SpecificationAttributeName).ToList())
+                            </div>
+                        }
                     </div>
                 </div>
                 <!-- End Detail Tabs -->
