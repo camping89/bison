@@ -4,6 +4,7 @@ using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Media;
 using Nop.Core.Domain.Vendors;
+using Nop.Core.Extensions;
 using Nop.Services.Catalog;
 using Nop.Services.Common;
 using Nop.Services.Localization;
@@ -310,98 +311,74 @@ namespace Nop.Web.Controllers
             return View(model);
         }
 
-
-
         public virtual IActionResult SearchTermAutoComplete(string term)
         {
-            if (string.IsNullOrWhiteSpace(term) || term.Length < _catalogSettings.ProductSearchTermMinimumLength)
-                return Content("");
-            IList<int> alreadyFilteredSpecOptionIds = _specificationAttributeService.GetSpecificationAttributeOptionsIdsByTerm(term);
-            IList<int> childSpecOptionIds = _specificationAttributeService.GetSpecificationAttributeOptionsByParentIds(alreadyFilteredSpecOptionIds.ToArray()).Select(s => s.Id).ToList();
-            foreach (var childId in childSpecOptionIds)
+            if (string.IsNullOrWhiteSpace(term) || term.Length < _catalogSettings.ProductSearchTermMinimumLength) return Content("");
+
+            var specsOptionIds = _specificationAttributeService.GetSpecificationAttributeOptionsIdsByTerm(term).ToList();
+            var childSpecsOptions = _specificationAttributeService.GetSpecificationAttributeOptionsByParentIds(specsOptionIds.ToArray()).Select(s => s.Id).ToList();
+            specsOptionIds.AddRange(childSpecsOptions);
+
+            var result = GetSearchTermAutoCompleteByKeywords(term);
+
+            if (specsOptionIds.Count > 0) // found items by atts
             {
-                alreadyFilteredSpecOptionIds.Add(childId);
-            }
-            if (alreadyFilteredSpecOptionIds.Count > 0)
-            {
-                //products
-                var productNumber = _catalogSettings.ProductSearchAutoCompleteNumberOfProducts > 0 ?
-                    _catalogSettings.ProductSearchAutoCompleteNumberOfProducts : 10;
-                if (alreadyFilteredSpecOptionIds.Count > 1)
-                {
-                    foreach (var filteredSpecOptionId in alreadyFilteredSpecOptionIds)
-                    {
-                        var productsFilter = _productService.SearchProducts(out IList<int> filterableSpecificationAttributeOptionIdsFilter,
-                            true,
-                            categoryIds: null,
-                            storeId: _storeContext.CurrentStore.Id,
-                            visibleIndividuallyOnly: true,
-                            featuredProducts: _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : (bool?)false,
-                            filteredSpecs: new List<int> { filteredSpecOptionId },
-                            orderBy: ProductSortingEnum.NameAsc,
-                            pageSize: productNumber);
-
-                        if (productsFilter.Count > 0)
-                        {
-                            var modelsFilter = _productModelFactory.PrepareProductOverviewModels(productsFilter, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize).ToList();
-                            var resultFilter = (from p in modelsFilter
-                                                select new
-                                                {
-                                                    label = p.Name,
-                                                    producturl = Url.RouteUrl("Product", new { SeName = p.SeName }),
-                                                    productpictureurl = p.DefaultPictureModel.ImageUrl
-                                                })
-                                .ToList();
-                            return Json(resultFilter);
-                        }
-                    }
-                }
-                var products = _productService.SearchProducts(out IList<int> filterableSpecificationAttributeOptionIds,
-                    true,
-                    categoryIds: null,
-                    storeId: _storeContext.CurrentStore.Id,
-                    visibleIndividuallyOnly: true,
-                    featuredProducts: _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : (bool?)false,
-                    filteredSpecs: alreadyFilteredSpecOptionIds,
-                    orderBy: ProductSortingEnum.NameAsc,
-                    pageSize: productNumber);
-
-                var models = _productModelFactory.PrepareProductOverviewModels(products, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize).ToList();
-                var result = (from p in models
-                              select new
-                              {
-                                  label = p.Name,
-                                  producturl = Url.RouteUrl("Product", new { SeName = p.SeName }),
-                                  productpictureurl = p.DefaultPictureModel.ImageUrl
-                              })
-                    .ToList();
-                return Json(result);
-            }
-            else
-            {
-                //products
-                var productNumber = _catalogSettings.ProductSearchAutoCompleteNumberOfProducts > 0 ?
-                    _catalogSettings.ProductSearchAutoCompleteNumberOfProducts : 10;
-
-                var products = _productService.SearchProducts(
-                    storeId: _storeContext.CurrentStore.Id,
-                    keywords: term,
-                    languageId: _workContext.WorkingLanguage.Id,
-                    visibleIndividuallyOnly: true,
-                    pageSize: productNumber);
-
-                var models = _productModelFactory.PrepareProductOverviewModels(products, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize).ToList();
-                var result = (from p in models
-                              select new
-                              {
-                                  label = p.Name,
-                                  producturl = Url.RouteUrl("Product", new { SeName = p.SeName }),
-                                  productpictureurl = p.DefaultPictureModel.ImageUrl
-                              })
-                    .ToList();
-                return Json(result);
+                var attributeSearchResult = GetSearchTermAutoCompleteByAttribute(specsOptionIds);
+                result.AddRange(attributeSearchResult);
             }
 
+            return Json(result.DistinctBy(_ => _.producturl));
+        }
+
+        private List<CatalogSearchModel> GetSearchTermAutoCompleteByKeywords(string term)
+        {
+            var productNumber = _catalogSettings.ProductSearchAutoCompleteNumberOfProducts > 0 ? _catalogSettings.ProductSearchAutoCompleteNumberOfProducts : 10;
+
+            var products = _productService.SearchProducts(
+                storeId: _storeContext.CurrentStore.Id,
+                keywords: term,
+                languageId: _workContext.WorkingLanguage.Id,
+                visibleIndividuallyOnly: true,
+                pageSize: productNumber);
+
+            var models = _productModelFactory.PrepareProductOverviewModels(products, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize).ToList();
+            var result = (from p in models
+                          select new CatalogSearchModel
+                          {
+                              label = p.Name,
+                              producturl = Url.RouteUrl("Product", new { SeName = p.SeName }),
+                              productpictureurl = p.DefaultPictureModel.ImageUrl
+                          })
+                .ToList();
+            return result;
+        }
+
+        private List<CatalogSearchModel> GetSearchTermAutoCompleteByAttribute(List<int> specsOptionIds)
+        {
+            var productNumber = _catalogSettings.ProductSearchAutoCompleteNumberOfProducts > 0
+                ? _catalogSettings.ProductSearchAutoCompleteNumberOfProducts
+                : 10;
+
+            var products = _productService.SearchProducts(out IList<int> filterableSpecificationAttributeOptionIds,
+                true,
+                categoryIds: null,
+                storeId: _storeContext.CurrentStore.Id,
+                visibleIndividuallyOnly: true,
+                featuredProducts: _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : (bool?)false,
+                filteredSpecs: specsOptionIds,
+                orderBy: ProductSortingEnum.NameAsc,
+                pageSize: productNumber);
+
+            var models = _productModelFactory.PrepareProductOverviewModels(products, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize).ToList();
+            var result = (from p in models
+                          select new CatalogSearchModel
+                          {
+                              label = p.Name,
+                              producturl = Url.RouteUrl("Product", new { SeName = p.SeName }),
+                              productpictureurl = p.DefaultPictureModel.ImageUrl
+                          })
+                .ToList();
+            return result;
         }
 
         #endregion
