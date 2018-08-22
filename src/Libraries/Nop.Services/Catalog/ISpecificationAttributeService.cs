@@ -62,7 +62,7 @@ namespace Nop.Services.Catalog
         /// <returns>Specification attribute options</returns>
         IList<SpecificationAttributeOption> GetSpecificationAttributeOptionsByIds(int[] specificationAttributeOptionIds);
         IList<int> GetSpecificationAttributeOptionsIdsByTerm(string term);
-        IList<SpecificationAttributeOption> GetSpecificationAttributeOptionsByParentIds(int[] specificationAttributeOptionIds);
+        List<SpecificationAttributeOption> GetSpecificationAttributeOptionsByParentIds(int[] specificationAttributeOptionIds);
 
         /// <summary>
         /// Gets a specification attribute option by specification attribute id

@@ -11,7 +11,7 @@
         <dl>
             @foreach (var attribute in Model)
             {
-                attribute.Values = attribute.Values.OrderBy(_ => _.Name).ToList();
+                attribute.Values = attribute.Values.ToList();
                 var controlId = $"product_attribute_{attribute.Id}";
                 var textPrompt = !string.IsNullOrEmpty(attribute.TextPrompt) ? attribute.TextPrompt : attribute.Name;
                 <dt id="@($"product_attribute_label_{attribute.Id}")">
@@ -418,9 +418,13 @@
                     data: $('#product-details-form').serialize(),
                     type: 'post',
                     success: function(data) {
-                        if (data.price) {
+                        if (data.callforprice == true) {
+                            $('.price-value-@productId').text('@T("products.callforprice")');
+                        } else if (data.price) {
                             $('.price-value-@productId').text(data.price);
-                        }
+                            }
+
+
                         if (data.sku) {
                             $('#sku-@productId').text(data.sku).parent(".sku").show();
                         } else {
@@ -458,16 +462,19 @@
                                 $('#product_attribute_input_' + data.disabledattributemappingids[i]).hide();
                             }
                         }
-                        if (data.pictureDefaultSizeUrl) {
+                        if (data.pictureId !== 0) {
+                            $("#pic_nav_id_" + data.pictureId + " > a").trigger("click");
+                        }
+                        @*if (data.pictureDefaultSizeUrl) {
                             $('#main-ul-images-@productId').html('<li><img src="' + data.pictureDefaultSizeUrl +'"/></li>');
                             $('#main-ul-nav-images-@productId').html('<li><img src="' + data.pictureDefaultSizeUrl +'"/></li>');
-                        }
-                        if (data.pictureFullSizeUrl) {
+                        }*@
+                        @*if (data.pictureFullSizeUrl) {
                             $('#main-ul-images-@productId').html('<li><img src="' + data.pictureFullSizeUrl +'"/></li>');
                             $('#main-ul-nav-images-@productId').html('<li class="active"><img src="' + data.pictureFullSizeUrl +'"/></li>');
 
                             //$('#main-product-img-lightbox-anchor-@productId').attr("href", data.pictureFullSizeUrl);
-                        }
+                        }*@
                         if (data.message) {
                             alert(data.message);
                         }

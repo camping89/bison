@@ -51,28 +51,22 @@
     @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_before" })
     @await Component.InvokeAsync("CategoryNavigation", new { currentCategoryId = currentCategoryId, currentProductId = currentProductId })
     @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after_category_navigation" })
-    @await Component.InvokeAsync("ManufacturerNavigation", new { currentManufacturerId = currentManufacturerId, manufacturers = Model.Manufacturers })
-    @await Component.InvokeAsync("VendorNavigation")
-    <div class="widget widget-filter">
-        <h2 class="title-widget title18">@T("Filtering.ShoppingBy")</h2>
+    @*@await Component.InvokeAsync("VendorNavigation")*@
 
-        @await Html.PartialAsync("_FilterPriceBox", Model.PagingFilteringContext.PriceRangeFilter)
-        @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
-        {
-            @await Html.PartialAsync("_FilterSpecsBox", Model.PagingFilteringContext.SpecificationFilter)
-        }
-    </div>
+    @await Html.PartialAsync("_FilterAjax", Model.PagingFilteringContext.SpecificationFilter)
+
     @await Component.InvokeAsync("RecentlyViewedProductsBlock", new { productThumbPictureSize = 64 })
-    @await Component.InvokeAsync("PopularProductTags")
+    @*@await Component.InvokeAsync("PopularProductTags")*@
     @await Component.InvokeAsync("PollBlock", new { systemKeyword = "LeftColumnPoll" })
     @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after" })
 }
-<script>
+
+<input type="hidden" id="mid" value="@currentManufacturerId" />
+<script type="text/javascript" asp-location="Footer">
     $(function () {
-        manufacturerId = "@currentManufacturerId";
+        searchParameters();
     });
 </script>
-
 
 @section Breadcrumb
     {

@@ -155,7 +155,7 @@ namespace Nop.Web.Controllers
             //model
             var model = _catalogModelFactory.PrepareProductFilterModel(command);
 
-            return View("CategoryTemplateFilter.ProductsInGridOrLines", model);
+            return View("ProductTemplateFilter.ProductsInGridOrLines", model);
         }
 
 
@@ -170,14 +170,22 @@ namespace Nop.Web.Controllers
                 _storeContext.CurrentStore.Id);
 
             //activity log
-            _customerActivityService.InsertActivity("PublicStore.ProductFilter", _localizationService.GetResource("ActivityLog.PublicStore.ProductFilter"));
+            //_customerActivityService.InsertActivity("PublicStore.ProductFilter", _localizationService.GetResource("ActivityLog.PublicStore.ProductFilter"));
             var model = _catalogModelFactory.PrepareProductFilterModelAjax(command);
             return Json(new
             {
                 ViewData = RenderPartialViewToString("_ProductFilterAjax", model),
                 FilterableSpecAttr = model.PagingFilteringContext.SpecificationFilter.NotFilteredItems.Select(_ => _.SpecificationAttributeOptionId).ToList(),
-                ManufacturersIds = model.Manufacturers.Select(_ => _.Id).ToList()
+                ManufacturersIds = model.Manufacturers.Select(_ => _.Id).ToList(),
+                ViewDataFilterSpec = RenderPartialViewToString("_FilterSpecsBox", model.PagingFilteringContext.SpecificationFilter)
             });
+        }
+
+        [HttpsRequirement(SslRequirement.No)]
+        public virtual IActionResult GetSubCategories(int categoryId)
+        {
+            var categories = _catalogModelFactory.GetSubCategoryModels(categoryId);
+            return Json(new { Categories = categories, DisplayType = FilterControlType.SingleCheckbox });
         }
 
         #endregion
@@ -308,7 +316,27 @@ namespace Nop.Web.Controllers
                 model = new SearchModel();
 
             model = _catalogModelFactory.PrepareSearchModel(model, command);
-            return View(model);
+            return View("ProductTemplateSearch", model);
+        }
+
+        public virtual IActionResult AjaxSearch(SearchModel model, CatalogPagingFilteringModel command)
+        {
+            //'Continue shopping' URL
+            _genericAttributeService.SaveAttribute(_workContext.CurrentCustomer,
+                SystemCustomerAttributeNames.LastContinueShoppingPage,
+                _webHelper.GetThisPageUrl(false),
+                _storeContext.CurrentStore.Id);
+
+            if (model == null)
+                model = new SearchModel();
+
+            model = _catalogModelFactory.PrepareSearchModel(model, command);
+            return Json(new
+            {
+                ViewData = RenderPartialViewToString("_ProductSearchAjax", model),
+                FilterableSpecAttr = model.PagingFilteringContext.SpecificationFilter.AllFilterableItems.Select(_ => _.SpecificationAttributeOptionId).ToList(),
+                ManufacturersIds = model.Manufacturers.Select(_ => _.Id).ToList()
+            });
         }
 
         public virtual IActionResult SearchTermAutoComplete(string term)
@@ -319,24 +347,19 @@ namespace Nop.Web.Controllers
             var childSpecsOptions = _specificationAttributeService.GetSpecificationAttributeOptionsByParentIds(specsOptionIds.ToArray()).Select(s => s.Id).ToList();
             specsOptionIds.AddRange(childSpecsOptions);
 
-            var result = GetSearchTermAutoCompleteByKeywords(term);
-
-            if (specsOptionIds.Count > 0) // found items by atts
-            {
-                var attributeSearchResult = GetSearchTermAutoCompleteByAttribute(specsOptionIds);
-                result.AddRange(attributeSearchResult);
-            }
+            var result = GetSearchTermAutoCompleteByKeywords(term, specsOptionIds);
 
             return Json(result.DistinctBy(_ => _.producturl));
         }
 
-        private List<CatalogSearchModel> GetSearchTermAutoCompleteByKeywords(string term)
+        private List<CatalogSearchModel> GetSearchTermAutoCompleteByKeywords(string term, List<int> specsOptionIds)
         {
             var productNumber = _catalogSettings.ProductSearchAutoCompleteNumberOfProducts > 0 ? _catalogSettings.ProductSearchAutoCompleteNumberOfProducts : 10;
 
-            var products = _productService.SearchProducts(
+            var products = _productService.SearchProductsAjax(out IList<int> filterableSpecificationAttributeOptionIds,
                 storeId: _storeContext.CurrentStore.Id,
                 keywords: term,
+                filteredSpecs: specsOptionIds,
                 languageId: _workContext.WorkingLanguage.Id,
                 visibleIndividuallyOnly: true,
                 pageSize: productNumber);
@@ -353,34 +376,28 @@ namespace Nop.Web.Controllers
             return result;
         }
 
-        private List<CatalogSearchModel> GetSearchTermAutoCompleteByAttribute(List<int> specsOptionIds)
+        #endregion
+
+        public IActionResult CategoryHasProducts(int categoryId)
         {
-            var productNumber = _catalogSettings.ProductSearchAutoCompleteNumberOfProducts > 0
-                ? _catalogSettings.ProductSearchAutoCompleteNumberOfProducts
-                : 10;
-
-            var products = _productService.SearchProducts(out IList<int> filterableSpecificationAttributeOptionIds,
-                true,
-                categoryIds: null,
-                storeId: _storeContext.CurrentStore.Id,
-                visibleIndividuallyOnly: true,
-                featuredProducts: _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : (bool?)false,
-                filteredSpecs: specsOptionIds,
-                orderBy: ProductSortingEnum.NameAsc,
-                pageSize: productNumber);
-
-            var models = _productModelFactory.PrepareProductOverviewModels(products, false, _catalogSettings.ShowProductImagesInSearchAutoComplete, _mediaSettings.AutoCompleteSearchThumbPictureSize).ToList();
-            var result = (from p in models
-                          select new CatalogSearchModel
-                          {
-                              label = p.Name,
-                              producturl = Url.RouteUrl("Product", new { SeName = p.SeName }),
-                              productpictureurl = p.DefaultPictureModel.ImageUrl
-                          })
-                .ToList();
-            return result;
+            var checkHasProduct = _productService.GetHasProductByCategoryId(categoryId);
+            return Json(checkHasProduct);
         }
 
-        #endregion
+        public IActionResult GetManufactures()
+        {
+            var model = _manufacturerService.GetAllManufacturers();
+
+            return Json(new { Manufacturers = model.ToList(), DisplayType = FilterControlType.SingleCheckbox });
+        }
+
+        public IActionResult GetPrice(int categoryId)
+        {
+            var dicsRangePrices = new Dictionary<string, int>();
+            dicsRangePrices.Add("MinPrice", _catalogSettings.RangeMinPrice);
+            dicsRangePrices.Add("MaxPrice", _catalogSettings.RangeMaxPrice);
+            return Json(new[] { dicsRangePrices });
+        }
+
     }
 }

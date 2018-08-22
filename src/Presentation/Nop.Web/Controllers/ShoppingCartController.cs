@@ -1005,6 +1005,7 @@ namespace Nop.Web.Controllers
             //picture. used when we want to override a default product picture when some attribute is selected
             var pictureFullSizeUrl = "";
             var pictureDefaultSizeUrl = "";
+            var pictureId = 0;
             if (loadPicture)
             {
                 //just load (return) the first found picture (in case if we have several distinct attributes with associated pictures)
@@ -1024,6 +1025,7 @@ namespace Nop.Web.Controllers
                         {
                             return new PictureModel
                             {
+                                Id = valuePicture.Id,
                                 FullSizeImageUrl = _pictureService.GetPictureUrl(valuePicture),
                                 ImageUrl = _pictureService.GetPictureUrl(valuePicture, _mediaSettings.ProductDetailsPictureSize)
                             };
@@ -1032,6 +1034,7 @@ namespace Nop.Web.Controllers
                     });
                     pictureFullSizeUrl = pictureModel.FullSizeImageUrl;
                     pictureDefaultSizeUrl = pictureModel.ImageUrl;
+                    pictureId = pictureModel.Id;
                 }
 
             }
@@ -1047,6 +1050,7 @@ namespace Nop.Web.Controllers
 
             return Json(new
             {
+                callforprice = product.CallForPrice,
                 gtin,
                 mpn,
                 sku,
@@ -1055,6 +1059,7 @@ namespace Nop.Web.Controllers
                 stockNumber,
                 enabledattributemappingids = enabledAttributeMappingIds.ToArray(),
                 disabledattributemappingids = disabledAttributeMappingIds.ToArray(),
+                pictureId,
                 pictureFullSizeUrl,
                 pictureDefaultSizeUrl,
                 isFreeShipping,

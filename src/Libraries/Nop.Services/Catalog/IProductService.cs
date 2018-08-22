@@ -16,6 +16,7 @@ namespace Nop.Services.Catalog
 
         List<int> GetAllProductIds();
         List<int> GetAllProductIdsByCategoryId(int categoryId);
+        bool GetHasProductByCategoryId(int categoryId);
         /// <summary>
         /// Delete a product
         /// </summary>

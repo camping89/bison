@@ -283,6 +283,7 @@ namespace Nop.Web.Infrastructure.Cache
         /// {2} : current store ID
         /// </remarks>
         public const string CATEGORY_CHILD_IDENTIFIERS_MODEL_KEY = "Nop.pres.category.childidentifiers-{0}-{1}-{2}";
+        public const string CATEGORY_CHILD_MODELS_KEY = "Nop.pres.category.child.models-{0}-{1}-{2}";
         public const string CATEGORY_CHILD_IDENTIFIERS_PATTERN_KEY = "Nop.pres.category.childidentifiers";
 
         /// <summary>

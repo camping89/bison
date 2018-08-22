@@ -1,0 +1,41 @@
+﻿@model CatalogPagingFilteringModel.SpecificationFilterModel
+<div class="widget widget-filter filter">
+
+    <h2 class="title-widget title18">@T("Filtering.ShoppingBy")</h2>
+
+    <a class="clear-settings" href="#" onclick="ClearSettings();return false"><i class="icon-cancel-1"></i>@T("ClearFilter")</a>
+
+    <div id="categories" class="filter-category filter">
+        <h3 class="title14">@T("SubCategories")</h3>
+    </div>
+
+    <div class="filter-group">
+        <div class="filter-price">
+            <h3 class="title14">@T("Filtering.PriceRangeFilter")</h3>
+            <div class="range-filter">
+                <div class="new-filter">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <span>@T("Filter.FromPrice")</span><input type="text" class="filter-from-price" />
+                        </div>
+                        <div class="col-md-6">
+                            <span>@T("Filter.ToPrice")</span><input type="text" class="filter-to-price" />
+                        </div>
+                    </div>
+                    <hr />
+                    <div id="slider-handles_price"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*@await Html.PartialAsync("_FilterSpecsBox", Model)*@
+
+    <div id="groups_filter_specs">
+
+    </div>
+
+    <div id="manufacturers" class="filter-manufacture filter">
+        <h3 class="title14">@T("Manufacturers")</h3>
+    </div>
+</div>

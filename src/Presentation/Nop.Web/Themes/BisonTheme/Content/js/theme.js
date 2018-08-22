@@ -207,55 +207,55 @@
             });
         }
         //New Filter price
-        if ($('.new-filter').length > 0) {
+        //if ($('.new-filter').length > 0) {
 
-            //var urlParams = new URLSearchParams(location.search);
-            var pf = getParameterByName("pf", window.location.href);
-            var pt = getParameterByName("pt", window.location.href);
-            if (pf == null) {
-                pf = 0;
-            }
-            if (pt == null || pt === 0) {
-                pt = 10000000;
-            }
-            var slider = $("#slider-range").slider({
-                range: true,
-                step: 100000,
-                min: 0,
-                max: 10000000,
-                values: [pf, pt],
-                slide: function (event, ui) {
-                    $(".filter-from-price").val(ui.values[0].format());
-                    $(".filter-to-price").val(ui.values[1].format());
+        //    //var urlParams = new URLSearchParams(location.search);
+        //    var pf = getParameterByName("pf", window.location.href);
+        //    var pt = getParameterByName("pt", window.location.href);
+        //    if (pf == null) {
+        //        pf = 0;
+        //    }
+        //    if (pt == null || pt === 0) {
+        //        pt = 10000000;
+        //    }
+        //    var slider = $("#slider-range").slider({
+        //        range: true,
+        //        step: 100000,
+        //        min: 0,
+        //        max: 10000000,
+        //        values: [pf, pt],
+        //        slide: function (event, ui) {
+        //            $(".filter-from-price").val(ui.values[0].format());
+        //            $(".filter-to-price").val(ui.values[1].format());
 
-                },
-                change: function (event, ui) {
-                    minPrice = ui.values[0];
-                    maxPrice = ui.values[1];
-                    SearchProductAjax();
-                }
-            });
+        //        },
+        //        change: function (event, ui) {
+        //            minPrice = ui.values[0];
+        //            maxPrice = ui.values[1];
+        //            SearchProductAjax();
+        //        }
+        //    });
 
-            $(".filter-from-price").val($("#slider-range").slider("values", 0).format());
-            $(".filter-to-price").val($("#slider-range").slider("values", 1).format());
+        //    $(".filter-from-price").val($("#slider-range").slider("values", 0).format());
+        //    $(".filter-to-price").val($("#slider-range").slider("values", 1).format());
 
-            $(".filter-from-price").on("change", function () {
-                slider.slider("option", "values", [$(this).val().removeComma(), $(".filter-to-price").val().removeComma()]);
+        //    $(".filter-from-price").on("change", function () {
+        //        slider.slider("option", "values", [$(this).val().removeComma(), $(".filter-to-price").val().removeComma()]);
 
-                var strPrice = $(this).val().toInt().format();
-                $(this).val(strPrice);
-            });
+        //        var strPrice = $(this).val().toInt().format();
+        //        $(this).val(strPrice);
+        //    });
 
-            $(".filter-to-price").on("change", function () {
-                slider.slider("option", "values", [$(".filter-from-price").val().removeComma(), $(this).val().removeComma()]);
+        //    $(".filter-to-price").on("change", function () {
+        //        slider.slider("option", "values", [$(".filter-from-price").val().removeComma(), $(this).val().removeComma()]);
 
-                var strPrice = $(this).val().toInt().format();
-                $(this).val(strPrice);
-            });
+        //        var strPrice = $(this).val().toInt().format();
+        //        $(this).val(strPrice);
+        //    });
             
-            //keypress
+        //    //keypress
 
-        }
+        //}
 
         //Filter Price
         //if($('.range-filter').length>0){
@@ -472,270 +472,276 @@ String.prototype.removeComma = function () {
     }
     return 0;
 }
+
+jQuery.expr[':'].contains = function(a, i, m) {
+    return jQuery(a).text().toUpperCase()
+        .indexOf(m[3].toUpperCase()) >= 0;
+};
+
 /*Ajax search products*/
-$(document).ready(function () {
+//$(document).ready(function () {
     
-    if ($(".filter-ajax-result").length > 0) {
-        if ($("#products-pagesize").length > 0) {
-            $("#products-orderby")[0].onchange = null;
-        }
+//    if ($(".filter-ajax-result").length > 0) {
+//        if ($("#products-pagesize").length > 0) {
+//            $("#products-orderby")[0].onchange = null;
+//        }
 
-        if ($("#products-pagesize").length > 0) {
-            $("#products-pagesize")[0].onchange = null;
-        }
+//        if ($("#products-pagesize").length > 0) {
+//            $("#products-pagesize")[0].onchange = null;
+//        }
 
-        $(document).on('change', '#products-orderby,#products-pagesize', function (event) {
-            event.preventDefault();
-            sorting = getParameterByName('orderby', $("#products-orderby").val()) != null ? getParameterByName('orderby', $("#products-orderby").val()) : 0;
-            pagesize = getParameterByName('pagesize', $("#products-pagesize").val()) != null ? getParameterByName('pagesize', $("#products-pagesize").val()) : 0;
-            SearchProductAjax();
-        });
-        $(document).on('click', '.individual-page a,.next-page a,.previous-page a ,.last-page a, .first-page a', function (event) {
-            event.preventDefault();
+//        $(document).on('change', '#products-orderby,#products-pagesize', function (event) {
+//            event.preventDefault();
+//            sorting = getParameterByName('orderby', $("#products-orderby").val()) != null ? getParameterByName('orderby', $("#products-orderby").val()) : 0;
+//            pagesize = getParameterByName('pagesize', $("#products-pagesize").val()) != null ? getParameterByName('pagesize', $("#products-pagesize").val()) : 0;
+//            SearchProductAjax();
+//        });
+//        $(document).on('click', '.individual-page a,.next-page a,.previous-page a ,.last-page a, .first-page a', function (event) {
+//            event.preventDefault();
     
-            SearchProductAjax(getParameterByName("pagenumber", $(this)[0].href) == null ? 0 : getParameterByName("pagenumber", $(this)[0].href));
-        });
+//            SearchProductAjax(getParameterByName("pagenumber", $(this)[0].href) == null ? 0 : getParameterByName("pagenumber", $(this)[0].href));
+//        });
 
-        $(document).on('click', '.viewmode-icon', function (event) {
-            event.preventDefault();
-            selectViewMode($(this)[0].title);
-        });
+//        $(document).on('click', '.viewmode-icon', function (event) {
+//            event.preventDefault();
+//            selectViewMode($(this)[0].title);
+//        });
         
-        $(document).on('click', '.checkbox-manufacture', function (event) {
-            //event.preventDefault();
-            SearchProductAjax();
-        });
-    }
-});
+//        $(document).on('click', '.checkbox-manufacture', function (event) {
+//            //event.preventDefault();
+//            SearchProductAjax();
+//        });
+//    }
+//});
 
-function selectViewMode(type) {
-    //if grid is selected and grid is not active
-    if ($('.viewmode-icon.grid-view.active').length == 0) {
-        $('.viewmode-icon.list-view.active').removeClass("active");
-        $('.viewmode-icon.grid-view').addClass("active");
-        viewMode = "grid";
+//function selectViewMode(type) {
+//    //if grid is selected and grid is not active
+//    if ($('.viewmode-icon.grid-view.active').length == 0) {
+//        $('.viewmode-icon.list-view.active').removeClass("active");
+//        $('.viewmode-icon.grid-view').addClass("active");
+//        viewMode = "grid";
 
-    }
-    else if ($('.viewmode-icon.list-view.active').length == 0) {
-        //remove selected from grid
-        $('.viewmode-icon.grid-view.active').removeClass("active");
-        //add to list
-        $('.viewmode-icon.list-view').addClass("active");
-        viewMode = "list";
-    }
-    SearchProductAjax();
-}
-jQuery(document).ready(function () {
-    currentCheckbox = $(this).attr("name");
-    $(".SpecsCheckbox").change(function () {
-        currentCheckbox = $(this).attr("name");
-        if ($(this).is(':checked')) {
-            enableCheckbox = true;
-        }
-        else {
-            enableCheckbox = false;
-        }
-        SearchProductAjax();
-    });
+//    }
+//    else if ($('.viewmode-icon.list-view.active').length == 0) {
+//        //remove selected from grid
+//        $('.viewmode-icon.grid-view.active').removeClass("active");
+//        //add to list
+//        $('.viewmode-icon.list-view').addClass("active");
+//        viewMode = "list";
+//    }
+//    SearchProductAjax();
+//}
+//jQuery(document).ready(function () {
+//    currentCheckbox = $(this).attr("name");
+//    $(".SpecsCheckbox").change(function () {
+//        currentCheckbox = $(this).attr("name");
+//        if ($(this).is(':checked')) {
+//            enableCheckbox = true;
+//        }
+//        else {
+//            enableCheckbox = false;
+//        }
+//        SearchProductAjax();
+//    });
 
-    $(".ManuCheckbox").change(function () {
-        //currentCheckbox = $(this).attr("name");
-        //if ($(this).is( ":checked")) {
-        //    manufacturerId = $(this).val();
-        //    DisableManuCheckbox();
-        //    $(this).attr("disabled", false);
-        //    $(this).parent().removeClass("disabled");
-        //} else {
-        //    manufacturerId = "";
-        //    EnableManuCheckbox();
-        //}
+//    $(".ManuCheckbox").change(function () {
+//        //currentCheckbox = $(this).attr("name");
+//        //if ($(this).is( ":checked")) {
+//        //    manufacturerId = $(this).val();
+//        //    DisableManuCheckbox();
+//        //    $(this).attr("disabled", false);
+//        //    $(this).parent().removeClass("disabled");
+//        //} else {
+//        //    manufacturerId = "";
+//        //    EnableManuCheckbox();
+//        //}
 
-        //SearchProductAjax();
-        currentCheckbox = $(this).attr("name");
-        if ($(this).is(':checked')) {
-            enableCheckbox = true;
-        }
-        else {
-            enableCheckbox = false;
-        }
-        SearchProductAjax();
-    });
-});
+//        //SearchProductAjax();
+//        currentCheckbox = $(this).attr("name");
+//        if ($(this).is(':checked')) {
+//            enableCheckbox = true;
+//        }
+//        else {
+//            enableCheckbox = false;
+//        }
+//        SearchProductAjax();
+//    });
+//});
 
-function DisableManuCheckbox() {
-    $(".ManuCheckbox").each(function( index ) {
-        $(this).attr("disabled", true);
-        $(this).parent().addClass("disabled");
-    });
-}
-function EnableManuCheckbox() {
-    $(".ManuCheckbox").each(function( index ) {
-        $(this).attr("disabled", false);
-        $(this).parent().removeClass("disabled");
-    });
-}
+//function DisableManuCheckbox() {
+//    $(".ManuCheckbox").each(function( index ) {
+//        $(this).attr("disabled", true);
+//        $(this).parent().addClass("disabled");
+//    });
+//}
+//function EnableManuCheckbox() {
+//    $(".ManuCheckbox").each(function( index ) {
+//        $(this).attr("disabled", false);
+//        $(this).parent().removeClass("disabled");
+//    });
+//}
 
-function getParameterByName(name, url) {
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
-var specs = [];
-var attr = [];
-var minPrice = 0;
-var maxPrice = 10000000;
-var pagesize = 12;
-var pageNumber = 1;
-var viewMode = "grid";
-var sorting = "";
-var dataPost = {};
-var categoryId = "";
-var manufacturerIds = "";
-var term = "";
-var currentCheckbox;
-var enableCheckbox = true;
-var resetDropdown = false;
-var currentDropdown;
-var currentManufacturer;
+//function getParameterByName(name, url) {
+//    name = name.replace(/[\[\]]/g, "\\$&");
+//    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+//        results = regex.exec(url);
+//    if (!results) return null;
+//    if (!results[2]) return '';
+//    return decodeURIComponent(results[2].replace(/\+/g, " "));
+//}
+//var specs = [];
+//var attr = [];
+//var minPrice = 0;
+//var maxPrice = 10000000;
+//var pagesize = 12;
+//var pageNumber = 1;
+//var viewMode = "grid";
+//var sorting = "";
+//var dataPost = {};
+//var categoryId = "";
+//var manufacturerIds = "";
+//var term = "";
+//var currentCheckbox;
+//var enableCheckbox = true;
+//var resetDropdown = false;
+//var currentDropdown;
+//var currentManufacturer;
 
-function SearchProductAjax(_pageNumber) {
-    pageNumber = _pageNumber;
-    if (pageNumber === undefined) {
-        pageNumber = 1;
-    }
-    specs = [];
-    var checkedSpecs = $('input[data-type="chk_spec_"]:checked').map(function () {
-        return parseInt(this.value);
-    }).get();
-    $.merge(specs, checkedSpecs);
+//function SearchProductAjax(_pageNumber) {
+//    pageNumber = _pageNumber;
+//    if (pageNumber === undefined) {
+//        pageNumber = 1;
+//    }
+//    specs = [];
+//    var checkedSpecs = $('input[data-type="chk_spec_"]:checked').map(function () {
+//        return parseInt(this.value);
+//    }).get();
+//    $.merge(specs, checkedSpecs);
     
-     manufacturerIds = $('input[data-type="manufacturer_chk"]:checked').map(function () {
-                    return parseInt($(this).val());
-                }).get().join(",");
-     console.log(manufacturerIds);
-    var dataPost = { specs: specs.join(","), attr: attr.join(","), categoryId: categoryId, viewmode: viewMode, pagesize: pagesize, pagenumber: pageNumber, orderby: sorting, manufacturerIds: manufacturerIds, pf: minPrice, pt: maxPrice };
-    addAntiForgeryToken(dataPost);
-    $(".loading-ajax").show();
-    $.ajax({
-        method: "GET",
-        url: "/Catalog/ProductFilterAjax",
-        data: dataPost
-    }).done(function (msg) {
+//     manufacturerIds = $('input[data-type="manufacturer_chk"]:checked').map(function () {
+//                    return parseInt($(this).val());
+//                }).get().join(",");
+//     console.log(manufacturerIds);
+//    var dataPost = { specs: specs.join(","), attr: attr.join(","), categoryId: categoryId, viewmode: viewMode, pagesize: pagesize, pagenumber: pageNumber, orderby: sorting, manufacturerIds: manufacturerIds, pf: minPrice, pt: maxPrice };
+//    addAntiForgeryToken(dataPost);
+//    $(".loading-ajax").show();
+//    $.ajax({
+//        method: "GET",
+//        url: "/Catalog/ProductFilterAjax",
+//        data: dataPost
+//    }).done(function (msg) {
         
-        if ($(".filter-ajax-result").length != 0) {
-            $(".filter-ajax-result").eq(0).html(msg.ViewData);
-        }
-        else {
-            $(".filter-ajax-result")[0].eq(0).html(msg.ViewData);
-        }
-        var checkedSpecSearch;
-        var checkedAttrSearch;
-        //loop all checkboxes and disable the checkboxes that cant be filtered
+//        if ($(".filter-ajax-result").length != 0) {
+//            $(".filter-ajax-result").eq(0).html(msg.ViewData);
+//        }
+//        else {
+//            $(".filter-ajax-result")[0].eq(0).html(msg.ViewData);
+//        }
+//        var checkedSpecSearch;
+//        var checkedAttrSearch;
+//        //loop all checkboxes and disable the checkboxes that cant be filtered
 
-        var checkedSpecs = $('input[data-type="chk_spec_"]').map(function () {
+//        var checkedSpecs = $('input[data-type="chk_spec_"]').map(function () {
 
-            if ($.inArray(parseInt(this.value), msg.FilterableSpecAttr) == -1) {
-                if ($(this).attr("name") != currentCheckbox) {
-                    $(this).attr("disabled", true);
-                    $(this).parent().addClass("disabled");
-                    if ($(this).is(':checked')) {
-                        $(this).parent().removeClass("disabled");
-                        $(this).removeAttr("disabled");
-                    }
-                }
-            }
-            else {
-                $(this).parent().removeClass("disabled");
-                $(this).removeAttr("disabled");
-            }
-        });
-        ////loop all checkboxes and disable the checkboxes that cant be filtered
-        //var checkedSpecs = $('input[data-type="chk_attr_"]').map(function () {
-        //    if ($.inArray(parseInt(this.value), msg.FilterableProdAttr) == -1) {
-        //        if ($(this).attr("name") != currentCheckbox) {
-        //            $(this).parent().addClass("disabled");
-        //        }
-        //    }
-        //    else {
-        //        $(this).parent().removeClass("disabled");
+//            if ($.inArray(parseInt(this.value), msg.FilterableSpecAttr) == -1) {
+//                if ($(this).attr("name") != currentCheckbox) {
+//                    $(this).attr("disabled", true);
+//                    $(this).parent().addClass("disabled");
+//                    if ($(this).is(':checked')) {
+//                        $(this).parent().removeClass("disabled");
+//                        $(this).removeAttr("disabled");
+//                    }
+//                }
+//            }
+//            else {
+//                $(this).parent().removeClass("disabled");
+//                $(this).removeAttr("disabled");
+//            }
+//        });
+//        ////loop all checkboxes and disable the checkboxes that cant be filtered
+//        //var checkedSpecs = $('input[data-type="chk_attr_"]').map(function () {
+//        //    if ($.inArray(parseInt(this.value), msg.FilterableProdAttr) == -1) {
+//        //        if ($(this).attr("name") != currentCheckbox) {
+//        //            $(this).parent().addClass("disabled");
+//        //        }
+//        //    }
+//        //    else {
+//        //        $(this).parent().removeClass("disabled");
 
-        //    }
-        //});
+//        //    }
+//        //});
 
-        var inputSpecSearch;
-        var inputAttrSearch;
-        if (resetDropdown) {
-            inputSpecSearch = 'select[data-type="cmb_spec_"] option';
-            inputAttrSearch = 'select[data-type="cmb_attr_"] option';
-        }
-        else {
-            inputSpecSearch = 'select[data-type="cmb_spec_"][name!="' + currentDropdown + '"] option';
-            inputAttrSearch = 'select[data-type="cmb_attr_"][name!="' + currentDropdown + '"] option';
-        }
+//        var inputSpecSearch;
+//        var inputAttrSearch;
+//        if (resetDropdown) {
+//            inputSpecSearch = 'select[data-type="cmb_spec_"] option';
+//            inputAttrSearch = 'select[data-type="cmb_attr_"] option';
+//        }
+//        else {
+//            inputSpecSearch = 'select[data-type="cmb_spec_"][name!="' + currentDropdown + '"] option';
+//            inputAttrSearch = 'select[data-type="cmb_attr_"][name!="' + currentDropdown + '"] option';
+//        }
 
-        //loop all input options and disable the checkboxes that cant be filtered
-        var inputSpecs = $(inputSpecSearch).map(function () {
-            if (this.value != 0) {
-                if ($.inArray(parseInt(this.value), msg.FilterableSpecAttr) == -1) {
-                    $(this).attr("disabled", true);
-                    $(this).parent().addClass("disabled");
-                }
-                else {
-                    $(this).parent().removeClass("disabled");
-                    $(this).removeAttr("disabled");
-                }
-            }
-        });
-        ////loop all input options and disable the checkboxes that cant be filtered
-        //var inputAttr = $(inputAttrSearch).map(function () {
-        //    if (this.value != 0) {
-        //        if ($.inArray(parseInt(this.value), msg.FilterableProdAttr) == -1) {
-        //            $(this).attr("disabled", true);
-        //        }
-        //        else {
-        //            $(this).removeAttr("disabled");
-        //        }
-        //    }
-        //});
+//        //loop all input options and disable the checkboxes that cant be filtered
+//        var inputSpecs = $(inputSpecSearch).map(function () {
+//            if (this.value != 0) {
+//                if ($.inArray(parseInt(this.value), msg.FilterableSpecAttr) == -1) {
+//                    $(this).attr("disabled", true);
+//                    $(this).parent().addClass("disabled");
+//                }
+//                else {
+//                    $(this).parent().removeClass("disabled");
+//                    $(this).removeAttr("disabled");
+//                }
+//            }
+//        });
+//        ////loop all input options and disable the checkboxes that cant be filtered
+//        //var inputAttr = $(inputAttrSearch).map(function () {
+//        //    if (this.value != 0) {
+//        //        if ($.inArray(parseInt(this.value), msg.FilterableProdAttr) == -1) {
+//        //            $(this).attr("disabled", true);
+//        //        }
+//        //        else {
+//        //            $(this).removeAttr("disabled");
+//        //        }
+//        //    }
+//        //});
 
-        //        //filter out manufacturers
-                var manuFilter = $('input[data-type="manufacturer_chk"]').map(function () {
-                    if (this.value != 0) {
-                        if ($.inArray(parseInt(this.value), msg.ManufacturersIds) == -1) {
-                            $(this).attr("disabled", true);
-                            $(this).parent().addClass("disabled");
-                        }
-                        else {
-                            $(this).parent().removeClass("disabled");
-                            $(this).removeAttr("disabled");
-                        }
-                    }
-                });
+//        //        //filter out manufacturers
+//                var manuFilter = $('input[data-type="manufacturer_chk"]').map(function () {
+//                    if (this.value != 0) {
+//                        if ($.inArray(parseInt(this.value), msg.ManufacturersIds) == -1) {
+//                            $(this).attr("disabled", true);
+//                            $(this).parent().addClass("disabled");
+//                        }
+//                        else {
+//                            $(this).parent().removeClass("disabled");
+//                            $(this).removeAttr("disabled");
+//                        }
+//                    }
+//                });
 
 
 
-        enableCheckbox = true;
-        currentCheckbox = '';
-        currentDropdown = '';
-        currentManufacturer = '';
-        //resetDropdown = false;
+//        enableCheckbox = true;
+//        currentCheckbox = '';
+//        currentDropdown = '';
+//        currentManufacturer = '';
+//        //resetDropdown = false;
 
-        $(".loading-ajax").hide();
+//        $(".loading-ajax").hide();
 
-        if (history.pushState) {
-            var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?specs=' + specs.join(",") + "&attr=" + attr.join(",") + "&categoryId=" + categoryId + "&viewmode=" + viewMode + "&pagesize=" + pagesize + "&pagenumber=" + pageNumber + "&manufacturerIds=" + manufacturerIds + "&orderby=" + sorting + "&pf=" + minPrice + "&pt=" + maxPrice;
-            window.history.pushState({ path: newurl }, '', newurl);
-        }
+//        if (history.pushState) {
+//            var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?specs=' + specs.join(",") + "&attr=" + attr.join(",") + "&categoryId=" + categoryId + "&viewmode=" + viewMode + "&pagesize=" + pagesize + "&pagenumber=" + pageNumber + "&manufacturerIds=" + manufacturerIds + "&orderby=" + sorting + "&pf=" + minPrice + "&pt=" + maxPrice;
+//            window.history.pushState({ path: newurl }, '', newurl);
+//        }
 
-        //$('.page-body > .pager').remove();
-        //spinner.spin(false);
-    })
-        .fail(function (error) {
-            $(".loading-ajax").hide();
-            console.log('error');
-            console.log(error);
-        });
-}
+//        //$('.page-body > .pager').remove();
+//        //spinner.spin(false);
+//    })
+//        .fail(function (error) {
+//            $(".loading-ajax").hide();
+//            console.log('error');
+//            console.log(error);
+//        });
+//}

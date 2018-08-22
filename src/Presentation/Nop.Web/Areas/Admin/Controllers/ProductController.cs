@@ -2896,7 +2896,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     switch (x.AttributeType)
                     {
                         case SpecificationAttributeType.Option:
-                            psaModel.ValueRaw = WebUtility.HtmlEncode(x.SpecificationAttributeOption.Name);
+                            psaModel.ValueRaw = WebUtility.HtmlEncode(x.SpecificationAttributeOption.GetFormattedSpecBreadCrumb(_specificationAttributeService));
                             psaModel.SpecificationAttributeOptionId = x.SpecificationAttributeOptionId;
                             break;
                         case SpecificationAttributeType.CustomText:
@@ -3953,14 +3953,14 @@ namespace Nop.Web.Areas.Admin.Controllers
                     .DistinctBy(_ => _.ProductAttributeId).ToList();
 
                 var oldMappings = _productAttributeService.GetProductAttributeMappingsByProductId(productId);
-                foreach (var attributeMapping in oldMappings)
-                {
-                    _productAttributeService.DeleteProductAttributeMapping(attributeMapping);
-                }
+                //foreach (var attributeMapping in oldMappings)
+                //{
+                //    _productAttributeService.DeleteProductAttributeMapping(attributeMapping);
+                //}
 
                 var newMappings = new List<ProductAttributeMapping>();
-                //foreach (var mapping in categoryAttributeMappings.Where(_ => _.ProductAttributeId.IsNotIn(oldMappings.Select(o=>o.ProductAttributeId))))
-                foreach (var mapping in categoryAttributeMappings)
+                foreach (var mapping in categoryAttributeMappings.Where(_ => _.ProductAttributeId.IsNotIn(oldMappings.Select(o => o.ProductAttributeId))))
+                //foreach (var mapping in categoryAttributeMappings)
                 {
                     var productAttributeMapping = new ProductAttributeMapping
                     {

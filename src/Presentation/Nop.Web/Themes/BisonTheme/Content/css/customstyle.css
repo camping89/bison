@@ -75,3 +75,9 @@
     overflow: hidden; 
     line-height: 28px; 
 }
+
+.recently-viewed-products > li {
+    margin:5px 0px;
+    padding: 0 0 10px 0;
+    border-bottom: 1px solid #f1f1f1;
+}

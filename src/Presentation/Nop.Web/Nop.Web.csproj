@@ -50,10 +50,13 @@
     <!-- We copy the \Logs directory -->
     <Content Include="Logs\**" CopyToPublishDirectory="PreserveNewest" />
     <None Remove="Properties\PublishProfiles\FolderProfile.pubxml" />
-    <None Remove="Themes\BisonTheme\Content\css\ajaxfilter.css" />
+    <None Remove="Themes\BisonTheme\Content\css\ajaxfilter.min.css" />
     <None Remove="Themes\BisonTheme\Content\css\libs\jcarousel.connected-carousels.css" />
     <None Remove="Themes\BisonTheme\Content\css\theme.css" />
     <None Remove="Themes\BisonTheme\Content\images\ajax-loader-small.gif" />
+    <None Remove="Themes\BisonTheme\Content\js\filters\nouislider.js" />
+    <None Remove="Themes\BisonTheme\Content\js\filters\spin.min.js" />
+    <None Remove="Themes\BisonTheme\Content\js\filters\wNumb.min.js" />
     <None Remove="Themes\BisonTheme\Content\js\libs\jcarousel.connected-carousels.js" />
     <None Remove="Themes\BisonTheme\Content\js\libs\jquery.jcarousel-swipe.js" />
     <None Remove="Themes\BisonTheme\Content\js\libs\jquery.jcarousel-swipe.min.js" />
@@ -80,6 +83,12 @@
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="Areas\Admin\Views\Shared\EditorTemplates\PictureMulti.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Themes\BisonTheme\Views\Catalog\ProductTemplateSearch.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Themes\BisonTheme\Views\Catalog\_FilterAjax.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="Themes\BisonTheme\Views\Catalog\_ProductSearchAjax.cshtml">

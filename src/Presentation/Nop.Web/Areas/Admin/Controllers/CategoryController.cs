@@ -1160,13 +1160,13 @@ namespace Nop.Web.Areas.Admin.Controllers
                     }
                     categoryAttributeMappings.AddRange(categorySpecificationAttributes);
                 }
-                var newMappings = new List<ProductSpecificationAttribute>();
+                //var newMappings = new List<ProductSpecificationAttribute>();
                 foreach (var mapping in categoryAttributeMappings.DistinctBy(_ => _.SpecificationAttributeOption.SpecificationAttributeId).ToList())
                 {
                     var oldSpec = oldMappings.FirstOrDefault(_ => _.SpecificationAttributeOption.SpecificationAttributeId == mapping.SpecificationAttributeOption.SpecificationAttributeId);
                     if (oldSpec != null)
                     {
-                        newMappings.Add(oldSpec);
+                        //newMappings.Add(oldSpec);
                     }
                     else
                     {
@@ -1180,16 +1180,16 @@ namespace Nop.Web.Areas.Admin.Controllers
                             ShowOnProductPage = mapping.ShowOnProductPage,
                             DisplayOrder = mapping.DisplayOrder,
                         };
-                        newMappings.Add(newSpec);
+                        //newMappings.Add(newSpec);
                         _specificationAttributeService.InsertProductSpecificationAttribute(newSpec);
                     }
                 }
 
                 // tìm A only
-                foreach (var item in oldMappings.Where(_ => _.SpecificationAttributeOption.SpecificationAttributeId.IsNotIn(newMappings.Select(n => n.SpecificationAttributeOption.SpecificationAttributeId))))
-                {
-                    _specificationAttributeService.DeleteProductSpecificationAttribute(item);
-                }
+                //foreach (var item in oldMappings.Where(_ => _.SpecificationAttributeOption.SpecificationAttributeId.IsNotIn(newMappings.Select(n => n.SpecificationAttributeOption.SpecificationAttributeId))))
+                //{
+                //    _specificationAttributeService.DeleteProductSpecificationAttribute(item);
+                //}
             }
         }
 

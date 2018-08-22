@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Nop.Core.Configuration;
+﻿using Nop.Core.Configuration;
+using System.Collections.Generic;
 
 namespace Nop.Core.Domain.Catalog
 {
@@ -402,5 +402,8 @@ namespace Nop.Core.Domain.Catalog
         /// Gets or sets a value indicating whether the categories need to be exported/imported using name of category
         /// </summary>
         public bool ExportImportCategoriesUsingCategoryName { get; set; }
+
+        public int RangeMinPrice { get; set; }
+        public int RangeMaxPrice { get; set; }
     }
 }

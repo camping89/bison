@@ -1037,6 +1037,7 @@ namespace Nop.Web.Factories
                 var defaultPicture = pictures.FirstOrDefault();
                 var defaultPictureModel = new PictureModel
                 {
+                    Id = defaultPicture != null ? defaultPicture.Id : 0,
                     ImageUrl = _pictureService.GetPictureUrl(defaultPicture, defaultPictureSize, !isAssociatedProduct),
                     FullSizeImageUrl = _pictureService.GetPictureUrl(defaultPicture, 0, !isAssociatedProduct)
                 };
@@ -1055,6 +1056,7 @@ namespace Nop.Web.Factories
                 {
                     var pictureModel = new PictureModel
                     {
+                        Id = picture.Id,
                         ImageUrl = _pictureService.GetPictureUrl(picture, defaultPictureSize, !isAssociatedProduct),
                         ThumbImageUrl = _pictureService.GetPictureUrl(picture, _mediaSettings.ProductThumbPictureSizeOnProductDetailsPage),
                         FullSizeImageUrl = _pictureService.GetPictureUrl(picture),

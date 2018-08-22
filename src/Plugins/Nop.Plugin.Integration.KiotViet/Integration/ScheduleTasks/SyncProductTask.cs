@@ -1,6 +1,5 @@
 ﻿using Nop.Core;
 using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Orders;
 using Nop.Core.Extensions;
 using Nop.Plugin.Integration.KiotViet.Integration.KiotViet;
 using Nop.Plugin.Integration.KiotViet.Integration.KiotViet.Entities;
@@ -10,7 +9,6 @@ using Nop.Services.Orders;
 using Nop.Services.Seo;
 using Nop.Services.Tasks;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
@@ -93,6 +91,7 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
 
                     KiotVietHelper.MergeProduct(sourceProduct, product);
                     product.StockQuantity = (int)sourceProducts.SelectMany(_ => _.inventories).Sum(_ => _.onHand);
+                    product.Price = basePrice;
 
                     var attMappings = _productAttributeService.GetProductAttributeMappingsByProductId(product.Id);
                     var sizeMappings = attMappings.Where(_ => _.ProductAttribute.Name.Equals("Size", StringComparison.InvariantCultureIgnoreCase)).ToList();
@@ -130,24 +129,29 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
             if (productAttributeMappings.Count > 0)
             {
                 var allAttributesXml = _productAttributeParser.GenerateAllCombinations(product, true);
+                var productAttributeCombines = _productAttributeService.GetAllProductAttributeCombinations(product.Id);
+                foreach (var item in productAttributeCombines)
+                {
+                    _productAttributeService.DeleteProductAttributeCombination(item);
+                }
                 foreach (var attributesXml in allAttributesXml)
                 {
-                    var existingCombination = _productAttributeParser.FindProductAttributeCombination(product, attributesXml);
+                    //var existingCombination = _productAttributeParser.FindProductAttributeCombination(product, attributesXml);
 
-                    //already exists?
-                    if (existingCombination != null)
-                    {
-                        existingCombination.StockQuantity = product.StockQuantity;
-                        _productAttributeService.UpdateProductAttributeCombination(existingCombination);
-                        continue;
-                    }
+                    ////already exists?
+                    //if (existingCombination != null)
+                    //{
+                    //    existingCombination.StockQuantity = product.StockQuantity;
+                    //    _productAttributeService.UpdateProductAttributeCombination(existingCombination);
+                    //    continue;
+                    //}
 
-                    //new one
-                    var warnings = new List<string>();
-                    warnings.AddRange(_shoppingCartService.GetShoppingCartItemAttributeWarnings(_workContext.CurrentCustomer,
-                        ShoppingCartType.ShoppingCart, product, 1, attributesXml, true));
-                    if (warnings.Count != 0)
-                        continue;
+                    ////new one
+                    //var warnings = new List<string>();
+                    //warnings.AddRange(_shoppingCartService.GetShoppingCartItemAttributeWarnings(_workContext.CurrentCustomer,
+                    //    ShoppingCartType.ShoppingCart, product, 1, attributesXml, true));
+                    //if (warnings.Count != 0)
+                    //    continue;
 
                     //save combination
                     var combination = new ProductAttributeCombination
@@ -200,8 +204,8 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                             {
                                 ProductAttributeMappingId = sizeMapping.Id,
                                 Name = kiotVietAttribute.attributeValue,
-                                PriceAdjustment = adjustPrice ? product.Price - originPrice : 0,
-                                Quantity = product.StockQuantity
+                                PriceAdjustment = adjustPrice ? sourceVariant.basePrice - originPrice : 0,
+                                Quantity = (int)sourceVariant.inventories.FirstOrDefault().onHand
                             });
                         }
                     }
@@ -224,8 +228,8 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                             {
                                 ProductAttributeMappingId = sizeMapping.Id,
                                 Name = kiotVietAttribute.attributeValue.Trim(),
-                                PriceAdjustment = adjustPrice ? product.Price - originPrice : 0,
-                                Quantity = product.StockQuantity
+                                PriceAdjustment = adjustPrice ? sourceVariant.basePrice - originPrice : 0,
+                                Quantity = (int)sourceVariant.inventories.FirstOrDefault().onHand
                             });
                         }
                     }

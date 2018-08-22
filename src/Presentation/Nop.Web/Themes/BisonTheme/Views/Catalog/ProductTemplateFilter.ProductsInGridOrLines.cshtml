@@ -21,7 +21,6 @@
     }
 
     var breadcrumbDelimiter = commonSettings.BreadcrumbDelimiter;
-
 }
 @{
     //current category ID
@@ -56,11 +55,8 @@
     @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_before" })
     @*@await Component.InvokeAsync("CategoryNavigation", new { currentCategoryId = currentCategoryId, currentProductId = currentProductId })*@
     @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after_category_navigation" })
-    @*@await Component.InvokeAsync("ManufacturerNavigation", new { currentManufacturerId = currentManufacturerId, manufacturers = Model.Manufacturers })*@
-    @*@await Component.InvokeAsync("VendorNavigation")*@
 
     @await Html.PartialAsync("_FilterAjax", Model.PagingFilteringContext.SpecificationFilter)
-
     @await Component.InvokeAsync("RecentlyViewedProductsBlock", new { productThumbPictureSize = 64 })
     @*@await Component.InvokeAsync("PopularProductTags")*@
     @await Component.InvokeAsync("PollBlock", new { systemKeyword = "LeftColumnPoll" })
@@ -68,49 +64,25 @@
 }
 
 
-@*category breadcrumb*@
-@section Breadcrumb
-    {
-    @if (Model.DisplayCategoryBreadcrumb)
-    {
-        <div class="bread-crumb">
-            <a href="@Url.RouteUrl("HomePage")" class="silver" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
-            @foreach (var cat in Model.CategoryBreadcrumb)
-            {
-                var isLastCategory = cat.Id == Model.Id;
-                if (isLastCategory)
-                {
-                    <strong class="color">@cat.Name</strong>
-                }
-                else
-                {
-                    <a href="@Url.RouteUrl("Category", new { SeName = cat.SeName })" class="silver" title="@cat.Name">@cat.Name</a>
-                    @*<span class="delimiter">@breadcrumbDelimiter</span>*@
-                }
-
-            }
-        </div>
-        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_breadcrumb", additionalData = Model.Id })
-    }
-    else
-    {
-        <div class="bread-crumb">
-            @*<a href="@Url.RouteUrl("HomePage")" class="silver" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
-                <strong class="color">@T("Search")</strong>*@
-        </div>
-    }
-}
-
-<input type="hidden" id="cid" value="@currentCategoryId" />
+<input type="hidden" id="specid" value="@Model.CurrentSpecId" />
 <script type="text/javascript" asp-location="Footer">
     $(function () {
         searchParameters();
     });
 </script>
 
+
+@*category breadcrumb*@
+@section Breadcrumb
+    {
+    <div class="bread-crumb">
+        <a href="@Url.RouteUrl(" HomePage")" class="silver" title="@T(" Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
+        <strong class="color">@T("ProductFilterAttribute")</strong>
+    </div>
+}
 <div class="content-shop shop-grid">
     <div class="shop-title-box">
-        <h2 class="title18 title-box5">@Model.Name</h2>
+        <h2 class="title18 title-box5">@T("ProductFilterAttribute")</h2>
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_featured_products", additionalData = Model.Id })
         @if (Model.Products.Count > 0)
         {
@@ -118,8 +90,9 @@
         }
 
     </div>
+
     <div class="filter-ajax-result">
 
     </div>
-
 </div>
+

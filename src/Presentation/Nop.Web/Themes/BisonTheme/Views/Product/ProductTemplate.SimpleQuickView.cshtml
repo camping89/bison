@@ -73,7 +73,15 @@
                                     {
                                         <del><span class="title14 silver">@Model.ProductPrice.Price</span></del>
                                     }
-                                    <ins><span class="price-value-@Model.Id title14 color">@Model.ProductPrice.Price</span></ins>
+                                    @if (Model.ProductPrice.CallForPrice)
+                                    {
+
+                                        <ins><span class="price-value-@Model.Id title14 color">@T("Products.CallForPrice")</span></ins>
+                                    }
+                                    else
+                                    {
+                                        <ins><span class="price-value-@Model.Id title14 color">@Model.ProductPrice.Price</span></ins>
+                                    }
 
                                 </div>
 

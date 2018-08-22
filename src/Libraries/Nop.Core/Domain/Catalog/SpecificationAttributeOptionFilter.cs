@@ -18,7 +18,7 @@
         /// <summary>
         /// Gets or sets the specification attribute display order
         /// </summary>
-        public  int SpecificationAttributeDisplayOrder { get; set; }
+        public int SpecificationAttributeDisplayOrder { get; set; }
 
         /// <summary>
         /// Gets or sets the specification attribute option identifier
@@ -29,6 +29,7 @@
         /// Gets or sets the specification attribute option name
         /// </summary>
         public string SpecificationAttributeOptionName { get; set; }
+        public string SpecificationAttributeOptionBreadcrumb { get; set; }
 
         /// <summary>
         /// Gets or sets the specification attribute option color (RGB)
@@ -40,6 +41,6 @@
         /// </summary>
         public int SpecificationAttributeOptionDisplayOrder { get; set; }
 
-        public int ParentSpecificationAttributeOptionId { get;set; }
+        public int ParentSpecificationAttributeOptionId { get; set; }
     }
 }

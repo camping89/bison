@@ -798,8 +798,15 @@ namespace Nop.Services.Catalog
 
         public List<int> GetAllProductIdsByCategoryId(int categoryId)
         {
-            return _dbContext.SqlQuery<int>("SELECT ProductId FROM dbo.Product_Category_Mapping pcm JOIN dbo.Category c ON c.Id = pcm.CategoryId " +
+            return _dbContext.SqlQuery<int>("SELECT ProductId FROM dbo.Product_Category_Mapping WITH(NOLOCK) pcm JOIN dbo.Category WITH(NOLOCK) c ON c.Id = pcm.CategoryId " +
             $"WHERE c.Id = {categoryId} GROUP BY pcm.ProductId").ToList();
+        }
+
+        public bool GetHasProductByCategoryId(int categoryId)
+        {
+            var count = _dbContext.SqlQuery<int>("SELECT COUNT(ProductId) FROM dbo.Product_Category_Mapping WITH(NOLOCK) pcm JOIN dbo.Category WITH(NOLOCK) c ON c.Id = pcm.CategoryId " +
+                                            $"WHERE c.Id = {categoryId} GROUP BY pcm.ProductId").FirstOrDefault();
+            return count > 0;
         }
         /// <summary>
         /// Delete a product

@@ -1,27 +1,18 @@
-﻿@model CategoryModel
-@using Nop.Core.Domain.Common
-@using Nop.Core.Domain.Seo
-@inject SeoSettings seoSettings
-@inject CommonSettings commonSettings
+﻿@model Nop.Web.Models.Catalog.SearchModel
 @{
     Layout = "_ColumnsTwo";
 
     //title
-    Html.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
-    //meta
-    Html.AddMetaDescriptionParts(Model.MetaDescription);
-    Html.AddMetaKeywordParts(Model.MetaKeywords);
+    Html.AddTitleParts(T("PageTitle.Search").Text);
     //page class
-    Html.AppendPageCssClassParts("html-category-page");
-
-    if (seoSettings.CanonicalUrlsEnabled)
+    Html.AppendPageCssClassParts("html-search-page");
+}
+@section Breadcrumb
     {
-        var categoryUrl = Url.RouteUrl("Category", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
-        Html.AddCanonicalUrlParts(categoryUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
-    }
-
-    var breadcrumbDelimiter = commonSettings.BreadcrumbDelimiter;
-
+    <div class="bread-crumb">
+        <a href="@Url.RouteUrl("HomePage")" class="silver" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
+        <strong class="color">@T("Search")</strong>
+    </div>
 }
 @{
     //current category ID
@@ -57,69 +48,55 @@
     @*@await Component.InvokeAsync("CategoryNavigation", new { currentCategoryId = currentCategoryId, currentProductId = currentProductId })*@
     @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after_category_navigation" })
     @*@await Component.InvokeAsync("ManufacturerNavigation", new { currentManufacturerId = currentManufacturerId, manufacturers = Model.Manufacturers })*@
-    @*@await Component.InvokeAsync("VendorNavigation")*@
-
+    @await Component.InvokeAsync("VendorNavigation")
     @await Html.PartialAsync("_FilterAjax", Model.PagingFilteringContext.SpecificationFilter)
-
     @await Component.InvokeAsync("RecentlyViewedProductsBlock", new { productThumbPictureSize = 64 })
     @*@await Component.InvokeAsync("PopularProductTags")*@
     @await Component.InvokeAsync("PollBlock", new { systemKeyword = "LeftColumnPoll" })
     @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after" })
 }
-
-
-@*category breadcrumb*@
-@section Breadcrumb
-    {
-    @if (Model.DisplayCategoryBreadcrumb)
-    {
-        <div class="bread-crumb">
-            <a href="@Url.RouteUrl("HomePage")" class="silver" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
-            @foreach (var cat in Model.CategoryBreadcrumb)
-            {
-                var isLastCategory = cat.Id == Model.Id;
-                if (isLastCategory)
-                {
-                    <strong class="color">@cat.Name</strong>
-                }
-                else
-                {
-                    <a href="@Url.RouteUrl("Category", new { SeName = cat.SeName })" class="silver" title="@cat.Name">@cat.Name</a>
-                    @*<span class="delimiter">@breadcrumbDelimiter</span>*@
-                }
-
-            }
-        </div>
-        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_breadcrumb", additionalData = Model.Id })
-    }
-    else
-    {
-        <div class="bread-crumb">
-            @*<a href="@Url.RouteUrl("HomePage")" class="silver" title="@T("Categories.Breadcrumb.Top")">@T("Categories.Breadcrumb.Top")</a>
-                <strong class="color">@T("Search")</strong>*@
-        </div>
-    }
-}
-
-<input type="hidden" id="cid" value="@currentCategoryId" />
 <script type="text/javascript" asp-location="Footer">
     $(function () {
         searchParameters();
+
+        $('#btnSearch').on('click', function () {
+            //$('#formSearch').submit();
+            searchParameters();
+        });
     });
 </script>
 
 <div class="content-shop shop-grid">
     <div class="shop-title-box">
-        <h2 class="title18 title-box5">@Model.Name</h2>
-        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_featured_products", additionalData = Model.Id })
-        @if (Model.Products.Count > 0)
-        {
-            @await Html.PartialAsync("_CatalogSelectors", Model.PagingFilteringContext)
-        }
+        <h2 class="title18 title-box5">@T("Search")</h2>
+    </div>
+    <div class="search-input  form-my-account text-center" style="margin: 0 auto;">
+        <form id="formSearch" method="get">
+            <div class="fieldset">
+                <div class="form-fields">
+                    <div class="basic-search">
+                        <div class="inputs">
+                            <label asp-for="q">@T("Search.SearchTerm"):</label>
+                            <input asp-for="q" class="search-text" />
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="buttons">
+                @*<input type="submit" class="button-1 search-button" value="@T("Search.Button")" />*@
+                <input type="button" id="btnSearch" class="button-1 search-button" value="@T("Search.Button")" />
+            </div>
+        </form>
+    </div>
+
+    <hr />
+    <div class="shop-title-box">
+        <h2 class="title18 title-box5">@T("Search.Result")</h2>
+        @await Html.PartialAsync("_CatalogSelectors", Model.PagingFilteringContext)
 
     </div>
     <div class="filter-ajax-result">
 
     </div>
-
 </div>

@@ -299,6 +299,31 @@ div.table {
         vertical-align: top;
     }
 /*End Class*/
+
+.required {
+    margin: 0 -8px 0 3px; /*siblings offset*/
+    vertical-align: top;
+    font-size: 20px;
+    font-weight: normal;
+    color: #e4434b;
+}
+.message-error,
+.field-validation-error,
+.username-not-available-status,
+.poll-vote-error, .password-error {
+    display: block;
+    font-size: 13px;
+    color: #e4434b;
+    margin-top: 5px;
+}
+.field-validation-valid,
+.username-available-status {
+    display: block;
+    font-size: 13px;
+    color: #4cb17c;
+}
+
+
 /*Begin Owl Carousel*/
 .wrap-item > div:not(:first-child) {
     display: none;
@@ -1009,6 +1034,14 @@ li.menu-item-has-children:hover > .sub-menu {
 /*End Toggle Mobile Menu*/
 /*Begin Menu Responsive*/
 @media (max-width: 767px) {
+.mini-cart-content
+{
+	display: none !important;
+}
+.smart-search.smart-search1
+{
+	z-index: 999;
+}
     .shop-title-box .product-selectors {
         position: relative;
         right: 0;
@@ -1166,7 +1199,7 @@ li.menu-item-has-children:hover > .sub-menu {
     .shop-title-box .product-selectors {
         position: absolute;
         right: 0;
-        top: 0;
+        top: -5px;
         margin-right: 100px;
         width: 500px;
     }
@@ -4974,7 +5007,7 @@ body .scroll-top span {
     }
 
 #advanced-search-block .price-from, #advanced-search-block .price-to {
-    width: 100px !important;
+    width: 150px !important;
 }
 
 .shop-title-box {
@@ -7479,6 +7512,31 @@ input.register-button.save-change {
     background-color: #fa4c06;
     border: 1px solid #fa4c06;
     color: #fff;
+}
+
+.filter-group-attributes {
+    position: relative;
+    max-height: 400px;
+    max-width: 270px;
+    overflow: auto;
+}
+
+#search_specs {
+    margin-bottom: 5px;
+    display: block;
+}
+
+.search_spec_input::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+    color: #cccccc !important;
+}
+.search_spec_input::-moz-placeholder { /* Firefox 19+ */
+    color: #cccccc !important;
+}
+.search_spec_input:-ms-input-placeholder { /* IE 10+ */
+    color: #cccccc !important;
+}
+.search_spec_input:-moz-placeholder { /* Firefox 18- */
+    color: #cccccc !important;
 }
 /* Admin helper link */
 .admin-header-links {

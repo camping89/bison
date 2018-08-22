@@ -53,7 +53,7 @@
                 <ul id="main-ul-nav-images-@Model.Id">
                     @foreach (var picture in Model.PictureModels)
                     {
-                        <li><a href="#"><img src="@picture.ThumbImageUrl" alt="@picture.AlternateText" title="@picture.Title" /></a></li>
+                        <li id="pic_nav_id_@picture.Id"><a href="#"><img src="@picture.ThumbImageUrl" alt="@picture.AlternateText" title="@picture.Title" /></a></li>
                     }
 
                 </ul>

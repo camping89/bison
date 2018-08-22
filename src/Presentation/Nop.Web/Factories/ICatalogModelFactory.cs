@@ -46,6 +46,8 @@ namespace Nop.Web.Factories
         /// <returns>Category model</returns>
         CategoryModel PrepareCategoryModel(Category category, CatalogPagingFilteringModel command);
 
+        List<CategoryModel.SubCategoryModel> GetSubCategoryModels(int parentCategoryId);
+
         ProductFilterModel PrepareProductFilterModel(CatalogPagingFilteringModel command);
         ProductFilterModel PrepareProductFilterModelAjax(CatalogPagingFilteringModel command);
 

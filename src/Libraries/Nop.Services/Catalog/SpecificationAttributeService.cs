@@ -209,26 +209,28 @@ namespace Nop.Services.Catalog
             return query.ToList();
         }
 
-        public virtual IList<SpecificationAttributeOption> GetSpecificationAttributeOptionsByParentIds(int[] specificationAttributeOptionIds)
+        public virtual List<SpecificationAttributeOption> GetSpecificationAttributeOptionsByParentIds(int[] specificationAttributeOptionIds)
+        {
+            List<SpecificationAttributeOption> specOptionChilds = new List<SpecificationAttributeOption>();
+            GetAllSpecOptionChilds(specificationAttributeOptionIds, ref specOptionChilds);
+            return specOptionChilds;
+        }
+
+        private void GetAllSpecOptionChilds(int[] specificationAttributeOptionIds, ref List<SpecificationAttributeOption> specOptionChilds)
         {
             if (specificationAttributeOptionIds == null || specificationAttributeOptionIds.Length == 0)
-                return new List<SpecificationAttributeOption>();
+                return;
 
             var query = from sao in _specificationAttributeOptionRepository.Table
                         where specificationAttributeOptionIds.Contains(sao.ParentSpecificationAttributeId)
                         select sao;
             var specificationAttributeOptions = query.ToList();
-            //sort by passed identifiers
-            var sortedSpecificationAttributeOptions = new List<SpecificationAttributeOption>();
-            foreach (var id in specificationAttributeOptionIds)
+            if (specificationAttributeOptions.Count > 0)
             {
-                var sao = specificationAttributeOptions.Find(x => x.ParentSpecificationAttributeId == id);
-                if (sao != null)
-                    sortedSpecificationAttributeOptions.Add(sao);
+                specOptionChilds.AddRange(specificationAttributeOptions);
+                GetAllSpecOptionChilds(specificationAttributeOptions.Select(_ => _.Id).ToArray(), ref specOptionChilds);
             }
-            return sortedSpecificationAttributeOptions;
         }
-
         /// <summary>
         /// Gets a specification attribute option by specification attribute id
         /// </summary>

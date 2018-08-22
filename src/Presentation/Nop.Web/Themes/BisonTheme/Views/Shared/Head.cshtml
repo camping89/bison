@@ -33,7 +33,7 @@
     Html.AppendCssFileParts($"~/Themes/{themeName}/Content/css/libs/bootstrap.min.css");
     Html.AppendCssFileParts($"~/Themes/{themeName}/Content/css/libs/font-awesome.min.css");
 
-    Html.AppendCssFileParts($"~/Themes/{themeName}/Content/css/ajaxfilter.css");
+    Html.AppendCssFileParts($"~/Themes/{themeName}/Content/css/ajaxfilter.min.css");
     Html.AppendCssFileParts($"~/Themes/{themeName}/Content/css/libs/jcarousel.connected-carousels.css");
     //add browser specific JS files
     if (isIe8)
@@ -62,4 +62,10 @@
     Html.AddScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/libs/flipclock.js");
     Html.AddScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/libs/wow.js");
     Html.AddScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/theme.js");
+
+    //Add filter js ajax
+    Html.AddScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/filters/nouislider.js");
+    Html.AddScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/filters/wNumb.min.js");
+    Html.AddScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/filters/spin.min.js");
+    Html.AddScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/filters/searchproduct.ajax.js");
 }
