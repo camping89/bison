@@ -81,3 +81,33 @@
     padding: 0 0 10px 0;
     border-bottom: 1px solid #f1f1f1;
 }
+
+.login-acction-group {
+    width: 100%;
+    display: block;
+    margin-bottom: 20px;
+    float: left;
+}
+
+.login-acction-group span {
+    display: inline-block;
+    float: left;
+    margin-right: 10px;
+}
+.register-link {
+    border: medium none;
+    color: #fff;
+    height: 40px;
+    margin-top: 10px;
+    -webkit-transition: all 0.3s ease-out 0s;
+    transition: all 0.3s ease-out 0s;
+    width: auto;
+    background: #333;
+    min-width: 110px;
+    line-height: 40px;
+    text-align: center;
+}
+
+.forget-password-link {
+    text-decoration: underline;
+}

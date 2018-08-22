@@ -105,56 +105,59 @@ function ClearSettings() {
 function DisplayPrice() {
 
     priceSlider = document.getElementById('slider-handles_price');
-    if (categoryId == '' && $('#cid').val() != undefined) {
-        categoryId = $('#cid').val();
+    if (priceSlider != null && priceSlider != undefined) {
+        if (categoryId == '' && $('#cid').val() != undefined) {
+            categoryId = $('#cid').val();
+        }
+        $.ajax({
+            method: "GET",
+            url: "/Catalog/GetPrice",
+            dataType: "json",
+            data: { 'categoryId': categoryId }
+        }).done(function (data) {
+            var minprice = data[0].MinPrice;
+            var maxprice = data[0].MaxPrice;
+            console.log(priceSlider);
+            noUiSlider.create(priceSlider, {
+                start: [parseInt(minprice), parseInt(maxprice)],
+                connect: true,
+                step: 1,
+                range: {
+                    'min': parseInt(data[0].MinPrice),
+                    'max': parseInt(data[0].MaxPrice)
+                },
+                format: wNumb({
+                    decimals: 0
+                })
+            });
+
+            //on update also update the range values
+            priceSlider.noUiSlider.on('update', function (values, handle) {
+                if (handle == 1) {
+                    //            $(".filter-from-price").val(ui.values[0].format());
+                    //            $(".filter-to-price").val(ui.values[1].format());
+                    $('.filter-to-price').val(values[handle].toInt().format());
+
+                    $('.price-to').val(values[handle].toInt());
+                }
+                else {
+                    $('.filter-from-price').val(values[handle].toInt().format());
+                    $('.price-from').val(values[handle].toInt());
+                }
+            });
+
+            //insert slider in array object so we can access it after the initialisation
+            //sliders.push({ slider: handlesSlider, name: obj[i][0].Name, id: obj[i][0].Attribute_Id });
+
+            //on set: get all selected options and make the ajax call
+            priceSlider.noUiSlider.on('set', function () {
+                var postData = searchParameters();
+            });
+        }).fail(function (error) {
+            console.log('error');
+            console.log(error);
+        });
     }
-    $.ajax({
-        method: "GET",
-        url: "/Catalog/GetPrice",
-        dataType: "json",
-        data: { 'categoryId': categoryId }
-    }).done(function (data) {
-        var minprice = data[0].MinPrice;
-        var maxprice = data[0].MaxPrice;
-        noUiSlider.create(priceSlider, {
-            start: [parseInt(minprice), parseInt(maxprice)],
-            connect: true,
-            step: 1,
-            range: {
-                'min': parseInt(data[0].MinPrice),
-                'max': parseInt(data[0].MaxPrice)
-            },
-            format: wNumb({
-                decimals: 0
-            })
-        });
-
-        //on update also update the range values
-        priceSlider.noUiSlider.on('update', function (values, handle) {
-            if (handle == 1) {
-                //            $(".filter-from-price").val(ui.values[0].format());
-                //            $(".filter-to-price").val(ui.values[1].format());
-                $('.filter-to-price').val(values[handle].toInt().format());
-
-                $('.price-to').val(values[handle].toInt());
-            }
-            else {
-                $('.filter-from-price').val(values[handle].toInt().format());
-                $('.price-from').val(values[handle].toInt());
-            }
-        });
-
-        //insert slider in array object so we can access it after the initialisation
-        //sliders.push({ slider: handlesSlider, name: obj[i][0].Name, id: obj[i][0].Attribute_Id });
-
-        //on set: get all selected options and make the ajax call
-        priceSlider.noUiSlider.on('set', function () {
-            var postData = searchParameters();
-        });
-    }).fail(function (error) {
-        console.log('error');
-        console.log(error);
-    });
 
 }
 

@@ -112,10 +112,7 @@
     <div class="shop-title-box">
         <h2 class="title18 title-box5">@Model.Name</h2>
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_featured_products", additionalData = Model.Id })
-        @if (Model.Products.Count > 0)
-        {
-            @await Html.PartialAsync("_CatalogSelectors", Model.PagingFilteringContext)
-        }
+        @await Html.PartialAsync("_CatalogSelectors", Model.PagingFilteringContext)
 
     </div>
     <div class="filter-ajax-result">
