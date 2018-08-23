@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Xml.Serialization;
 
 namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet.Entities
 {
@@ -65,6 +67,9 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet.Entities
         public int productId { get; set; }
         public string attributeName { get; set; }
         public string attributeValue { get; set; }
+
+        [JsonIgnore]
+        public int ProductAttributeValueId { get; set; }
     }
 
     public class KVProduct
@@ -99,6 +104,33 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet.Entities
         public int pageSize { get; set; }
         public List<KVProduct> data { get; set; }
         public DateTime timestamp { get; set; }
+    }
+
+}
+
+namespace PAValue
+{
+    [XmlRoot(ElementName = "ProductAttributeValue")]
+    public class ProductAttributeValueXml
+    {
+        [XmlElement(ElementName = "Value")]
+        public string Value { get; set; }
+    }
+
+    [XmlRoot(ElementName = "ProductAttribute")]
+    public class ProductAttributeXml
+    {
+        [XmlElement(ElementName = "ProductAttributeValue")]
+        public ProductAttributeValueXml ProductAttributeValue { get; set; }
+        [XmlAttribute(AttributeName = "ID")]
+        public string ID { get; set; }
+    }
+
+    [XmlRoot(ElementName = "Attributes")]
+    public class AttributesXml
+    {
+        [XmlElement(ElementName = "ProductAttribute")]
+        public List<ProductAttributeXml> ProductAttribute { get; set; }
     }
 
 }

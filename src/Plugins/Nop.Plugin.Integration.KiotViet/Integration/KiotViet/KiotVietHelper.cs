@@ -1,8 +1,12 @@
 ﻿using Nop.Core.Domain.Catalog;
 using Nop.Core.Extensions;
 using Nop.Plugin.Integration.KiotViet.Integration.KiotViet.Entities;
+using PAValue;
 using System;
+using System.IO;
 using System.Linq;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet
 {
@@ -62,6 +66,37 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow,
             };
+        }
+
+        public static AttributesXml XmlToObject(string xml, Type objectType)
+        {
+            StringReader strReader = null;
+            XmlSerializer serializer = null;
+            XmlTextReader xmlReader = null;
+            AttributesXml obj = null;
+            try
+            {
+                strReader = new StringReader(xml);
+                serializer = new XmlSerializer(objectType);
+                xmlReader = new XmlTextReader(strReader);
+                obj = (AttributesXml)serializer.Deserialize(xmlReader);
+            }
+            catch (Exception exp)
+            {
+                //Handle Exception Code
+            }
+            finally
+            {
+                if (xmlReader != null)
+                {
+                    xmlReader.Close();
+                }
+                if (strReader != null)
+                {
+                    strReader.Close();
+                }
+            }
+            return obj;
         }
     }
 }
