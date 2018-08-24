@@ -57,7 +57,10 @@
                                 }
                                 <script type="text/javascript" asp-location="Footer">
                                     $(document).ready(function() {
+
                                         showHideDropdownQuantity("@controlId");
+
+                                        $('#@controlId').trigger("change");
                                     });
                                 </script>
                             }
