@@ -34,7 +34,7 @@
                                 <div class="check_specs_data_@groupIndex checkbox">
                                     <input data-type="chk_spec_" id="chk_spec_@spec.SpecificationAttributeOptionId" class="SpecCheckbox checkbox" name="chk_spec_@spec.SpecificationAttributeOptionId" value="@spec.SpecificationAttributeOptionId" type="checkbox" @(spec.SpecificationAttributeOptionId.IsIn(Model.CurrentSpecsFiltered) ? "checked" : string.Empty) />
                                     <label for="chk_spec_@spec.SpecificationAttributeOptionId">
-                                        <div class="attribute-square" style="background-color: @spec.SpecificationAttributeOptionColorRgb"></div><span>@spec.SpecificationAttributeOptionBreadcrumb</span>
+                                        <div class="attribute-square" style="background-color: @spec.SpecificationAttributeOptionColorRgb"></div><span>@spec.SpecificationAttributeOptionBreadcrumb.Replace(">>", "")</span>
                                     </label>
                                 </div>
                             }
@@ -42,7 +42,7 @@
                             {
                                 <div class="check_specs_data_@groupIndex checkbox">
                                     <input data-type="chk_spec_" id="chk_spec_@spec.SpecificationAttributeOptionId" class="SpecCheckbox checkbox" name="chk_spec_@spec.SpecificationAttributeOptionId" value="@spec.SpecificationAttributeOptionId" type="checkbox" @(spec.SpecificationAttributeOptionId.IsIn(Model.CurrentSpecsFiltered) ? "checked" : string.Empty) />
-                                    <label for="chk_spec_@spec.SpecificationAttributeOptionId"><span>@(spec.SpecificationAttributeOptionBreadcrumb)</span></label>
+                                    <label for="chk_spec_@spec.SpecificationAttributeOptionId"><span>@(spec.SpecificationAttributeOptionBreadcrumb.Replace(">>", ""))</span></label>
                                 </div>
                             }
                         }

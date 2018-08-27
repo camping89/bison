@@ -674,7 +674,15 @@ namespace Nop.Web.Factories
             //products
             var alreadyFilteredSpecOptionIds = model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds(_webHelper).ToList();
             var childSpecOptionIds = _specificationAttributeService.GetSpecificationAttributeOptionsByParentIds(alreadyFilteredSpecOptionIds.ToArray()).Select(s => s.Id).ToList();
-            var allSpecOptionIds = childSpecOptionIds.Union(alreadyFilteredSpecOptionIds).Distinct().ToList();
+
+            var specsOptionIdsByKeyword = _specificationAttributeService.GetSpecificationAttributeOptionsIdsByTerm(command.q).ToList();
+            var childSpecsOptionsByKeyword = _specificationAttributeService.GetSpecificationAttributeOptionsByParentIds(specsOptionIdsByKeyword.ToArray()).Select(s => s.Id).ToList();
+
+            var allSpecOptionIds = childSpecOptionIds
+                .Union(alreadyFilteredSpecOptionIds)
+                .Union(specsOptionIdsByKeyword)
+                .Union(childSpecsOptionsByKeyword)
+                .Distinct().ToList();
 
             decimal? minPriceConverted = null;
             decimal? maxPriceConverted = null;
@@ -739,6 +747,7 @@ namespace Nop.Web.Factories
                 }
             }
             var products = _productService.SearchProductsAjax(out IList<int> filterableSpecificationAttributeOptionIds,
+                out IList<int> manufactureFilteredIds,
                 true,
                 categoryIds: categoryIds,
                 manufacturerIds: manufactureIds,
@@ -749,7 +758,7 @@ namespace Nop.Web.Factories
                 searchProductTags: true,
                 featuredProducts: _catalogSettings.IncludeFeaturedProductsInNormalLists ? null : (bool?)false,
                 filteredSpecs: allSpecOptionIds,
-                orderBy: (ProductSortingEnum)command.OrderBy,
+                orderBy: command.OrderBy.HasValue ? (ProductSortingEnum)command.OrderBy : ProductSortingEnum.Position,
                 priceMin: minPriceConverted,
                 priceMax: maxPriceConverted,
                 pageIndex: command.PageNumber - 1,
@@ -757,6 +766,7 @@ namespace Nop.Web.Factories
             model.Products = _productModelFactory.PrepareProductOverviewModels(products).ToList();
 
             model.Manufacturers = products.SelectMany(_ => _.ProductManufacturers).ToList().DistinctBy(_ => _.ManufacturerId).Select(p => p.Manufacturer).DistinctBy(d => d.Id).ToList();
+            model.AllManufacturers = _manufacturerService.GettManufacturersByIds(manufactureFilteredIds.ToList());
             model.PagingFilteringContext.LoadPagedList(products);
 
             //specs

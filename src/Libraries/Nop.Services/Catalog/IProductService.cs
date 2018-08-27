@@ -214,6 +214,7 @@ namespace Nop.Services.Catalog
 
         IPagedList<Product> SearchProductsAjax(
             out IList<int> filterableSpecificationAttributeOptionIds,
+            out IList<int> manufactureFilteredIds,
             bool loadFilterableSpecificationAttributeOptionIds = false,
             int pageIndex = 0,
             int pageSize = int.MaxValue,

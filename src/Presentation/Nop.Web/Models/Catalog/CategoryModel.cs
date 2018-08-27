@@ -21,9 +21,11 @@ namespace Nop.Web.Models.Catalog
             CategoryBreadcrumb = new List<CategoryModel>();
             ShowPriceProduct = true;
             Manufacturers = new List<Manufacturer>();
+            AllManufacturers = new List<Manufacturer>();
         }
 
         public List<Manufacturer> Manufacturers { get; set; }
+        public IList<Manufacturer> AllManufacturers { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string MetaKeywords { get; set; }

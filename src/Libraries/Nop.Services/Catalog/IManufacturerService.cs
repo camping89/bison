@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
+using System.Collections.Generic;
 
 namespace Nop.Services.Catalog
 {
@@ -30,6 +30,7 @@ namespace Nop.Services.Catalog
             int pageSize = int.MaxValue,
             bool showHidden = false);
 
+        IList<Manufacturer> GettManufacturersByIds(List<int> manufactureIds);
         /// <summary>
         /// Gets a manufacturer
         /// </summary>

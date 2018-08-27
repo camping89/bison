@@ -176,7 +176,7 @@ namespace Nop.Web.Controllers
             {
                 ViewData = RenderPartialViewToString("_ProductFilterAjax", model),
                 FilterableSpecAttr = model.PagingFilteringContext.SpecificationFilter.NotFilteredItems.Select(_ => _.SpecificationAttributeOptionId).ToList(),
-                ManufacturersIds = model.Manufacturers.Select(_ => _.Id).ToList(),
+                ManufacturersIds = model.AllManufacturers.Select(_ => _.Id).ToList(),
                 ViewDataFilterSpec = RenderPartialViewToString("_FilterSpecsBox", model.PagingFilteringContext.SpecificationFilter)
             });
         }
@@ -357,6 +357,7 @@ namespace Nop.Web.Controllers
             var productNumber = _catalogSettings.ProductSearchAutoCompleteNumberOfProducts > 0 ? _catalogSettings.ProductSearchAutoCompleteNumberOfProducts : 10;
 
             var products = _productService.SearchProductsAjax(out IList<int> filterableSpecificationAttributeOptionIds,
+                out IList<int> manufactureFilteredIds,
                 storeId: _storeContext.CurrentStore.Id,
                 keywords: term,
                 filteredSpecs: specsOptionIds,

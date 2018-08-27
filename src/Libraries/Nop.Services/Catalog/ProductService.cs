@@ -648,6 +648,7 @@ namespace Nop.Services.Catalog
 
 
         protected virtual IPagedList<Product> SearchProductsUseStoredProcedureAjax(ref IList<int> filterableSpecificationAttributeOptionIds,
+            ref IList<int> manufactureFilteredIds,
             bool loadFilterableSpecificationAttributeOptionIds, int pageIndex, int pageSize, IList<int> categoryIds,
             IList<int> manufacturerIds, int storeId, int vendorId, int warehouseId, ProductType? productType,
             bool visibleIndividuallyOnly, bool markedAsNewOnly, bool? featuredProducts, decimal? priceMin, decimal? priceMax,
@@ -706,7 +707,9 @@ namespace Nop.Services.Catalog
             var ponlyShowNoAddCategory = _dataProvider.GetBooleanParameter("OnlyShowNoAddCategory", onlyShowNoAddCategory);
             //prepare output parameters
             var pFilterableSpecificationAttributeOptionIds = _dataProvider.GetOutputStringParameter("FilterableSpecificationAttributeOptionIds");
+            var pManufatureFilteredIds = _dataProvider.GetOutputStringParameter("ManufatureFilteredIds");
             pFilterableSpecificationAttributeOptionIds.Size = int.MaxValue - 1;
+            pManufatureFilteredIds.Size = int.MaxValue - 1;
             var pTotalRecords = _dataProvider.GetOutputInt32Parameter("TotalRecords");
 
             //invoke stored procedure
@@ -741,6 +744,7 @@ namespace Nop.Services.Catalog
                 pOverridePublished,
                 pLoadFilterableSpecificationAttributeOptionIds,
                 pFilterableSpecificationAttributeOptionIds,
+                pManufatureFilteredIds,
                 pTotalRecords,
                 ponlyShowNoAddCategory);
             //get filterable specification attribute option identifier
@@ -756,6 +760,25 @@ namespace Nop.Services.Catalog
                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(x => Convert.ToInt32(x.Trim()))
                     .ToList();
+            }
+
+            //get filterable manufacture attribute option identifier
+            var manufactureIdsStr =
+                pManufatureFilteredIds.Value != DBNull.Value
+                    ? (string)pManufatureFilteredIds.Value
+                    : "";
+
+            if (!string.IsNullOrWhiteSpace(manufactureIdsStr) && (manufacturerIds != null && manufacturerIds.Count == 0))
+            {
+                manufactureFilteredIds = manufactureIdsStr
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => Convert.ToInt32(x.Trim()))
+                    .ToList();
+            }
+
+            if (manufacturerIds != null && manufacturerIds.Count > 0)
+            {
+                manufactureFilteredIds = manufacturerIds;
             }
             //return products
             var totalRecords = pTotalRecords.Value != DBNull.Value ? Convert.ToInt32(pTotalRecords.Value) : 0;
@@ -1218,6 +1241,7 @@ namespace Nop.Services.Catalog
 
         public virtual IPagedList<Product> SearchProductsAjax(
             out IList<int> filterableSpecificationAttributeOptionIds,
+            out IList<int> manufactureFilteredIds,
             bool loadFilterableSpecificationAttributeOptionIds = false,
             int pageIndex = 0,
             int pageSize = int.MaxValue,
@@ -1245,7 +1269,7 @@ namespace Nop.Services.Catalog
             bool? overridePublished = null, bool onlyShowNoAddCategory = false)
         {
             filterableSpecificationAttributeOptionIds = new List<int>();
-
+            manufactureFilteredIds = new List<int>();
             //search by keyword
             var searchLocalizedValue = false;
             if (languageId > 0)
@@ -1270,7 +1294,7 @@ namespace Nop.Services.Catalog
             var allowedCustomerRolesIds = _workContext.CurrentCustomer.GetCustomerRoleIds();
 
             IPagedList<Product> products;
-            products = SearchProductsUseStoredProcedureAjax(ref filterableSpecificationAttributeOptionIds, loadFilterableSpecificationAttributeOptionIds, pageIndex, pageSize, categoryIds, manufacturerIds, storeId, vendorId, warehouseId, productType, visibleIndividuallyOnly, markedAsNewOnly, featuredProducts, priceMin, priceMax, productTagId, keywords, searchDescriptions, searchManufacturerPartNumber, searchSku, allowedCustomerRolesIds, searchProductTags, searchLocalizedValue, languageId, filteredSpecs, orderBy, showHidden, overridePublished, onlyShowNoAddCategory);
+            products = SearchProductsUseStoredProcedureAjax(ref filterableSpecificationAttributeOptionIds, ref manufactureFilteredIds, loadFilterableSpecificationAttributeOptionIds, pageIndex, pageSize, categoryIds, manufacturerIds, storeId, vendorId, warehouseId, productType, visibleIndividuallyOnly, markedAsNewOnly, featuredProducts, priceMin, priceMax, productTagId, keywords, searchDescriptions, searchManufacturerPartNumber, searchSku, allowedCustomerRolesIds, searchProductTags, searchLocalizedValue, languageId, filteredSpecs, orderBy, showHidden, overridePublished, onlyShowNoAddCategory);
             return products;
         }
 

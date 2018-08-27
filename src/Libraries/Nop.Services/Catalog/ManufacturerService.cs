@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Data;
@@ -9,6 +6,9 @@ using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Stores;
 using Nop.Services.Customers;
 using Nop.Services.Events;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Nop.Services.Catalog
 {
@@ -124,7 +124,7 @@ namespace Nop.Services.Catalog
         {
             if (manufacturer == null)
                 throw new ArgumentNullException(nameof(manufacturer));
-            
+
             manufacturer.Deleted = true;
             UpdateManufacturer(manufacturer);
 
@@ -144,7 +144,7 @@ namespace Nop.Services.Catalog
         public virtual IPagedList<Manufacturer> GetAllManufacturers(string manufacturerName = "",
             int storeId = 0,
             int pageIndex = 0,
-            int pageSize = int.MaxValue, 
+            int pageSize = int.MaxValue,
             bool showHidden = false)
         {
             var query = _manufacturerRepository.Table;
@@ -182,12 +182,18 @@ namespace Nop.Services.Catalog
                 query = from m in query
                         group m by m.Id
                             into mGroup
-                            orderby mGroup.Key
-                            select mGroup.FirstOrDefault();
+                        orderby mGroup.Key
+                        select mGroup.FirstOrDefault();
                 query = query.OrderBy(m => m.DisplayOrder).ThenBy(m => m.Id);
             }
 
             return new PagedList<Manufacturer>(query, pageIndex, pageSize);
+        }
+
+        public IList<Manufacturer> GettManufacturersByIds(List<int> manufactureIds)
+        {
+            var query = _manufacturerRepository.Table.Where(_ => manufactureIds.Contains(_.Id));
+            return query.ToList();
         }
 
         /// <summary>
@@ -199,7 +205,7 @@ namespace Nop.Services.Catalog
         {
             if (manufacturerId == 0)
                 return null;
-            
+
             var key = string.Format(MANUFACTURERS_BY_ID_KEY, manufacturerId);
             return _cacheManager.Get(key, () => _manufacturerRepository.GetById(manufacturerId));
         }
@@ -391,7 +397,7 @@ namespace Nop.Services.Catalog
                 return productManufacturers;
             });
         }
-        
+
         /// <summary>
         /// Gets a product manufacturer mapping 
         /// </summary>
@@ -454,7 +460,7 @@ namespace Nop.Services.Catalog
             var query = _productManufacturerRepository.Table;
 
             return query.Where(p => productIds.Contains(p.ProductId))
-                .Select(p => new {p.ProductId, p.ManufacturerId}).ToList()
+                .Select(p => new { p.ProductId, p.ManufacturerId }).ToList()
                 .GroupBy(a => a.ProductId)
                 .ToDictionary(items => items.Key, items => items.Select(a => a.ManufacturerId).ToArray());
         }
