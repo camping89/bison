@@ -1550,7 +1550,7 @@ namespace Nop.Web.Factories
                     var m = new ProductSpecificationModel
                     {
                         SpecificationAttributeId = psa.SpecificationAttributeOption.SpecificationAttributeId,
-                        SpecificationAttributeName = (psa.Id == 9) ? psa.SpecificationAttributeOption.SpecificationAttribute.GetLocalized(x => x.Name) : psa.SpecificationAttributeOption.GetFormattedSpecBreadCrumb(_specificationAttributeService),
+                        SpecificationAttributeName = psa.SpecificationAttributeOption.SpecificationAttribute.GetLocalized(x => x.Name),
                         ColorSquaresRgb = psa.SpecificationAttributeOption.ColorSquaresRgb
                     };
 

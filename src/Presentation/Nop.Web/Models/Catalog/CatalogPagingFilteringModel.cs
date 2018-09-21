@@ -479,7 +479,8 @@ namespace Nop.Web.Models.Catalog
                         SpecificationAttributeOptionName = x.SpecificationAttributeOptionName,
                         SpecificationAttributeOptionBreadcrumb = x.SpecificationAttributeOptionBreadcrumb,
                         SpecificationAttributeOptionColorRgb = x.SpecificationAttributeOptionColorRgb,
-                        IsFiltered = true
+                        IsFiltered = true,
+                        DisplayOrder = x.SpecificationAttributeOptionDisplayOrder
 
                     }).ToList();
 
@@ -546,6 +547,8 @@ namespace Nop.Web.Models.Catalog
             /// Specification attribute name
             /// </summary>
             public string SpecificationAttributeName { get; set; }
+
+            public int DisplayOrder { get; set; }
             /// <summary>
             /// Specification attribute option name
             /// </summary>
