@@ -2896,7 +2896,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                     switch (x.AttributeType)
                     {
                         case SpecificationAttributeType.Option:
-                            psaModel.ValueRaw = WebUtility.HtmlEncode(x.SpecificationAttributeOption.GetFormattedSpecBreadCrumb(_specificationAttributeService));
+                            psaModel.ValueRaw = WebUtility.HtmlEncode(x.SpecificationAttributeOption.GetFormattedSpecBreadCrumb(_specificationAttributeService, languageId: _workContext.WorkingLanguage.Id));
                             psaModel.SpecificationAttributeOptionId = x.SpecificationAttributeOptionId;
                             break;
                         case SpecificationAttributeType.CustomText:

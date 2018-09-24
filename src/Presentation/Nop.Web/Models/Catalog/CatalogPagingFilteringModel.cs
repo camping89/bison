@@ -433,7 +433,7 @@ namespace Nop.Web.Models.Catalog
                         SpecificationAttributeDisplayOrder = sao.SpecificationAttribute.DisplayOrder,
                         SpecificationAttributeOptionId = sao.Id,
                         SpecificationAttributeOptionName = sao.GetLocalized(x => x.Name, workContext.WorkingLanguage.Id),
-                        SpecificationAttributeOptionBreadcrumb = sao.GetFormattedSpecBreadCrumb(specificationAttributeService),
+                        SpecificationAttributeOptionBreadcrumb = sao.GetFormattedSpecBreadCrumb(specificationAttributeService, languageId: workContext.WorkingLanguage.Id),
                         SpecificationAttributeOptionColorRgb = sao.ColorSquaresRgb,
                         SpecificationAttributeOptionDisplayOrder = sao.DisplayOrder,
                         ParentSpecificationAttributeOptionId = sao.ParentSpecificationAttributeId

@@ -25,8 +25,8 @@
                     </div>
                 }
 
-                <div class="@(groupList.Count > 15 || groupList.Any(x => x.SpecificationAttributeOptionBreadcrumb.Length > 30) ? "filter-group-attributes" : string.Empty)">
-                    <div class="filter-attributes" style="@(groupList.Any(x => x.SpecificationAttributeOptionBreadcrumb.Length > 30) ? "max-height: auto;width: 400px; padding-top: 10px;" : string.Empty)">
+                <div class="@(groupList.Count > 15 || groupList.Any(x => x.SpecificationAttributeOptionBreadcrumb.Length > 45) ? "filter-group-attributes" : string.Empty)">
+                    <div class="filter-attributes" style="@(groupList.Any(x => x.SpecificationAttributeOptionBreadcrumb.Length > 45) ? "max-height: auto;width: 400px; padding-top: 10px;" : string.Empty)">
                         @foreach (var spec in groupList.OrderBy(_ => _.DisplayOrder))
                         {
                             if (groupList.Any(x => !string.IsNullOrEmpty(x.SpecificationAttributeOptionColorRgb)))

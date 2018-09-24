@@ -59,7 +59,7 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet.Entities
         public string branchName { get; set; }
         public double cost { get; set; }
         public double onHand { get; set; }
-        public int reserved { get; set; }
+        //public int reserved { get; set; }
     }
 
     public class Attribute
