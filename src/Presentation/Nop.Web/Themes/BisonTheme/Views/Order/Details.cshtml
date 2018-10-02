@@ -55,9 +55,9 @@
         <div class="order-details-area">
             <div class="billing-info-wrap">
                 <div class="billing-info">
-	                <div class="title">
-	                    <strong>@T("Order.BillingAddress")</strong>
-	                </div>
+                    <div class="title">
+                        <strong>@T("Order.BillingAddress")</strong>
+                    </div>
                     <ul class="info-list">
                         <li class="name">
                             @Model.BillingAddress.FirstName @Model.BillingAddress.LastName
@@ -96,8 +96,8 @@
                             </li>
                         }
                         @if (Model.BillingAddress.CityEnabled ||
-                            Model.BillingAddress.StateProvinceEnabled ||
-                            Model.BillingAddress.ZipPostalCodeEnabled)
+                     Model.BillingAddress.StateProvinceEnabled ||
+                     Model.BillingAddress.ZipPostalCodeEnabled)
                         {
                             <li class="city-state-zip">
                                 @if (Model.BillingAddress.CityEnabled)
@@ -188,7 +188,7 @@
                                 @*Complete payment (for redirection payment methods)*@
                                 <li class="repost">
                                     <form asp-route="OrderDetails" method="post">
-                                        <input type="submit" name="repost-payment" value="@T("Order.RetryPayment")" class="button-2 re-order-button"/>
+                                        <input type="submit" name="repost-payment" value="@T("Order.RetryPayment")" class="button-2 re-order-button" />
                                         <p class="hint">
                                             <em>@T("Order.RetryPayment.Hint")</em>
                                         </p>
@@ -203,9 +203,9 @@
             {
                 <div class="shipping-info-wrap">
                     <div class="shipping-info">
-	                    <div class="title">
-	                        <strong>@(Model.PickUpInStore ? T("Order.PickupAddress") : T("Order.ShippingAddress"))</strong>
-	                    </div>
+                        <div class="title">
+                            <strong>@(Model.PickUpInStore ? T("Order.PickupAddress") : T("Order.ShippingAddress"))</strong>
+                        </div>
                         <ul class="info-list">
                             @if (!Model.PickUpInStore)
                             {
@@ -348,7 +348,7 @@
                     <strong>@T("Order.Shipments")</strong>
                 </div>
                 <div class="table-wrapper">
-                    <table class="data-table">
+                    <table class="shop_table cart table" width="100%">
                         <colgroup>
                             <col width="1" />
                             <col />
@@ -428,7 +428,7 @@
                         <strong>@T("Order.Notes")</strong>
                     </div>
                     <div class="table-wrapper">
-                        <table class="data-table">
+                        <table class="shop_table cart table" width="100%">
                             <colgroup>
                                 <col />
                                 <col />
@@ -472,7 +472,7 @@
                     <strong>@T("Order.Product(s)")</strong>
                 </div>
                 <div class="table-wrapper">
-                    <table class="data-table">
+                    <table class="table" width="100%">
                         <colgroup>
                             @if (Model.ShowSku)
                             {
@@ -589,7 +589,7 @@
             </div>
             <div class="section totals">
                 <div class="total-info">
-                    <table class="cart-total">
+                    <table class="cart-total" width="100%">
                         <tbody>
                             <tr>
                                 <td class="cart-total-left">

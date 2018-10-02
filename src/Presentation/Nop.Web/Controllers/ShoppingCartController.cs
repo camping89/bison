@@ -1359,11 +1359,11 @@ namespace Nop.Web.Controllers
         [FormValueRequired("continueshopping")]
         public virtual IActionResult ContinueShopping()
         {
-            var returnUrl = _workContext.CurrentCustomer.GetAttribute<string>(SystemCustomerAttributeNames.LastContinueShoppingPage, _storeContext.CurrentStore.Id);
-            if (!string.IsNullOrEmpty(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
+            //var returnUrl = _workContext.CurrentCustomer.GetAttribute<string>(SystemCustomerAttributeNames.LastContinueShoppingPage, _storeContext.CurrentStore.Id);
+            //if (!string.IsNullOrEmpty(returnUrl))
+            //{
+            //    return Redirect(returnUrl);
+            //}
             return RedirectToRoute("HomePage");
         }
 
