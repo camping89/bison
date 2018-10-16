@@ -1245,6 +1245,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                         ShippingStatus = x.ShippingStatus.GetLocalizedEnum(_localizationService, _workContext),
                         ShippingStatusId = x.ShippingStatusId,
                         CustomerEmail = x.BillingAddress.Email,
+                        CustomerInfo = $"{x.BillingAddress.Email } - {x.BillingAddress.PhoneNumber}",
                         CustomerFullName = $"{x.BillingAddress.FirstName} {x.BillingAddress.LastName}",
                         CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
                         CustomOrderNumber = x.CustomOrderNumber

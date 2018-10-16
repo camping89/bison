@@ -640,11 +640,11 @@ td.k-state-focused.k-state-selected {
     padding: 0;
 }
 .main-header .logo-lg {
-    background: url(images/logo.png) no-repeat 50% 50%;
+    /*background: url(images/logo.png) no-repeat 50% 50%;*/
     height: 50px;
 }
 .main-header .logo-mini {
-    background: url(images/logo-mini.png) no-repeat 50% 50%;
+    /*background: url(images/logo-mini.png) no-repeat 50% 50%;*/
     height: 50px;
 }
 

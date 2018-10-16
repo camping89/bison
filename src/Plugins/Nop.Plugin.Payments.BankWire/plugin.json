@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Payment methods",
+  "FriendlyName": "Bank Wire",
+  "SystemName": "Payments.BankWire",
+  "Version": "1.40",
+  "SupportedVersions": [ "4.00" ],
+  "Author": "nopCommerce team",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Payments.BankWire.dll",
+  "Description": "This payment module allows you to enable \"Bank Wire\" option in your store"
+}

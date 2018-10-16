@@ -3,17 +3,17 @@
 {
     <div class="product-specs-box">
         @*<div class="title">
-            <strong>@T("Products.Specs")</strong>
-        </div>*@
+                <strong>@T("Products.Specs")</strong>
+            </div>*@
         <div class="table-wrapper">
             <ul class="list-none">
                 @for (var i = 0; i < Model.Count; i++)
                 {
                     var item = Model[i];
-                    <li style="padding: 5px 0;">@item.SpecificationAttributeName</li>
+                    <li style="padding: 5px 0;">@Html.Raw(item.ValueRaw)</li>
                 }
             </ul>
-            
+
         </div>
     </div>
 }

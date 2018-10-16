@@ -1557,7 +1557,7 @@ namespace Nop.Web.Factories
                     switch (psa.AttributeType)
                     {
                         case SpecificationAttributeType.Option:
-                            m.ValueRaw = WebUtility.HtmlEncode(psa.SpecificationAttributeOption.GetLocalized(x => x.Name));
+                            m.ValueRaw = WebUtility.HtmlEncode(psa.SpecificationAttributeOption.GetFormattedSpecBreadCrumb(_specificationAttributeService, languageId: _workContext.WorkingLanguage.Id));
                             break;
                         case SpecificationAttributeType.CustomText:
                             m.ValueRaw = WebUtility.HtmlEncode(psa.CustomValue);

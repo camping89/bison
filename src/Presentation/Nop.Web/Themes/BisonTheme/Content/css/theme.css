@@ -7131,7 +7131,7 @@ input.register-button.save-change {
 .order-details-area > div,
 .shipment-details-area > div {
     float: left;
-    width: 48%;
+    width: 100%;
     margin: 0 0 20px 0;
 }
 

@@ -938,7 +938,44 @@ function searchParameters(pageNumber) {
             currentManufacturer = '';
             resetDropdown = false;
             if (history.pushState) {
-                var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?q=' + searchKeyword + '&specs=' + specs.join(",") + "&attr=" + attr.join(",") + "&categoryId=" + categoryId + "&categoryIds=" + categories.join(",") + "&viewmode=" + viewMode + "&pagesize=" + pagesize + "&pagenumber=" + pageNumber + "&manufacturerIds=" + manufacturerIds + "&orderby=" + sorting + "&minPrice=" + priceValues[0] + "&maxPrice=" + priceValues[1];
+                var newurl = window.location.protocol +
+                    "//" +
+                    window.location.host +
+                    window.location.pathname +
+                    '?q=' +
+                    searchKeyword;
+                if (specs.length > 0) {
+                    newurl = newurl + '&specs=' + specs.join(",");
+                }
+                if (attr.length > 0) {
+                    newurl = newurl  + "&attr=" + attr.join(",");
+                }
+                if (categoryId != null && categoryId !== '') {
+                    newurl = newurl   + "&categoryId=" + categoryId;
+                }
+                if (categories.length > 0) {
+                    newurl = newurl + "&categoryIds=" + categories.join(",");
+                }
+                if (viewMode != null && viewMode !== '') {
+                    newurl = newurl   + "&viewmode=" + viewMode;
+                }
+                if (pagesize != null && pagesize !== '') {
+                    newurl = newurl  + "&pagesize=" + pagesize;
+                }
+                
+                if (pageNumber != null && pageNumber !== '') {
+                    newurl = newurl  + "&pagenumber=" + pageNumber;
+                }
+                
+                if (manufacturerIds != null && manufacturerIds !== '') {
+                    newurl = newurl  + "&manufacturerIds=" + manufacturerIds;
+                }
+                
+                if (sorting != null && sorting !== '') {
+                    newurl = newurl  + "&orderby=" + sorting;
+                }
+                 newurl = newurl + "&minPrice=" + priceValues[0] + "&maxPrice=" + priceValues[1];
+
                 window.history.pushState({ path: newurl }, '', newurl);
             }
 
