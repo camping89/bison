@@ -18,15 +18,15 @@
         {
             <div id="group_@groupIndex" class="filter-group">
                 <h3 class="title14">@groupList[0].SpecificationAttributeName</h3>
-                @if (groupList.Count > 15)
+                @if (groupList.Count > 4)
                 {
                     <div id="search_specs">
                         <input id="search_spec_input_@groupIndex" class="search_spec_input" placeholder="@T("SearchSpecInput")" type="text" />
                     </div>
                 }
 
-                <div class="@(groupList.Count > 15 || groupList.Any(x => x.SpecificationAttributeOptionBreadcrumb.Length > 45) ? "filter-group-attributes" : string.Empty)">
-                    <div class="filter-attributes" style="@(groupList.Any(x => x.SpecificationAttributeOptionBreadcrumb.Length > 45) ? "max-height: auto;width: 400px; padding-top: 10px;" : string.Empty)">
+                <div class="@(groupList.Count > 4 || groupList.Any(x => x.SpecificationAttributeOptionBreadcrumb.Length > 40) ? "filter-group-attributes" : string.Empty)">
+                    <div class="filter-attributes" style="@(groupList.Any(x => x.SpecificationAttributeOptionBreadcrumb.Length > 40) ? "max-height: auto;width: 400px; padding-top: 10px;" : string.Empty)">
                         @foreach (var spec in groupList.OrderBy(_ => _.DisplayOrder))
                         {
                             if (groupList.Any(x => !string.IsNullOrEmpty(x.SpecificationAttributeOptionColorRgb)))

@@ -535,43 +535,35 @@ namespace Nop.Web.Factories
 
         public List<CategoryModel.SubCategoryModel> GetSubCategoryModels(int parentCategoryId)
         {
-            var cacheKey = string.Format(ModelCacheEventConsumer.CATEGORY_CHILD_MODELS_KEY,
-                parentCategoryId,
-                string.Join(",", _workContext.CurrentCustomer.GetCustomerRoleIds()),
-                _storeContext.CurrentStore.Id);
-            return _cacheManager.Get(cacheKey, () =>
+            var categories = _categoryService.GetAllCategoriesByParentCategoryId(parentCategoryId);
+            if (categories.Count > 0)
             {
-                var categories = _categoryService.GetAllCategoriesByParentCategoryId(parentCategoryId);
-                if (categories.Count > 0)
+                return categories.Select(x =>
                 {
-                    return categories.Select(x =>
+                    var subCatModel = new CategoryModel.SubCategoryModel
                     {
-                        var subCatModel = new CategoryModel.SubCategoryModel
-                        {
-                            Id = x.Id,
-                            Name = x.GetLocalized(y => y.Name),
-                            SeName = x.GetSeName(),
-                            Description = x.GetLocalized(y => y.Description)
-                        };
-                        return subCatModel;
-                    }).ToList();
-                }
-                else
-                {
-                    var category = _categoryService.GetCategoryById(parentCategoryId);
-                    return new List<CategoryModel.SubCategoryModel>()
-                    {
-                        new CategoryModel.SubCategoryModel()
-                        {
-                            Id = category.Id,
-                            Name = category.GetLocalized(y => y.Name),
-                            SeName = category.GetSeName(),
-                            Description = category.GetLocalized(y => y.Description)
-                        }
+                        Id = x.Id,
+                        Name = x.GetLocalized(y => y.Name),
+                        SeName = x.GetSeName(),
+                        Description = x.GetLocalized(y => y.Description)
                     };
-                }
-
-            });
+                    return subCatModel;
+                }).ToList();
+            }
+            else
+            {
+                var category = _categoryService.GetCategoryById(parentCategoryId);
+                return new List<CategoryModel.SubCategoryModel>()
+                {
+                    new CategoryModel.SubCategoryModel()
+                    {
+                        Id = category.Id,
+                        Name = category.GetLocalized(y => y.Name),
+                        SeName = category.GetSeName(),
+                        Description = category.GetLocalized(y => y.Description)
+                    }
+                };
+            }
         }
         public ProductFilterModel PrepareProductFilterModel(CatalogPagingFilteringModel command)
         {

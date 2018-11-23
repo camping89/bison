@@ -16,8 +16,8 @@ namespace Nop.Web.Validators.Customer
             IStateProvinceService stateProvinceService,
             CustomerSettings customerSettings)
         {
-            RuleFor(x => x.Email).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Email.Required"));
-            RuleFor(x => x.Email).EmailAddress().WithMessage(localizationService.GetResource("Common.WrongEmail"));
+            //RuleFor(x => x.Email).NotEmpty().WithMessage(localizationService.GetResource("Account.Fields.Email.Required"));
+            //RuleFor(x => x.Email).EmailAddress().WithMessage(localizationService.GetResource("Common.WrongEmail"));
             
             if (customerSettings.EnteringEmailTwice)
             {

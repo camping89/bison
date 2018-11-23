@@ -1,4 +1,5 @@
-﻿@using Nop.Core
+﻿@using System
+@using Nop.Core
 @using Nop.Services.Helpers
 @using Nop.Web.Framework.UI
 @inject IWorkContext workContext
@@ -67,5 +68,5 @@
     Html.AddScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/filters/nouislider.js");
     Html.AddScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/filters/wNumb.min.js");
     Html.AddScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/filters/spin.min.js");
-    Html.AddScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/filters/searchproduct.ajax.js");
+    Html.AddScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/js/filters/searchproduct.ajax.js?ver=" + @DateTime.Now.Ticks.ToString());
 }

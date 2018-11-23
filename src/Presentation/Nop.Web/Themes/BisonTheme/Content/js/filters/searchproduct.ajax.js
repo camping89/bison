@@ -570,7 +570,7 @@ function searchParameters(pageNumber) {
             if (history.pushState) {
                 var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?specs=' + specs.join(",") + "&attr=" + attr.join(",") + "&categoryId=" + categoryId + "&viewmode=" + viewMode + "&pagesize=" + pagesize + "&pagenumber=" + pageNumber + "&manufacturerIds=" + manufacturerIds + "&orderby=" + sorting + "&minPrice=" + priceValues[0] + "&maxPrice=" + priceValues[1];
 
-                window.history.pushState({ path: newurl }, '', newurl);
+                //window.history.pushState({ path: newurl }, '', newurl);
             }
 
             //$('.page-body > .pager').remove();
@@ -685,7 +685,7 @@ function searchParameters(pageNumber) {
             resetDropdown = false;
             if (history.pushState) {
                 var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?specs=' + specs.join(",") + "&attr=" + attr.join(",") + "&categoryId=" + categoryId + "&viewmode=" + viewMode + "&pagesize=" + pagesize + "&pagenumber=" + pageNumber + "&manufacturerIds=" + manufacturerIds + "&orderby=" + sorting + "&minPrice=" + priceValues[0] + "&maxPrice=" + priceValues[1];
-                window.history.pushState({ path: newurl }, '', newurl);
+                //window.history.pushState({ path: newurl }, '', newurl);
             }
 
             //$('.page-body > .pager').remove();
@@ -950,20 +950,20 @@ function searchParameters(pageNumber) {
                 if (attr.length > 0) {
                     newurl = newurl  + "&attr=" + attr.join(",");
                 }
-                if (categoryId != null && categoryId !== '') {
-                    newurl = newurl   + "&categoryId=" + categoryId;
-                }
+                //if (categoryId != null && categoryId !== '') {
+                //    newurl = newurl   + "&categoryId=" + categoryId;
+                //}
                 if (categories.length > 0) {
                     newurl = newurl + "&categoryIds=" + categories.join(",");
                 }
-                if (viewMode != null && viewMode !== '') {
+                if (viewMode != null && viewMode !== '' && viewMode !== 'grid') {
                     newurl = newurl   + "&viewmode=" + viewMode;
                 }
-                if (pagesize != null && pagesize !== '') {
-                    newurl = newurl  + "&pagesize=" + pagesize;
-                }
+                //if (pagesize != null && pagesize !== '') {
+                //    newurl = newurl  + "&pagesize=" + pagesize;
+                //}
                 
-                if (pageNumber != null && pageNumber !== '') {
+                if (pageNumber != null && pageNumber !== '' && pageNumber !== 0) {
                     newurl = newurl  + "&pagenumber=" + pageNumber;
                 }
                 
@@ -971,12 +971,17 @@ function searchParameters(pageNumber) {
                     newurl = newurl  + "&manufacturerIds=" + manufacturerIds;
                 }
                 
-                if (sorting != null && sorting !== '') {
+                if (sorting != null && sorting !== '' && sorting !== '0') {
                     newurl = newurl  + "&orderby=" + sorting;
                 }
-                 newurl = newurl + "&minPrice=" + priceValues[0] + "&maxPrice=" + priceValues[1];
+                if (priceValues[0] !== '0') {
+                    newurl = newurl + "&minPrice=" + priceValues[0];
+                }
+                if (priceValues[1] !== '10000000') {
+                    newurl = newurl + "&maxPrice=" + priceValues[1];
+                }
 
-                window.history.pushState({ path: newurl }, '', newurl);
+                //window.history.pushState({ path: newurl }, '', newurl);
             }
 
             //$('.page-body > .pager').remove();

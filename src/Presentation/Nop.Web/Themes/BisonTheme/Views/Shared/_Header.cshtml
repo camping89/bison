@@ -2,14 +2,14 @@
     <div class="header-main5">
         <div class="container">
             <div class="row">
-                <div class="col-md-3 col-sm-12 col-xs-12">
+                <div class="col-md-2 col-sm-12 col-xs-12">
                     <div class="logo logo5">
                         @await Component.InvokeAsync("Logo")
                     </div>
                 </div>
-                <div class="col-md-9 col-sm-12 col-xs-12">
+                <div class="col-md-10 col-sm-12 col-xs-12 header-top-right">
                     @await Component.InvokeAsync("FlyoutShoppingCart")
-                    
+
                     <div class="pull-right text-right wrap-account5">
                         @await Component.InvokeAsync("HeaderLinks")
                         <ul class="ul-inline-block list-inline-block top-currency-language">
@@ -40,7 +40,7 @@
                         </div>
                     </div>
                 </div>
-                
+
             </div>
         </div>
     </div>
@@ -50,17 +50,17 @@
             <div class="nav-search5">
                 <div class="row">
                     <div class="col-md-12 col-sm-12 col-xs-12">
-                    <nav class="main-nav main-nav1">
-                        @await Component.InvokeAsync("TopMenu")
-                        <a href="#" class="toggle-mobile-menu"><span></span></a>
-                    </nav>
+                        <nav class="main-nav main-nav1">
+                            @await Component.InvokeAsync("TopMenu")
+                            <a href="#" class="toggle-mobile-menu"><span></span></a>
+                        </nav>
                         <!-- End Main nav -->
                         @*<div class="smart-search smart-search1">
-                            <form class="smart-search-form">
-                                @await Component.InvokeAsync("SearchBox")
-                            </form>
-                            @await Component.InvokeAsync("Widget", new {widgetZone = "header_after"})
-                        </div>*@
+                                <form class="smart-search-form">
+                                    @await Component.InvokeAsync("SearchBox")
+                                </form>
+                                @await Component.InvokeAsync("Widget", new {widgetZone = "header_after"})
+                            </div>*@
                     </div>
                 </div>
             </div>
@@ -68,4 +68,3 @@
     </div>
 </header>
 <!-- End Header -->
-

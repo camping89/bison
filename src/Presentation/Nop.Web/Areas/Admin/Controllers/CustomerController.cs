@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -858,8 +858,13 @@ namespace Nop.Web.Areas.Admin.Controllers
                 var cust2 = _customerService.GetCustomerByUsername(model.Username);
                 if (cust2 != null)
                     ModelState.AddModelError("", "Username is already registered");
-            }
 
+                if (string.IsNullOrEmpty(model.Email))
+                {
+                    model.Email = model.Username + "@youremail.com";
+                }
+            }
+            
             //validate customer roles
             var allCustomerRoles = _customerService.GetAllCustomerRoles(true);
             var newCustomerRoles = new List<CustomerRole>();
@@ -1066,6 +1071,15 @@ namespace Nop.Web.Areas.Admin.Controllers
             if (customer == null || customer.Deleted)
                 //No customer found with the specified id
                 return RedirectToAction("List");
+
+
+            if (!string.IsNullOrWhiteSpace(model.Username) & _customerSettings.UsernamesEnabled)
+            {
+                if (string.IsNullOrEmpty(model.Email))
+                {
+                    model.Email = model.Username + "@youremail.com";
+                }
+            }
 
             //validate customer roles
             var allCustomerRoles = _customerService.GetAllCustomerRoles(true);

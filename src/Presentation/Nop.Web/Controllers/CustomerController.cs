@@ -582,6 +582,11 @@ namespace Nop.Web.Controllers
                     model.Username = model.Username.Trim();
                 }
 
+                if (string.IsNullOrEmpty(model.Email))
+                {
+                    model.Email = model.Username + "@yourmail.com";
+                }
+
                 var isApproved = _customerSettings.UserRegistrationType == UserRegistrationType.Standard;
                 var registrationRequest = new CustomerRegistrationRequest(customer,
                     model.Email,
@@ -743,13 +748,14 @@ namespace Nop.Web.Controllers
                             }
                         case UserRegistrationType.Standard:
                             {
+                                return RedirectToRoute("HomePage");
                                 //send customer welcome message
-                                _workflowMessageService.SendCustomerWelcomeMessage(customer, _workContext.WorkingLanguage.Id);
+                                //_workflowMessageService.SendCustomerWelcomeMessage(customer, _workContext.WorkingLanguage.Id);
 
-                                var redirectUrl = Url.RouteUrl("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });
-                                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                                    redirectUrl = _webHelper.ModifyQueryString(redirectUrl, "returnurl=" + WebUtility.UrlEncode(returnUrl), null);
-                                return Redirect(redirectUrl);
+                                //var redirectUrl = Url.RouteUrl("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });
+                                //if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                                //    redirectUrl = _webHelper.ModifyQueryString(redirectUrl, "returnurl=" + WebUtility.UrlEncode(returnUrl), null);
+                                //return Redirect(redirectUrl);
                             }
                         default:
                             {

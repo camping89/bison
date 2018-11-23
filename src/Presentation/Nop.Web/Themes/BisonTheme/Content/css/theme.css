@@ -857,6 +857,8 @@ div.table {
         top: 0;
     }
 /*End Header On Top*/
+
+
 /*Begin Main Nav*/
 .main-nav {
     position: relative;
@@ -868,11 +870,13 @@ div.table {
         padding: 0;
         margin: 0;
         position: relative;
+        display: table-row;
     }
 
         .main-nav > ul > li {
             display: inline-block;
-            font-size: 14px;
+            /*display: table-cell;*/
+            font-size: 12px;
             border-right: 1px solid #e5e5e5;
         }
 
@@ -880,7 +884,7 @@ div.table {
                 color: #333;
                 display: block;
                 font-family: Oswald;
-                font-size: 14px;
+                font-size: 12px;
                 height: 60px;
                 line-height: 60px;
                 padding: 0 18px;
@@ -1042,7 +1046,11 @@ li.menu-item-has-children:hover > .sub-menu {
 /*Begin Menu Responsive*/
 @media (max-width: 767px) {
 
-    
+    .logo.logo5 {
+        display: block;
+        text-align: center;
+        margin:0 auto;
+    }
     .detail-descript img {
         height: 100% !important;
         width: auto !important;
@@ -1209,8 +1217,30 @@ li.menu-item-has-children:hover > .sub-menu {
         display: none;
     }
 }
+.filter-attributes {
+    margin-top: 10px;
+}
 /*End Menu Responsive*/
-
+@media (min-width: 1200px) {
+    .main-nav > ul > li {
+        display: table-cell;
+    }
+    .main-nav.main-nav1 {
+        float: left;
+        display: table;
+        border-collapse: collapse;
+        width: 100%;
+    }
+}
+@media (min-width: 1024px) {
+    
+   
+    .header-top-right {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
+}
 @media (min-width: 768px) {
     
     .shop-title-box .product-selectors {
@@ -1865,6 +1895,11 @@ body .scroll-top {
 
 .main-nav.main-nav1 {
     float: left;
+    /*display: table;
+
+    border-collapse: collapse;
+
+    width: 100%;*/
 }
 
 .nav-search {
@@ -1874,7 +1909,7 @@ body .scroll-top {
 
 .smart-search.smart-search1 {
     float: right;
-    margin: 10px 0;
+    margin: 10px 0 0 0;
     z-index: 1;
 }
 
@@ -1954,7 +1989,10 @@ body .scroll-top {
 .main-nav > ul > li.has-mega-menu > a::after {
     content: "\f107";
     font-family: fontawesome;
-    margin-left: 5px;
+    /*margin-left: 5px;*/
+    margin-right: 5px;
+
+    float: right;
 }
 
 .mega-product .item-product .product-thumb {
@@ -3873,6 +3911,7 @@ body .scroll-top span {
 
 .logo.logo5 {
     margin-top: 25px;
+    max-width: 150px;
 }
 
 .banner-info5 h2 {
@@ -7583,7 +7622,7 @@ input.register-button.save-change {
 
 .filter-group-attributes {
     position: relative;
-    max-height: 400px;
+    max-height: 120px;
     max-width: 270px;
     overflow: auto;
 }
