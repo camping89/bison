@@ -276,22 +276,26 @@ namespace Nop.Web.Factories
                 {
                     //prices
                     var minPossiblePrice = _priceCalculationService.GetFinalPrice(product, _workContext.CurrentCustomer);
-
+                    var minPossiblePriceBeforeDiscount = _priceCalculationService.GetFinalPrice(product, _workContext.CurrentCustomer, 0M, false);
                     if (product.HasTierPrices)
                     {
                         //calculate price for the maximum quantity if we have tier prices, and choose minimal
                         minPossiblePrice = Math.Min(minPossiblePrice,
                             _priceCalculationService.GetFinalPrice(product, _workContext.CurrentCustomer,
                                 quantity: int.MaxValue));
+                        minPossiblePriceBeforeDiscount = Math.Min(minPossiblePriceBeforeDiscount,
+                            _priceCalculationService.GetFinalPrice(product, _workContext.CurrentCustomer,
+                                quantity: int.MaxValue, includeDiscounts: false));
                     }
 
                     var oldPriceBase = _taxService.GetProductPrice(product, product.OldPrice, out decimal taxRate);
                     var finalPriceBase = _taxService.GetProductPrice(product, minPossiblePrice, out taxRate);
+                    var finalPriceBaseBeforceDiscount = _taxService.GetProductPrice(product, minPossiblePriceBeforeDiscount, out taxRate);
 
                     var oldPrice =
                         _currencyService.ConvertFromPrimaryStoreCurrency(oldPriceBase, _workContext.WorkingCurrency);
-                    var finalPrice =
-                        _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceBase, _workContext.WorkingCurrency);
+                    var finalPrice = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceBase, _workContext.WorkingCurrency);
+                    var finalPriceBeforeDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceBaseBeforceDiscount, _workContext.WorkingCurrency);
 
                     //do we have tier prices configured?
                     var tierPrices = new List<TierPrice>();
@@ -311,7 +315,10 @@ namespace Nop.Web.Factories
                         priceModel.OldPrice = null;
                         priceModel.Price = string.Format(_localizationService.GetResource("Products.PriceRangeFrom"),
                             _priceFormatter.FormatPrice(finalPrice));
+                        priceModel.PriceBeforeDiscount = string.Format(_localizationService.GetResource("Products.PriceRangeFrom"),
+                            _priceFormatter.FormatPrice(finalPriceBeforeDiscount));
                         priceModel.PriceValue = finalPrice;
+                        priceModel.PriceBeforeDiscountValue = finalPriceBeforeDiscount;
                     }
                     else
                     {
@@ -319,13 +326,17 @@ namespace Nop.Web.Factories
                         {
                             priceModel.OldPrice = _priceFormatter.FormatPrice(oldPrice);
                             priceModel.Price = _priceFormatter.FormatPrice(finalPrice);
+                            priceModel.PriceBeforeDiscount = _priceFormatter.FormatPrice(finalPriceBeforeDiscount);
                             priceModel.PriceValue = finalPrice;
+                            priceModel.PriceBeforeDiscountValue = finalPriceBeforeDiscount;
                         }
                         else
                         {
                             priceModel.OldPrice = null;
                             priceModel.Price = _priceFormatter.FormatPrice(finalPrice);
+                            priceModel.PriceBeforeDiscount = _priceFormatter.FormatPrice(finalPriceBeforeDiscount);
                             priceModel.PriceValue = finalPrice;
+                            priceModel.PriceBeforeDiscountValue = finalPriceBeforeDiscount;
                         }
                     }
                     if (product.IsRental)
@@ -335,6 +346,8 @@ namespace Nop.Web.Factories
                             priceModel.OldPrice);
                         priceModel.Price = _priceFormatter.FormatRentalProductPeriod(product,
                             priceModel.Price);
+                        priceModel.PriceBeforeDiscount = _priceFormatter.FormatRentalProductPeriod(product,
+                            priceModel.PriceBeforeDiscount);
                     }
 
                     //property for German market

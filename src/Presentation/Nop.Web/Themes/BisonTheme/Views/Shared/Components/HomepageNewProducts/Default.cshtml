@@ -24,11 +24,11 @@
 
 
 
-                                            @if (!string.IsNullOrEmpty(item.ProductPrice.OldPrice))
+                                            @if (item.ProductPrice.PriceValue != item.ProductPrice.PriceBeforeDiscountValue)
                                             {
-                                                <del><span class="title14 silver">@item.ProductPrice.OldPrice</span></del>
+                                                <del><span class="title14 silver">@item.ProductPrice.PriceBeforeDiscount</span></del>
                                             }
-                                            <ins><span class="title14 color">@item.ProductPrice.Price</span></ins>
+                                            <ins><span class="price-value-@item.Id title14 color">@item.ProductPrice.Price</span></ins>
                                         </div>
                                         @{
                                             var shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart;
@@ -55,7 +55,7 @@
                                                 {
                                                     addToCartText = T("ShoppingCart.PreOrder").Text;
                                                 }
-                                            <a href="javascript:;" class="addcart-link" onclick="AjaxCart.addproducttocart_catalog('@addtocartlink');return false;">@(addToCartText)</a>
+                                                <a href="javascript:;" class="addcart-link" onclick="AjaxCart.addproducttocart_catalog('@addtocartlink');return false;">@(addToCartText)</a>
 
                                             }
 

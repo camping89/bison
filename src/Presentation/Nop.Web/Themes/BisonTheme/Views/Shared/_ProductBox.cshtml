@@ -58,9 +58,13 @@
     <div class="product-info">
         <h3 class="product-title title14"><a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">@Model.Name</a></h3>
         <div class="product-price">
-            @if (!string.IsNullOrEmpty(Model.ProductPrice.OldPrice))
+            @*@if (!string.IsNullOrEmpty(Model.ProductPrice.OldPrice))
+                {
+                    <del><span class="title14 silver">@Model.ProductPrice.OldPrice</span></del>
+                }*@
+            @if (Model.ProductPrice.PriceValue != Model.ProductPrice.PriceBeforeDiscountValue)
             {
-                <del><span class="title14 silver">@Model.ProductPrice.OldPrice</span></del>
+                <del><span class="title14 silver">@Model.ProductPrice.PriceBeforeDiscount</span></del>
             }
             <ins><span class="price-value-@Model.Id title14 color">@Model.ProductPrice.Price</span></ins>
 
