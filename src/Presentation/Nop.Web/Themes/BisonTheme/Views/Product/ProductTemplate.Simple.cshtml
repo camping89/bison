@@ -90,7 +90,7 @@
                                 {
                                     if (!string.IsNullOrEmpty(Model.ProductPrice.PriceWithDiscount))
                                     {
-                                        <del><span class="title14 silver">@Model.ProductPrice.Price</span></del>
+                                        <del><span class="price-no-discount-value-@Model.Id title14 silver">@Model.ProductPrice.Price</span></del>
                                         <ins><span class="price-value-@Model.Id title14 color">@Model.ProductPrice.PriceWithDiscount</span></ins>
                                     }
                                     else

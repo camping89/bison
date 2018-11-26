@@ -7,10 +7,9 @@
             <div class="wrap-item group-navi" data-navigation="true" data-pagination="false" data-itemscustom="[[0,1],[560,2],[990,3],[1200,4]]">
                 @foreach (var item in Model)
                 {
-                        @await Html.PartialAsync("_ProductBoxFullHeight", item)
-                    
+                    @await Html.PartialAsync("_ProductBoxFullHeight", item)
                 }
-                
+
             </div>
         </div>
     </div>

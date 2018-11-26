@@ -964,6 +964,7 @@ namespace Nop.Web.Controllers
 
             //price
             var price = "";
+            var priceNoDiscount = "";
             if (_permissionService.Authorize(StandardPermissionProvider.DisplayPrices) && !product.CustomerEntersPrice)
             {
                 //we do not calculate price of "customer enters price" option is enabled
@@ -974,9 +975,20 @@ namespace Nop.Web.Controllers
                     1, attributeXml, 0,
                     rentalStartDate, rentalEndDate,
                     true, out decimal _, out scDiscounts);
+
+                var finalPriceNoDiscount = _priceCalculationService.GetUnitPrice(product,
+                    _workContext.CurrentCustomer,
+                    ShoppingCartType.ShoppingCart,
+                    1, attributeXml, 0,
+                    rentalStartDate, rentalEndDate,
+                    false, out decimal _, out scDiscounts);
                 var finalPriceWithDiscountBase = _taxService.GetProductPrice(product, finalPrice, out decimal _);
                 var finalPriceWithDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithDiscountBase, _workContext.WorkingCurrency);
                 price = _priceFormatter.FormatPrice(finalPriceWithDiscount);
+
+                var finalPriceWithNoDiscountBase = _taxService.GetProductPrice(product, finalPriceNoDiscount, out decimal _);
+                var finalPriceWithNoDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithNoDiscountBase, _workContext.WorkingCurrency);
+                priceNoDiscount = _priceFormatter.FormatPrice(finalPriceWithNoDiscount);
             }
 
             //stock
@@ -1055,6 +1067,7 @@ namespace Nop.Web.Controllers
                 mpn,
                 sku,
                 price,
+                priceNoDiscount,
                 stockAvailability,
                 stockNumber,
                 enabledattributemappingids = enabledAttributeMappingIds.ToArray(),
