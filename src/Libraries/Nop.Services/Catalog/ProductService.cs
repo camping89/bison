@@ -900,8 +900,9 @@ namespace Nop.Services.Catalog
         {
             var query = from p in _productRepository.Table
                         orderby p.DisplayOrder, p.Id, p.UpdatedOnUtc
-                        where p.Published &&
-                              !p.Deleted
+                        where p.Published && p.MarkAsNew
+                                          && ((p.MarkAsNewStartDateTimeUtc == null && p.MarkAsNewEndDateTimeUtc == null) || (p.MarkAsNewStartDateTimeUtc <= DateTime.UtcNow && p.MarkAsNewEndDateTimeUtc >= DateTime.UtcNow))
+                                          && !p.Deleted
                         select p;
             var products = query.Take(numberProcduct).ToList();
             return products;

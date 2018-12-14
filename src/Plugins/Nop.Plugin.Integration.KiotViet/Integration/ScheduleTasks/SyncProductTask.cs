@@ -48,6 +48,7 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
 
         public void Execute()
         {
+            var productAttributes = _productAttributeService.GetAllProductAttributesNoCache().Where(_ => _.KiotVietName != null && _.KiotVietName != string.Empty).ToList();
             //_logger.InsertLog(LogLevel.Information, "Start to sync data KiotViet to Bison nopcommerce.");
             var kiotVietCategory = _categoryService.GetAllCategories("KiotViet", showHidden: true).FirstOrDefault();
             if (kiotVietCategory == null) return;
@@ -77,8 +78,13 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
 
                     foreach (var variant in sourceProducts)
                     {
-                        MapProductAttributes("Size", variant, "Size", product, true, basePrice);
-                        MapProductAttributes("Colour", variant, "Color", product);
+                        //MapProductAttributes("Size", variant, "Size", product, true, basePrice);
+                        //MapProductAttributes("Colour", variant, "Color", product);
+
+                        foreach (var productAttribute in productAttributes)
+                        {
+                            MapProductAttributes(productAttribute.KiotVietName, variant, productAttribute.Name, product, productAttribute.AdjustPrice, basePrice);
+                        }
                     }
 
 
@@ -96,18 +102,29 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                     product.Price = basePrice;
 
                     var attMappings = _productAttributeService.GetProductAttributeMappingsByProductId(product.Id);
-                    var sizeMappings = attMappings.Where(_ => _.ProductAttribute.Name.Equals("Size", StringComparison.InvariantCultureIgnoreCase)).ToList();
-                    var colorMappings = attMappings.Where(_ => _.ProductAttribute.Name.Equals("Color", StringComparison.InvariantCultureIgnoreCase)).ToList();
-                    var madeInMappings = attMappings.Where(_ => _.ProductAttribute.Name.Equals("Made in", StringComparison.InvariantCultureIgnoreCase)).ToList();
-                    foreach (var mapping in sizeMappings.Union(colorMappings).Union(madeInMappings))
+                    //var sizeMappings = attMappings.Where(_ => _.ProductAttribute.Name.Equals("Size", StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    //var colorMappings = attMappings.Where(_ => _.ProductAttribute.Name.Equals("Color", StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    //var madeInMappings = attMappings.Where(_ => _.ProductAttribute.Name.Equals("Made in", StringComparison.InvariantCultureIgnoreCase)).ToList();
+
+                    List<ProductAttributeMapping> attributeMappings = new List<ProductAttributeMapping>();
+                    foreach (var productAttribute in productAttributes)
+                    {
+                        var attributeMapping = attMappings.Where(_ => _.ProductAttribute.Name.Equals(productAttribute.Name, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                        attributeMappings.AddRange(attributeMapping);
+                    }
+                    foreach (var mapping in attributeMappings)
                     {
                         _productAttributeService.DeleteProductAttributeMapping(mapping);
                     }
 
                     foreach (var variant in sourceProducts)
                     {
-                        MapProductAttributes("Size", variant, "Size", product, true, basePrice);
-                        MapProductAttributes("Colour", variant, "Color", product);
+                        //MapProductAttributes("Size", variant, "Size", product, true, basePrice);
+                        // MapProductAttributes("Colour", variant, "Color", product);
+                        foreach (var productAttribute in productAttributes)
+                        {
+                            MapProductAttributes(productAttribute.KiotVietName, variant, productAttribute.Name, product, productAttribute.AdjustPrice, basePrice);
+                        }
                     }
 
                     _productService.UpdateProduct(product);
@@ -183,25 +200,31 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
         private void MapProductAttributes(string kvAttributeName, KVProduct sourceVariant, string attributeName, Product product, bool adjustPrice = false, decimal originPrice = 0)
         {
             var kiotVietAttribute = sourceVariant.attributes?.FirstOrDefault(_ => _.attributeName.Equals(kvAttributeName, StringComparison.InvariantCultureIgnoreCase));
+
             if (kiotVietAttribute != null)
             {
                 var attributeSize = _productAttributeService.GetAllProductAttributes().FirstOrDefault(_ => _.Name.Equals(attributeName, StringComparison.InvariantCultureIgnoreCase));
                 if (attributeSize != null)
                 {
+                    var productAttributeValueSystem = _productAttributeService.GetPredefinedProductAttributeValues(attributeSize.Id).ToList().FirstOrDefault(a => a.Name.Equals(kiotVietAttribute.attributeValue, StringComparison.InvariantCultureIgnoreCase));
                     var productAttMappings = _productAttributeService.GetProductAttributeMappingsByProductId(product.Id);
 
                     var sizeMapping = productAttMappings.FirstOrDefault(_ => _.ProductAttributeId == attributeSize.Id);
 
                     if (sizeMapping != null)
                     {
+
                         if (!sizeMapping.ProductAttributeValues.Any(a => a.Name.Equals(kiotVietAttribute.attributeValue, StringComparison.InvariantCultureIgnoreCase)))
                         {
+
+
                             var productAttributeValue = new ProductAttributeValue
                             {
                                 ProductAttributeMappingId = sizeMapping.Id,
                                 Name = kiotVietAttribute.attributeValue,
                                 PriceAdjustment = adjustPrice ? sourceVariant.basePrice - originPrice : 0,
-                                Quantity = (int)sourceVariant.inventories.FirstOrDefault().onHand
+                                Quantity = (int)sourceVariant.inventories.FirstOrDefault().onHand,
+                                DisplayOrder = productAttributeValueSystem != null ? productAttributeValueSystem.DisplayOrder : 0
                             };
                             _productAttributeService.InsertProductAttributeValue(productAttributeValue);
 
@@ -227,8 +250,7 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                             ProductAttributeId = attributeSize.Id,
                             TextPrompt = attributeName,
                             IsRequired = true,
-                            AttributeControlTypeId = AttributeControlType.DropdownList.ToInt(),
-                            DisplayOrder = 0,
+                            AttributeControlTypeId = AttributeControlType.DropdownList.ToInt()
                         };
                         _productAttributeService.InsertProductAttributeMapping(sizeMapping);
 
@@ -239,7 +261,8 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                                 ProductAttributeMappingId = sizeMapping.Id,
                                 Name = kiotVietAttribute.attributeValue,
                                 PriceAdjustment = adjustPrice ? sourceVariant.basePrice - originPrice : 0,
-                                Quantity = (int)sourceVariant.inventories.FirstOrDefault().onHand
+                                Quantity = (int)sourceVariant.inventories.FirstOrDefault().onHand,
+                                DisplayOrder = productAttributeValueSystem != null ? productAttributeValueSystem.DisplayOrder : 0
                             };
                             _productAttributeService.InsertProductAttributeValue(productAttributeValue);
 

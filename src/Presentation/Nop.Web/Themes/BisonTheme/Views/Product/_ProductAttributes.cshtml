@@ -423,9 +423,9 @@
                     success: function(data) {
                         if (data.callforprice == true) {
                             $('.price-value-@productId').text('@T("products.callforprice")');
-                        } else if (data.price) {
-                            $('.price-value-@productId').text(data.price);
-                            $('.price-no-discount-value-@productId').text(data.priceNoDiscount);
+                        } else if (data.sellingPrice) {
+                            $('.price-value-@productId').text(data.sellingPrice);
+                            $('.price-no-discount-value-@productId').text(data.retailPrice);
                             }
 
 

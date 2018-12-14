@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using FluentValidation.Attributes;
+﻿using FluentValidation.Attributes;
 using Nop.Web.Areas.Admin.Validators.Catalog;
 using Nop.Web.Framework.Localization;
 using Nop.Web.Framework.Mvc.ModelBinding;
 using Nop.Web.Framework.Mvc.Models;
+using System.Collections.Generic;
 
 namespace Nop.Web.Areas.Admin.Models.Catalog
 {
@@ -18,8 +18,14 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         [NopResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.Name")]
         public string Name { get; set; }
 
+        [NopResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.KiotVietName")]
+        public string KiotVietName { get; set; }
+
+        [NopResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.AdjustPrice")]
+        public bool AdjustPrice { get; set; }
+
         [NopResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.Description")]
-        public string Description {get;set;}
+        public string Description { get; set; }
 
         public IList<ProductAttributeLocalizedModel> Locales { get; set; }
 
@@ -44,7 +50,7 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         public string Name { get; set; }
 
         [NopResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.Description")]
-        public string Description {get;set;}
+        public string Description { get; set; }
     }
 
     [Validator(typeof(PredefinedProductAttributeValueModelValidator))]

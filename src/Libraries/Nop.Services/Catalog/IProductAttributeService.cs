@@ -24,7 +24,7 @@ namespace Nop.Services.Catalog
         /// <param name="pageSize">Page size</param>
         /// <returns>Product attributes</returns>
         IPagedList<ProductAttribute> GetAllProductAttributes(int pageIndex = 0, int pageSize = int.MaxValue);
-
+        List<ProductAttribute> GetAllProductAttributesNoCache(int pageIndex = 0, int pageSize = int.MaxValue);
         /// <summary>
         /// Gets a product attribute 
         /// </summary>
