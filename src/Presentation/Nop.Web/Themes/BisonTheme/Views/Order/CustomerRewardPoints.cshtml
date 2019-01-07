@@ -25,7 +25,7 @@
     </div>
     <div class="page-body form-my-account">
         <div class="reward-points-overview">
-            <div class="current-balance">@T("RewardPoints.CurrentBalance", Model.RewardPointsBalance, Model.RewardPointsAmount)</div>
+            <div class="current-balance">@Html.Raw(T("RewardPoints.CurrentBalance", Model.RewardPointsBalance, Model.RewardPointsAmount))</div>
             @if (Model.MinimumRewardPointsBalance > 0)
             {
                 <div class="min-balance">@T("RewardPoints.MinimumBalance", Model.MinimumRewardPointsBalance, Model.MinimumRewardPointsAmount)</div>
