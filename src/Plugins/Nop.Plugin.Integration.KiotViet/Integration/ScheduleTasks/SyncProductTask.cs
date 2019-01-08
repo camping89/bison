@@ -112,15 +112,17 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.ScheduleTasks
                         var attributeMapping = attMappings.Where(_ => _.ProductAttribute.Name.Equals(productAttribute.Name, StringComparison.InvariantCultureIgnoreCase)).ToList();
                         attributeMappings.AddRange(attributeMapping);
                     }
-                    foreach (var mapping in attributeMappings)
-                    {
-                        _productAttributeService.DeleteProductAttributeMapping(mapping);
-                    }
+
+                    //foreach (var mapping in attributeMappings)
+                    //{
+                    //    _productAttributeService.DeleteProductAttributeMapping(mapping);
+                    //}
 
                     foreach (var variant in sourceProducts)
                     {
                         //MapProductAttributes("Size", variant, "Size", product, true, basePrice);
                         // MapProductAttributes("Colour", variant, "Color", product);
+                        //foreach (var productAttribute in productAttributes.Where(_ => attributeMappings.All(a => a.ProductAttribute.Name != _.Name)))
                         foreach (var productAttribute in productAttributes)
                         {
                             MapProductAttributes(productAttribute.KiotVietName, variant, productAttribute.Name, product, productAttribute.AdjustPrice, basePrice);

@@ -658,11 +658,35 @@ namespace Nop.Web.Factories
             PrepareSortingOptions(model.PagingFilteringContext, command);
             //view mode
             PrepareViewModes(model.PagingFilteringContext, command);
-            //page size
-            PreparePageSizeOptions(model.PagingFilteringContext, command,
-                _catalogSettings.SearchPageAllowCustomersToSelectPageSize,
-                _catalogSettings.SearchPagePageSizeOptions,
-                _catalogSettings.SearchPageProductsPerPage);
+            if (command.CategoryId == 0)
+            {
+                //page size
+                PreparePageSizeOptions(model.PagingFilteringContext, command,
+                    _catalogSettings.SearchPageAllowCustomersToSelectPageSize,
+                    _catalogSettings.SearchPagePageSizeOptions,
+                    _catalogSettings.SearchPageProductsPerPage);
+            }
+            else
+            {
+                var category = _categoryService.GetCategoryById(command.CategoryId);
+                if (category != null && category.AllowCustomersToSelectPageSize)
+                {
+                    //page size
+                    PreparePageSizeOptions(model.PagingFilteringContext, command,
+                        category.AllowCustomersToSelectPageSize,
+                        category.PageSizeOptions,
+                        _catalogSettings.SearchPageProductsPerPage);
+                }
+                else
+                {
+                    //page size
+                    PreparePageSizeOptions(model.PagingFilteringContext, command,
+                        _catalogSettings.SearchPageAllowCustomersToSelectPageSize,
+                        _catalogSettings.SearchPagePageSizeOptions,
+                        _catalogSettings.SearchPageProductsPerPage);
+                }
+
+            }
             //products
             var alreadyFilteredSpecOptionIds = model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds(_webHelper).ToList();
             var childSpecOptionIds = _specificationAttributeService.GetSpecificationAttributeOptionsByParentIds(alreadyFilteredSpecOptionIds.ToArray()).Select(s => s.Id).ToList();
