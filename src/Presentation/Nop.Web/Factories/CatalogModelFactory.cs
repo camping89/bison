@@ -550,20 +550,18 @@ namespace Nop.Web.Factories
                     return subCatModel;
                 }).ToList();
             }
-            else
+
+            var category = _categoryService.GetCategoryById(parentCategoryId);
+            return new List<CategoryModel.SubCategoryModel>()
             {
-                var category = _categoryService.GetCategoryById(parentCategoryId);
-                return new List<CategoryModel.SubCategoryModel>()
+                new CategoryModel.SubCategoryModel()
                 {
-                    new CategoryModel.SubCategoryModel()
-                    {
-                        Id = category.Id,
-                        Name = category.GetLocalized(y => y.Name),
-                        SeName = category.GetSeName(),
-                        Description = category.GetLocalized(y => y.Description)
-                    }
-                };
-            }
+                    Id = category.Id,
+                    Name = category.GetLocalized(y => y.Name),
+                    SeName = category.GetSeName(),
+                    Description = category.GetLocalized(y => y.Description)
+                }
+            };
         }
         public ProductFilterModel PrepareProductFilterModel(CatalogPagingFilteringModel command)
         {

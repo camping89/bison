@@ -199,7 +199,11 @@ if (''  == '') {
     }).done(function (msg) {
         var obj = $.parseJSON(JSON.stringify(msg));
         $.each(obj.Categories, function (i, p) {
-            $('#categories').append('<div class="checkbox"><input type="checkbox" class="CateCheckbox checkbox" data-type="chk_cate_" id="chk_cate_' + p.Id + '" name="chk_cate" value="' + p.Id + '"><label for="chk_cate_' + p.Id + '"><span>' + p.Name + '</span></label></div>');
+            $('#categories').append('<div class="checkbox">' +
+                '<input type="checkbox" class="CateCheckbox checkbox" data-type="chk_cate_" id="chk_cate_' + p.Id + '" name="chk_cate" value="' + p.Id + '">' +
+                '<label for="chk_cate_' + p.Id + '"><span>' + p.Name + '</span></label>' +
+                '<div style="padding-left:20px;padding-bottom:10px;" class="subcatenav">'+LoadSubCategories(p)+'</div>' +
+                '</div>');
         });
         $(".CateCheckbox").change(function () {
             currentCheckbox = $(this).attr("name");
@@ -218,7 +222,26 @@ if (''  == '') {
             console.log(error);
         });
 }
-
+function LoadSubCategories(data) {
+    var result = '';
+    if (data.SubCategories.length > 0) {
+        $.each(data.SubCategories, function (i, p) {
+            result += '<div class="checkbox">' +
+                '<input type="checkbox" class="CateCheckbox checkbox" data-type="chk_cate_" id="chk_cate_' +
+                p.Id +
+                '" name="chk_cate" value="' +
+                p.Id +
+                '">' +
+                '<label for="chk_cate_' +
+                p.Id +
+                '"><span>' +
+                p.Name +
+                '</span></label>' +
+                '</div>';
+        });
+    }
+    return result;
+}
 if (manufacturerIds == '') {
     $.ajax({
         method: "GET",

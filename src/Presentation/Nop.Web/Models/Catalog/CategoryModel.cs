@@ -42,7 +42,7 @@ namespace Nop.Web.Models.Catalog
         public bool DisplayCategoryBreadcrumb { get; set; }
         public IList<CategoryModel> CategoryBreadcrumb { get; set; }
 
-        public IList<SubCategoryModel> SubCategories { get; set; }
+        public List<SubCategoryModel> SubCategories { get; set; }
 
         public IList<ProductOverviewModel> FeaturedProducts { get; set; }
         public IList<ProductOverviewModel> Products { get; set; }

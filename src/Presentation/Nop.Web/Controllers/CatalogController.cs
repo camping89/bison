@@ -184,7 +184,8 @@ namespace Nop.Web.Controllers
         [HttpsRequirement(SslRequirement.No)]
         public virtual IActionResult GetSubCategories(int categoryId)
         {
-            var categories = _catalogModelFactory.GetSubCategoryModels(categoryId);
+            //var categories = _catalogModelFactory.GetSubCategoryModels(categoryId);
+            var categories = _catalogModelFactory.PrepareCategorySimpleModels(categoryId);
             return Json(new { Categories = categories, DisplayType = FilterControlType.SingleCheckbox });
         }
 
