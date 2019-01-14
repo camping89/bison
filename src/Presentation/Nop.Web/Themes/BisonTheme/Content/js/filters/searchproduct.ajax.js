@@ -53,7 +53,7 @@ function ClearSettings() {
         sliders[i].slider.noUiSlider.off('set');
         sliders[i].slider.noUiSlider.set([options.start[0], options.start[1]]);
     }
-    $(".SpecCheckbox,.CateCheckbox,.ManufactureCheckbox").off('change');
+    $(".SpecCheckbox,.ManufactureCheckbox").off('change');
 
     //reset all checkboxes to default
     $(".SpecCheckbox:checkbox:checked").each(function () {
@@ -87,7 +87,7 @@ function ClearSettings() {
             var postData = searchParameters();
         });
     }
-    $(".SpecCheckbox,.CateCheckbox,.ManufactureCheckbox").change(function () {
+    $(".SpecCheckbox,.ManufactureCheckbox").change(function () {
         currentCheckbox = $(this).attr("name");
         if ($(this).is(':checked')) {
             enableCheckbox = true;
@@ -100,6 +100,9 @@ function ClearSettings() {
     priceSlider.noUiSlider.on('set', function () {
         var postData = searchParameters();
     });
+
+    $('.subcatenav').slideUp(200, function () {});
+    $('input[data-type-child="chk_cate_child"]:checked').prop("checked", false);
 }
 
 function DisplayPrice() {
@@ -186,48 +189,107 @@ var opts = {
 var target = document.getElementsByClassName('center-2');
 var spinner = new Spinner(opts);
 
+
+
+
 if (''  == '') {
     var parentCateId = 0;
     if ($('#cid').val() != undefined && $('#cid').val() !== '') {
         parentCateId = $('#cid').val();
     }
+   
     $.ajax({
         method: "GET",
         url: "/Catalog/GetSubCategories",
         dataType: "json",
         data: { 'categoryId': parentCateId }
     }).done(function (msg) {
+        $('#categories').hide();
         var obj = $.parseJSON(JSON.stringify(msg));
         $.each(obj.Categories, function (i, p) {
+            var subCate = LoadSubCategories(p);
+            if (subCate !== '') {
+                subCate =
+                    '<div style="padding-left:20px;padding-bottom:10px;display:block;float:left;width:100%;" class="subcatenav">' + subCate + '</div>';
+            }
+            //var showhideElement = (subCate === '') ? '' : '<a href="javascript:void(0);" onclick="ShowHideSubCate(this);" class="showhidechild"><i class="fa fa-angle-left"></i></a>' ;
+            var showhideElement = '';
             $('#categories').append('<div class="checkbox">' +
-                '<input type="checkbox" class="CateCheckbox checkbox" data-type="chk_cate_" id="chk_cate_' + p.Id + '" name="chk_cate" value="' + p.Id + '">' +
+                '<input type="checkbox" class="CateCheckbox checkbox" data-parent-id="0" data-parent="chk_cate_parent" data-type="chk_cate_" id="chk_cate_' + p.Id + '" name="chk_cate" value="' + p.Id + '">' +
                 '<label for="chk_cate_' + p.Id + '"><span>' + p.Name + '</span></label>' +
-                '<div style="padding-left:20px;padding-bottom:10px;" class="subcatenav">'+LoadSubCategories(p)+'</div>' +
+                showhideElement +
+                subCate +
                 '</div>');
         });
+
+        $(".subcatenav").hide();
+
         $(".CateCheckbox").change(function () {
             currentCheckbox = $(this).attr("name");
+            var parentId = $(this).attr("data-parent-id");
+            if (parentId !== '0') {
+                $("#chk_cate_" + parentId).prop("checked", false);
+            }
+
+            $content = $(this).parent().find('.subcatenav');
             if ($(this).is(':checked')) {
+                if (parentId === '0') {
+                    $(this).parent().find('input[data-type-child="chk_cate_child"]:checked').prop("checked", false);
+                }
                 enableCheckbox = true;
+                $content.slideDown(200, function() {});
             }
             else {
                 enableCheckbox = false;
+                $(this).parent().find('input[data-type-child="chk_cate_child"]:checked').prop("checked", false);
+                $content.slideUp(200, function () {});
             }
+            
+            var checkedCount = 0;
+            $(".CateCheckbox:checkbox:checked").each(function () {
+                checkedCount++;
+            });
+            if (checkedCount === 0) {
+                $('.subcatenav').slideUp(200, function () {});
+            }
+            //$content.slideToggle(200, function () {
+                
+            //});
             searchParameters();
         });
-
+        $('#categories').show();
     })
         .fail(function (error) {
             console.log('error');
             console.log(error);
         });
 }
+
+function ShowHideSubCate(element) {
+    $showhide = $(element);
+    //getting the next element
+    $content = $showhide.next();
+    //open up the content needed - toggle the slide- if visible, slide up, if not slidedown.
+    $content.slideToggle(200, function () {
+        var child = $(element).children();
+        
+        if (child.hasClass('fa-angle-down')) {
+            child.removeClass('fa-angle-down');
+            child.addClass('fa-angle-left');
+        }else {
+            child.removeClass('fa-angle-left');
+            child.addClass('fa-angle-down');
+        }
+    });
+
+}
+
 function LoadSubCategories(data) {
     var result = '';
     if (data.SubCategories.length > 0) {
         $.each(data.SubCategories, function (i, p) {
             result += '<div class="checkbox">' +
-                '<input type="checkbox" class="CateCheckbox checkbox" data-type="chk_cate_" id="chk_cate_' +
+                '<input type="checkbox" class="CateCheckbox checkbox" data-type="chk_cate_" data-parent-id="'+data.Id+'" data-type-child="chk_cate_child" id="chk_cate_' +
                 p.Id +
                 '" name="chk_cate" value="' +
                 p.Id +
@@ -884,10 +946,22 @@ function searchParameters(pageNumber) {
             //        $(this).parent().show();
             //    }
             //});
+
+                $('input[data-parent="chk_cate_parent"]').map(function () {
+                    if ($.inArray(parseInt(this.value), msg.CategoryIds) === -1) {
+                        $(this).parent().addClass("disabled");
+                        $(this).parent().hide();
+                    }
+                    else {
+                        $(this).parent().removeClass("disabled");
+                        $(this).parent().show();
+                    }
+                });
+
             //loop all checkboxes and disable the checkboxes that cant be filtered
             var checkedSpecs = $('input[data-type="chk_attr_"]').map(function () {
-                if ($.inArray(parseInt(this.value), msg.FilterableProdAttr) == -1) {
-                    if ($(this).attr("name") != currentCheckbox) {
+                if ($.inArray(parseInt(this.value), msg.FilterableProdAttr) === -1) {
+                    if ($(this).attr("name") !== currentCheckbox) {
                         $(this).parent().addClass("disabled");
                         $(this).parent().hide();
                     }
@@ -1016,6 +1090,6 @@ function searchParameters(pageNumber) {
             });
     }
 
-
+    $('#categories').show();
 }
 

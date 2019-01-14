@@ -4928,10 +4928,20 @@ body .scroll-top span {
 .filter .checkbox input[type="checkbox"]:not(:checked) + label, .filter .checkbox input[type="checkbox"]:checked + label {
     padding: 0px;
     margin: 2px 0;
+    width: 90%;
+    float: left;
 }
-.filter-manufacture h3.title14 {
-    margin-bottom: 20px;
+.showhidechild {
+    display: inline-block;
+    width: 10%;
+    float: right;
+    text-align: center;
+    padding-top: 5px;
 }
+
+    .filter-manufacture h3.title14 {
+        margin-bottom: 20px;
+    }
 
 .filter-manufacture .list-none li {
     margin-bottom: 13px;

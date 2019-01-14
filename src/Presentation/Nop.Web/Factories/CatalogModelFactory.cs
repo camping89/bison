@@ -760,7 +760,8 @@ namespace Nop.Web.Factories
                     }
                 }
             }
-            var products = _productService.SearchProductsAjax(out IList<int> filterableSpecificationAttributeOptionIds,
+            var products = _productService.SearchProductsAjax(out IList<int> categoriesFilteredIds,
+                out IList<int> filterableSpecificationAttributeOptionIds,
                 out IList<int> manufactureFilteredIds,
                 true,
                 categoryIds: categoryIds,
@@ -782,7 +783,7 @@ namespace Nop.Web.Factories
             model.Manufacturers = products.SelectMany(_ => _.ProductManufacturers).ToList().DistinctBy(_ => _.ManufacturerId).Select(p => p.Manufacturer).DistinctBy(d => d.Id).ToList();
             model.AllManufacturers = _manufacturerService.GettManufacturersByIds(manufactureFilteredIds.ToList());
             model.PagingFilteringContext.LoadPagedList(products);
-
+            model.CategoriesFilteredIds = categoriesFilteredIds.ToList();
             //specs
             model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(allSpecOptionIds,
                 filterableSpecificationAttributeOptionIds != null ? filterableSpecificationAttributeOptionIds.ToArray() : null,

@@ -22,6 +22,7 @@ namespace Nop.Web.Models.Catalog
             ShowPriceProduct = true;
             Manufacturers = new List<Manufacturer>();
             AllManufacturers = new List<Manufacturer>();
+            CategoriesFilteredIds = new List<int>();
         }
 
         public List<Manufacturer> Manufacturers { get; set; }
@@ -43,6 +44,7 @@ namespace Nop.Web.Models.Catalog
         public IList<CategoryModel> CategoryBreadcrumb { get; set; }
 
         public List<SubCategoryModel> SubCategories { get; set; }
+        public List<int> CategoriesFilteredIds { get; set; }
 
         public IList<ProductOverviewModel> FeaturedProducts { get; set; }
         public IList<ProductOverviewModel> Products { get; set; }

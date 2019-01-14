@@ -213,6 +213,7 @@ namespace Nop.Services.Catalog
             bool? overridePublished = null, bool onlyShowNoAddCategory = false);
 
         IPagedList<Product> SearchProductsAjax(
+            out IList<int> categoriesFilteredIds,
             out IList<int> filterableSpecificationAttributeOptionIds,
             out IList<int> manufactureFilteredIds,
             bool loadFilterableSpecificationAttributeOptionIds = false,
