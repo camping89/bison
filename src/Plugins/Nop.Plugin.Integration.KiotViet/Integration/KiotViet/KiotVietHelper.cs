@@ -24,8 +24,15 @@ namespace Nop.Plugin.Integration.KiotViet.Integration.KiotViet
 
         public static void MergeProduct(KVProduct kvProduct, Product product)
         {
-            product.Name = kvProduct.fullName.Contains("|") ? kvProduct.fullName.Split('|').FirstOrDefault() : kvProduct.fullName;
-            product.Sku = kvProduct.code.Contains("|") ? kvProduct.code.Split('|').First() : kvProduct.code;
+            if (kvProduct.fullName.IsNotNullOrEmpty())
+            {
+                product.Name = kvProduct.fullName.Contains("|") ? kvProduct.fullName.Split('|').FirstOrDefault() : kvProduct.fullName;
+            }
+
+            if (kvProduct.code.IsNotNullOrEmpty())
+            {
+                product.Sku = kvProduct.code.Contains("|") ? kvProduct.code.Split('|').First() : kvProduct.code;
+            }
             product.Price = kvProduct.basePrice;
             product.UpdatedOnUtc = DateTime.UtcNow;
             product.KiotVietId = kvProduct.id.ToString();
