@@ -61,7 +61,9 @@
 
     @await Html.PartialAsync("_FilterAjax", Model.PagingFilteringContext.SpecificationFilter)
 
-    @await Component.InvokeAsync("RecentlyViewedProductsBlock", new { productThumbPictureSize = 64 })
+    <div class="product-recently">
+        @await Component.InvokeAsync("RecentlyViewedProductsBlock", new { productThumbPictureSize = 64 })
+    </div>
     @*@await Component.InvokeAsync("PopularProductTags")*@
     @await Component.InvokeAsync("PollBlock", new { systemKeyword = "LeftColumnPoll" })
     @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after" })
@@ -118,5 +120,7 @@
     <div class="filter-ajax-result">
 
     </div>
-
+    <div class="product-recently-m">
+        @await Component.InvokeAsync("RecentlyViewedProductsBlock", new { productThumbPictureSize = 64 })
+    </div>
 </div>

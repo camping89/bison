@@ -1235,10 +1235,26 @@ li.menu-item-has-children:hover > .sub-menu {
 @media (min-width: 1024px) {
     
    
+    .product-recently {
+        display: block;
+    }
+    .product-recently-m {
+        display: none;
+    }
     .header-top-right {
         position: absolute;
         right: 0;
         bottom: 0;
+    }
+}
+
+@media (max-width: 1023px) {
+    .product-recently {
+        display: none;
+    }
+
+    .product-recently-m {
+        display: block;
     }
 }
 @media (min-width: 768px) {
@@ -7704,7 +7720,7 @@ input.register-button.save-change {
     left: 0;
     bottom: 0;
     right: 0;
-    display:none;
+    display: none;
 }
 
     /* Transparent Overlay */
